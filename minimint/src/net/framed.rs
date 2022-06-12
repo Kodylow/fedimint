@@ -7,6 +7,20 @@ use tokio::io::{AsyncRead, AsyncWrite, ReadHalf, WriteHalf};
 use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
 use tokio_util::codec::{FramedRead, FramedWrite};
 
+#[derive(Debug)]
+pub struct TransportError(Box<dyn std::error::Error + Send>);
+
+pub trait FramedTransport<T>:
+    Sink<T, Error = TransportError> + Stream<Item = Result<T, TransportError>>
+{
+    fn split(
+        &mut self,
+    ) -> (
+        &'_ mut dyn Sink<T, Error = TransportError>,
+        &'_ mut dyn Stream<Item = Result<T, TransportError>>,
+    );
+}
+
 /// Special case for tokio [`TcpStream`](tokio::net::TcpStream) based [`BidiFramed`] instances
 pub type TcpBidiFramed<T> = BidiFramed<T, OwnedWriteHalf, OwnedReadHalf>;
 
@@ -84,7 +98,7 @@ where
     RH: Unpin,
     T: serde::Serialize,
 {
-    type Error = <FramedSink<WH, T> as Sink<T>>::Error;
+    type Error = TransportError;
 
     fn poll_ready(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         Sink::poll_ready(Pin::new(&mut self.sink), cx)
@@ -109,10 +123,27 @@ where
     WH: Unpin,
     RH: tokio::io::AsyncRead + Unpin,
 {
-    type Item = <FramedStream<RH, T> as Stream>::Item;
+    type Item = Result<T, TransportError>;
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         Stream::poll_next(Pin::new(&mut self.stream), cx)
+    }
+}
+
+impl<T, WH, RH> FramedTransport<T> for BidiFramed<T, WH, RH>
+where
+    T: serde::Serialize + serde::de::DeserializeOwned,
+    WH: tokio::io::AsyncWrite + Unpin,
+    RH: tokio::io::AsyncRead + Unpin,
+{
+    fn split(
+        &mut self,
+    ) -> (
+        &'_ mut dyn Sink<T, Error = TransportError>,
+        &'_ mut dyn Stream<Item = Result<T, TransportError>>,
+    ) {
+        let (sink, stream) = self.borrow_parts();
+        (&mut *sink, &mut *stream)
     }
 }
 
@@ -128,10 +159,10 @@ impl<T> tokio_util::codec::Encoder<T> for BincodeCodec<T>
 where
     T: serde::Serialize,
 {
-    type Error = bincode::Error;
+    type Error = TransportError;
 
     fn encode(&mut self, item: T, dst: &mut bytes::BytesMut) -> Result<(), Self::Error> {
-        bincode::serialize_into(dst.writer(), &item)
+        bincode::serialize_into(dst.writer(), &item).map_err(TransportError::from_err)
     }
 }
 
@@ -140,9 +171,26 @@ where
     T: serde::de::DeserializeOwned,
 {
     type Item = T;
-    type Error = bincode::Error;
+    type Error = TransportError;
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
-        bincode::deserialize(src).map(Option::Some)
+        bincode::deserialize(src)
+            .map(Option::Some)
+            .map_err(TransportError::from_err)
+    }
+}
+
+impl From<std::io::Error> for TransportError {
+    fn from(e: std::io::Error) -> Self {
+        Self::from_err(e)
+    }
+}
+
+impl TransportError {
+    fn from_err<E>(e: E) -> Self
+    where
+        E: std::error::Error + Send + 'static,
+    {
+        TransportError(Box::new(e))
     }
 }
