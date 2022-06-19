@@ -4,8 +4,8 @@ use std::thread;
 use std::time::Duration;
 
 use assert_matches::assert_matches;
-use bitcoin::schnorr::PublicKey;
 use bitcoin::Amount;
+use bitcoin::XOnlyPublicKey;
 use fixtures::{fixtures, rng, sats, secp, sha256};
 use futures::executor::block_on;
 
@@ -290,7 +290,7 @@ async fn receive_lightning_payment_valid_preimage() {
         .unwrap();
 
     // Check that the preimage matches user pubkey & lightning invoice preimage
-    let pubkey = PublicKey::from_keypair(&secp(), &keypair);
+    let pubkey = XOnlyPublicKey::from_keypair(&keypair);
     assert_eq!(pubkey, preimage.0);
     assert_eq!(&sha256(&pubkey.serialize()), invoice.payment_hash());
 

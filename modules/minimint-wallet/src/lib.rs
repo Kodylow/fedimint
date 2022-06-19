@@ -683,7 +683,7 @@ impl Wallet {
             return Err(ProcessPegOutSigError::ErrorFinalizingPsbt);
         }
 
-        let tx = psbt.extract_tx();
+        let tx = psbt.clone().extract_tx(); // FIXME
 
         Ok(PendingTransaction {
             tx,

@@ -239,10 +239,8 @@ impl GatewayClient {
             .create_coin_input(batch.transaction(), offer.amount)?;
 
         // Outputs
-        let our_pub_key = secp256k1_zkp::schnorrsig::PublicKey::from_keypair(
-            &self.context.secp,
-            &self.context.config.redeem_key,
-        );
+        let our_pub_key =
+            secp256k1_zkp::schnorrsig::PublicKey::from_keypair(&self.context.config.redeem_key);
         let contract = Contract::Incoming(IncomingContract {
             hash: offer.hash,
             encrypted_preimage: offer.encrypted_preimage.clone(),
