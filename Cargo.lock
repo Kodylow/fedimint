@@ -2755,6 +2755,7 @@ dependencies = [
 [[package]]
 name = "secp256k1-zkp"
 version = "0.6.0"
+source = "git+https://github.com/justinmoon/rust-secp256k1-zkp?branch=upgrade-minimint#52c99a4cf7fafaab2baf271a2c557388d9f2a9e9"
 dependencies = [
  "rand 0.6.5",
  "secp256k1 0.22.1",
@@ -2765,6 +2766,7 @@ dependencies = [
 [[package]]
 name = "secp256k1-zkp-sys"
 version = "0.6.0"
+source = "git+https://github.com/justinmoon/rust-secp256k1-zkp?branch=upgrade-minimint#52c99a4cf7fafaab2baf271a2c557388d9f2a9e9"
 dependencies = [
  "cc",
  "secp256k1-sys 0.5.2",
