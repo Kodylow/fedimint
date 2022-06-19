@@ -1108,15 +1108,15 @@ impl<'a> StatelessWallet<'a> {
 
             let mut signature = self
                 .secp
-                .sign(&Message::from_slice(&tx_hash[..]).unwrap(), &tweaked_secret)
+                .sign_ecdsa(&Message::from_slice(&tx_hash[..]).unwrap(), &tweaked_secret)
                 .serialize_der()
                 .to_vec();
-            signature.push(EcdsaSighashType::All.as_u32() as u8);
+            signature.push(EcdsaSighashType::All.to_u32() as u8);
 
             psbt_input.partial_sigs.insert(
                 bitcoin::PublicKey {
                     compressed: true,
-                    key: secp256k1::PublicKey::from_secret_key(self.secp, &tweaked_secret),
+                    inner: secp256k1::PublicKey::from_secret_key(self.secp, &tweaked_secret),
                 },
                 signature,
             );
