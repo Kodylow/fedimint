@@ -4,9 +4,9 @@ pub mod testing;
 use crate::db::batch::BatchTx;
 use crate::{Amount, PeerId};
 use async_trait::async_trait;
+use bitcoin::secp256k1::XOnlyPublicKey;
 use rand::CryptoRng;
 use secp256k1_zkp::rand::RngCore;
-use secp256k1_zkp::schnorrsig;
 use std::collections::{HashMap, HashSet};
 
 use crate::module::interconnect::ModuleInterconect;
@@ -14,7 +14,7 @@ pub use http_types as http;
 
 pub struct InputMeta<'a> {
     pub amount: Amount,
-    pub puk_keys: Box<dyn Iterator<Item = schnorrsig::PublicKey> + 'a>,
+    pub puk_keys: Box<dyn Iterator<Item = XOnlyPublicKey> + 'a>,
 }
 
 /// Map of URL parameters and their values.

@@ -1,3 +1,5 @@
+use bitcoin::secp256k1;
+
 use crate::config::GenerateConfig;
 use crate::db::batch::DbBatch;
 use crate::db::mem_impl::MemDatabase;
@@ -20,7 +22,7 @@ pub struct FakeFed<M, CC> {
 #[derive(Debug, PartialEq, Eq)]
 pub struct TestInputMeta {
     pub amount: Amount,
-    pub keys: Vec<secp256k1_zkp::schnorrsig::PublicKey>,
+    pub keys: Vec<secp256k1::XOnlyPublicKey>,
 }
 
 impl<M, CC> FakeFed<M, CC>
