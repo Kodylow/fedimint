@@ -1889,7 +1889,7 @@ dependencies = [
  "itertools",
  "minimint-api",
  "minimint-derive",
- "miniscript 7.0.0",
+ "miniscript",
  "rand 0.6.5",
  "secp256k1 0.22.1",
  "serde",
@@ -1899,15 +1899,6 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "validator",
-]
-
-[[package]]
-name = "miniscript"
-version = "6.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e292b58407dfbf1384e5aca8428d3b0f2eaa09d24cb17088f6db0b7ca31194a"
-dependencies = [
- "bitcoin 0.27.1",
 ]
 
 [[package]]
@@ -1945,7 +1936,7 @@ dependencies = [
  "lightning-invoice",
  "minimint",
  "minimint-api",
- "miniscript 6.1.0",
+ "miniscript",
  "rand 0.6.5",
  "reqwest",
  "secp256k1-zkp",

@@ -8,7 +8,7 @@ use minimint::modules::wallet::txoproof::{PegInProof, PegInProofError, TxOutProo
 use minimint::modules::wallet::PegOut;
 use minimint_api::db::batch::BatchTx;
 use minimint_api::Amount;
-use miniscript::DescriptorTrait;
+use miniscript::descriptor::DescriptorTrait;
 use rand::{CryptoRng, RngCore};
 use secp256k1_zkp::schnorrsig::KeyPair;
 use thiserror::Error;
@@ -40,6 +40,7 @@ impl<'c> WalletClient<'c> {
             .peg_in_descriptor
             .tweak(&peg_in_pub_key, self.context.secp)
             .script_pubkey();
+
         debug!(?script);
         let address = Address::from_script(&script, self.context.config.network)
             .expect("Script from descriptor should have an address");
