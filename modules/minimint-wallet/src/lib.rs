@@ -1177,7 +1177,7 @@ pub async fn broadcast_pending_tx(db: &Arc<dyn Database>, rpc: &dyn BitcoindRpc)
     for (_, PendingTransaction { tx, .. }) in pending_tx {
         debug!(
             tx = %tx.txid(),
-            weight = tx.get_weight(),
+            weight = tx.weight(),
             "Broadcasting peg-out",
         );
         trace!(transaction = ?tx);
@@ -1274,6 +1274,7 @@ mod tests {
     use bitcoin::{Address, Amount, OutPoint, TxOut};
     use miniscript::descriptor::Wsh;
     use miniscript::policy::Concrete;
+    use miniscript::psbt::PsbtExt;
     use miniscript::{Descriptor, DescriptorTrait, Segwitv0};
 
     use crate::db::UTXOKey;
@@ -1334,8 +1335,8 @@ mod tests {
             &CHANGE_TWEAK,
         );
         wallet.sign_psbt(&mut psbt);
-        miniscript::psbt::finalize(&mut psbt, &ctx).unwrap();
-        let tx = miniscript::psbt::extract(&psbt, &ctx).unwrap();
+        psbt.finalize_mut(&ctx).unwrap();
+        let tx = psbt.extract_tx();
 
         tx.verify(|_| {
             Some(TxOut {
