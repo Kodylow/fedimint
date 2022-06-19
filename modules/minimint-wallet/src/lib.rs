@@ -1092,19 +1092,21 @@ impl<'a> StatelessWallet<'a> {
                 secret_key
             };
 
-            let tx_hash = tx_hasher.signature_hash(
-                idx,
-                psbt_input
-                    .witness_script
-                    .as_ref()
-                    .expect("Missing witness script"),
-                psbt_input
-                    .witness_utxo
-                    .as_ref()
-                    .expect("Missing UTXO")
-                    .value,
-                EcdsaSighashType::All,
-            );
+            let tx_hash = tx_hasher
+                .segwit_signature_hash(
+                    idx,
+                    psbt_input
+                        .witness_script
+                        .as_ref()
+                        .expect("Missing witness script"),
+                    psbt_input
+                        .witness_utxo
+                        .as_ref()
+                        .expect("Missing UTXO")
+                        .value,
+                    EcdsaSighashType::All,
+                )
+                .expect("Failed to create segwit sighash");
 
             let mut signature = self
                 .secp
