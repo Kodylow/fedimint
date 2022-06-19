@@ -1000,13 +1000,11 @@ impl<'a> StatelessWallet<'a> {
 
         // FIXME: use custom data structure that guarantees more invariants and only convert to PSBT for finalization
         let psbt = PartiallySignedTransaction {
-            global: Global {
-                unsigned_tx: transaction,
-                version: 0,
-                xpub: Default::default(),
-                proprietary: Default::default(),
-                unknown: Default::default(),
-            },
+            unsigned_tx: transaction,
+            version: 0,
+            xpub: Default::default(),
+            proprietary: Default::default(),
+            unknown: Default::default(),
             inputs: selected_utxos
                 .into_iter()
                 .map(|(_utxo_key, utxo)| {
@@ -1036,6 +1034,12 @@ impl<'a> StatelessWallet<'a> {
                         proprietary: vec![(proprietary_tweak_key(), utxo.tweak.to_vec())]
                             .into_iter()
                             .collect(),
+                        tap_key_sig: Default::default(),
+                        tap_script_sigs: Default::default(),
+                        tap_scripts: Default::default(),
+                        tap_key_origins: Default::default(),
+                        tap_internal_key: Default::default(),
+                        tap_merkle_root: Default::default(),
                         unknown: Default::default(),
                     }
                 })
