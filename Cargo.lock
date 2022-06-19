@@ -413,7 +413,6 @@ dependencies = [
  "bech32",
  "bitcoin_hashes",
  "secp256k1 0.20.3",
- "serde",
 ]
 
 [[package]]
@@ -449,37 +448,13 @@ dependencies = [
 
 [[package]]
 name = "bitcoincore-rpc"
-version = "0.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b8d99d58466295cb2bf72c6959b784d59f8f0d6977458d2ba3eb75c834f36c3"
-dependencies = [
- "bitcoincore-rpc-json 0.14.0",
- "jsonrpc",
- "log",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "bitcoincore-rpc"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd0e67dbf7a9971e7f4276f6089e9e814ce0f624a03216b7d92d00351ae7fb3e"
 dependencies = [
- "bitcoincore-rpc-json 0.15.0",
+ "bitcoincore-rpc-json",
  "jsonrpc",
  "log",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "bitcoincore-rpc-json"
-version = "0.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dce91de73c61f5776cf938bfa88378c5b404a70e3369b761dacbe6024fea79dd"
-dependencies = [
- "bitcoin 0.27.1",
  "serde",
  "serde_json",
 ]
@@ -1855,8 +1830,8 @@ version = "0.1.0"
 dependencies = [
  "assert_matches",
  "async-trait",
- "bitcoin 0.27.1",
- "bitcoincore-rpc 0.14.0",
+ "bitcoin 0.28.1",
+ "bitcoincore-rpc",
  "clightningrpc",
  "cln-rpc",
  "futures",
@@ -1884,7 +1859,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "bitcoin 0.28.1",
- "bitcoincore-rpc 0.15.0",
+ "bitcoincore-rpc",
  "hex",
  "itertools",
  "minimint-api",
@@ -2720,7 +2695,6 @@ version = "0.20.3"
 source = "git+https://github.com/fedimint/rust-secp256k1/?branch=minimint#37b9d77d98a497fddfb435df4f806b17276edb8d"
 dependencies = [
  "secp256k1-sys 0.4.1",
- "serde",
 ]
 
 [[package]]
