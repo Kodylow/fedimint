@@ -423,8 +423,20 @@ checksum = "9a41df6ad9642c5c15ae312dd3d074de38fd3eb7cc87ad4ce10f90292a83fe4d"
 dependencies = [
  "bech32",
  "bitcoin_hashes",
+ "secp256k1 0.20.3",
+ "serde",
+]
+
+[[package]]
+name = "bitcoin"
+version = "0.28.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "05bba324e6baf655b882df672453dbbc527bc938cadd27750ae510aaccc3a66a"
+dependencies = [
+ "bech32",
+ "bitcoin_hashes",
  "bitcoinconsensus",
- "secp256k1",
+ "secp256k1 0.22.1",
  "serde",
 ]
 
@@ -452,7 +464,20 @@ version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7b8d99d58466295cb2bf72c6959b784d59f8f0d6977458d2ba3eb75c834f36c3"
 dependencies = [
- "bitcoincore-rpc-json",
+ "bitcoincore-rpc-json 0.14.0",
+ "jsonrpc",
+ "log",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "bitcoincore-rpc"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd0e67dbf7a9971e7f4276f6089e9e814ce0f624a03216b7d92d00351ae7fb3e"
+dependencies = [
+ "bitcoincore-rpc-json 0.15.0",
  "jsonrpc",
  "log",
  "serde",
@@ -465,7 +490,18 @@ version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dce91de73c61f5776cf938bfa88378c5b404a70e3369b761dacbe6024fea79dd"
 dependencies = [
- "bitcoin",
+ "bitcoin 0.27.1",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "bitcoincore-rpc-json"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2e2ae16202721ba8c3409045681fac790a5ddc791f05731a2df22c0c6bffc0f1"
+dependencies = [
+ "bitcoin 0.28.1",
  "serde",
  "serde_json",
 ]
@@ -1595,8 +1631,8 @@ version = "0.0.106"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "580647f97f8e6d138ad724027c8ca9b890b1001b05374c270bbee4c10309b641"
 dependencies = [
- "bitcoin",
- "secp256k1",
+ "bitcoin 0.27.1",
+ "secp256k1 0.20.3",
 ]
 
 [[package]]
@@ -1609,7 +1645,7 @@ dependencies = [
  "bitcoin_hashes",
  "lightning",
  "num-traits",
- "secp256k1",
+ "secp256k1 0.20.3",
 ]
 
 [[package]]
@@ -1627,7 +1663,7 @@ dependencies = [
  "minimint-api",
  "mint-client",
  "rand 0.6.5",
- "secp256k1",
+ "secp256k1 0.20.3",
  "serde",
  "serde_json",
  "sled",
@@ -1719,7 +1755,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "bincode",
- "bitcoin",
+ "bitcoin 0.27.1",
  "bytes",
  "clap",
  "futures",
@@ -1752,7 +1788,7 @@ name = "minimint-api"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "bitcoin",
+ "bitcoin 0.27.1",
  "bitcoin_hashes",
  "getrandom 0.2.6",
  "hex",
@@ -1793,7 +1829,7 @@ dependencies = [
  "lightning",
  "lightning-invoice",
  "minimint-api",
- "secp256k1",
+ "secp256k1 0.20.3",
  "serde",
  "test-log",
  "thiserror",
@@ -1830,8 +1866,8 @@ version = "0.1.0"
 dependencies = [
  "assert_matches",
  "async-trait",
- "bitcoin",
- "bitcoincore-rpc",
+ "bitcoin 0.27.1",
+ "bitcoincore-rpc 0.14.0",
  "clightningrpc",
  "cln-rpc",
  "futures",
@@ -1858,15 +1894,15 @@ name = "minimint-wallet"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "bitcoin",
- "bitcoincore-rpc",
+ "bitcoin 0.28.1",
+ "bitcoincore-rpc 0.15.0",
  "hex",
  "itertools",
  "minimint-api",
  "minimint-derive",
- "miniscript",
+ "miniscript 7.0.0",
  "rand 0.6.5",
- "secp256k1",
+ "secp256k1 0.20.3",
  "serde",
  "test-log",
  "thiserror",
@@ -1882,7 +1918,16 @@ version = "6.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e292b58407dfbf1384e5aca8428d3b0f2eaa09d24cb17088f6db0b7ca31194a"
 dependencies = [
- "bitcoin",
+ "bitcoin 0.27.1",
+]
+
+[[package]]
+name = "miniscript"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da39fc7a8adea97a677337b0091779dd86349226b869053af496584a9b9e5847"
+dependencies = [
+ "bitcoin 0.28.1",
  "serde",
 ]
 
@@ -1902,7 +1947,7 @@ dependencies = [
  "async-trait",
  "base64 0.13.0",
  "bincode",
- "bitcoin",
+ "bitcoin 0.27.1",
  "bitcoin_hashes",
  "clap",
  "futures",
@@ -1911,7 +1956,7 @@ dependencies = [
  "lightning-invoice",
  "minimint",
  "minimint-api",
- "miniscript",
+ "miniscript 6.1.0",
  "rand 0.6.5",
  "reqwest",
  "secp256k1-zkp",
@@ -2695,7 +2740,18 @@ source = "git+https://github.com/fedimint/rust-secp256k1/?branch=minimint#37b9d7
 dependencies = [
  "bitcoin_hashes",
  "rand 0.6.5",
- "secp256k1-sys",
+ "secp256k1-sys 0.4.1",
+ "serde",
+]
+
+[[package]]
+name = "secp256k1"
+version = "0.22.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26947345339603ae8395f68e2f3d85a6b0a8ddfe6315818e80b8504415099db0"
+dependencies = [
+ "rand 0.6.5",
+ "secp256k1-sys 0.5.2",
  "serde",
 ]
 
@@ -2708,12 +2764,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "secp256k1-sys"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "152e20a0fd0519390fc43ab404663af8a0b794273d2a91d60ad4a39f13ffe110"
+dependencies = [
+ "cc",
+]
+
+[[package]]
 name = "secp256k1-zkp"
 version = "0.4.0"
 source = "git+https://github.com/fedimint/rust-secp256k1-zkp?branch=minimint#1c4d6e843333947804df1be20d7fe9bd636a1555"
 dependencies = [
  "rand 0.6.5",
- "secp256k1",
+ "secp256k1 0.20.3",
  "secp256k1-zkp-sys",
  "serde",
 ]
@@ -2724,7 +2789,7 @@ version = "0.4.0"
 source = "git+https://github.com/fedimint/rust-secp256k1-zkp?branch=minimint#1c4d6e843333947804df1be20d7fe9bd636a1555"
 dependencies = [
  "cc",
- "secp256k1-sys",
+ "secp256k1-sys 0.4.1",
 ]
 
 [[package]]
