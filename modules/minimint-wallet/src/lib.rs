@@ -984,7 +984,7 @@ impl<'a> StatelessWallet<'a> {
                     previous_output: utxo_key.0,
                     script_sig: Default::default(),
                     sequence: 0xFFFFFFFF,
-                    witness: vec![],
+                    witness: bitcoin::Witness::new(),
                 })
                 .collect(),
             output: outputs
