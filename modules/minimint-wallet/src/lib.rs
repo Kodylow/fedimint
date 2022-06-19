@@ -17,7 +17,7 @@ use async_trait::async_trait;
 use bitcoin::hashes::{sha256, Hash as BitcoinHash, HashEngine, Hmac, HmacEngine};
 use bitcoin::secp256k1::{All, Secp256k1};
 use bitcoin::util::psbt::raw::ProprietaryKey;
-use bitcoin::util::psbt::{Global, Input, PartiallySignedTransaction};
+use bitcoin::util::psbt::{Input, PartiallySignedTransaction};
 use bitcoin::util::sighash::SighashCache;
 use bitcoin::{
     Address, AddressType, BlockHash, EcdsaSighashType, Network, Script, Transaction, TxIn, TxOut,
@@ -383,7 +383,7 @@ impl FederationModule for Wallet {
             let mut psbt = self
                 .create_peg_out_tx(pending_peg_outs, round_consensus)
                 .await;
-            let txid = psbt.global.unsigned_tx.txid();
+            let txid = psbt.unsigned_tx.txid();
 
             info!(
                 %txid,
@@ -417,8 +417,7 @@ impl FederationModule for Wallet {
 
             // Delete used UTXOs
             batch.append_from_iter(
-                psbt.global
-                    .unsigned_tx
+                psbt.unsigned_tx
                     .input
                     .iter()
                     .map(|input| BatchItem::delete(UTXOKey(input.previous_output))),
@@ -432,7 +431,7 @@ impl FederationModule for Wallet {
             );
 
             batch.append_insert_new(
-                UnsignedTransactionKey(psbt.global.unsigned_tx.txid()),
+                UnsignedTransactionKey(psbt.unsigned_tx.txid()),
                 UnsignedTransaction {
                     psbt,
                     signatures: vec![],
@@ -618,7 +617,7 @@ impl Wallet {
             ));
         }
 
-        let mut tx_hasher = SighashCache::new(&psbt.global.unsigned_tx);
+        let mut tx_hasher = SighashCache::new(&psbt.unsigned_tx);
         for (idx, (input, signature)) in psbt
             .inputs
             .iter_mut()
@@ -1057,12 +1056,12 @@ impl<'a> StatelessWallet<'a> {
     }
 
     fn sign_psbt(&self, psbt: &mut PartiallySignedTransaction) {
-        let mut tx_hasher = SighashCache::new(&psbt.global.unsigned_tx);
+        let mut tx_hasher = SighashCache::new(&psbt.unsigned_tx);
 
         for (idx, (psbt_input, _tx_input)) in psbt
             .inputs
             .iter_mut()
-            .zip(psbt.global.unsigned_tx.input.iter())
+            .zip(psbt.unsigned_tx.input.iter())
             .enumerate()
         {
             let tweaked_secret = {
