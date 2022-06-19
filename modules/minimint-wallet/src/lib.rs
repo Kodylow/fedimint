@@ -641,23 +641,16 @@ impl Wallet {
 
             let tweaked_peer_key = peer_key.tweak(tweak, &self.secp);
             self.secp
-                .verify(
+                .verify_ecdsa(
                     &Message::from_slice(&tx_hash[..]).unwrap(),
                     signature,
                     &tweaked_peer_key.key,
                 )
                 .map_err(|_| ProcessPegOutSigError::InvalidSignature)?;
 
-            let psbt_sig = signature
-                .serialize_der()
-                .iter()
-                .copied()
-                .chain(std::iter::once(EcdsaSighashType::All.as_u32() as u8))
-                .collect();
-
             if input
                 .partial_sigs
-                .insert(tweaked_peer_key.into(), psbt_sig)
+                .insert(tweaked_peer_key.into(), EcdsaSig::sighash_all(*signature))
                 .is_some()
             {
                 // Should never happen since peers only sign a PSBT once
