@@ -33,6 +33,7 @@ use minimint_api::module::interconnect::ModuleInterconect;
 use minimint_api::module::ApiEndpoint;
 use minimint_api::{FederationModule, InputMeta, OutPoint, PeerId};
 use minimint_derive::UnzipConsensus;
+use miniscript::psbt::PsbtExt;
 use miniscript::{Descriptor, DescriptorTrait, TranslatePk2};
 use rand::{CryptoRng, Rng, RngCore};
 use secp256k1::Message;
@@ -624,15 +625,17 @@ impl Wallet {
             .zip(signature.signature.iter())
             .enumerate()
         {
-            let tx_hash = tx_hasher.signature_hash(
-                idx,
-                input
-                    .witness_script
-                    .as_ref()
-                    .expect("Missing witness script"),
-                input.witness_utxo.as_ref().expect("Missing UTXO").value,
-                EcdsaSighashType::All,
-            );
+            let tx_hash = tx_hasher
+                .segwit_signature_hash(
+                    idx,
+                    input
+                        .witness_script
+                        .as_ref()
+                        .expect("Missing witness script"),
+                    input.witness_utxo.as_ref().expect("Missing UTXO").value,
+                    EcdsaSighashType::All,
+                )
+                .map_err(|_| ProcessPegOutSigError::SighashError)?;
 
             let tweak = input
                 .proprietary
@@ -676,13 +679,11 @@ impl Wallet {
             .try_into()
             .map_err(|_| ProcessPegOutSigError::MissingOrMalformedChangeTweak)?;
 
-        if let Err(error) = miniscript::psbt::finalize(psbt, &self.secp) {
-            return Err(ProcessPegOutSigError::ErrorFinalizingPsbt(error));
+        if let Err(error) = psbt.finalize_mut(&self.secp) {
+            return Err(ProcessPegOutSigError::ErrorFinalizingPsbt);
         }
 
-        let tx = miniscript::psbt::extract(psbt, &self.secp)
-            // This should never happen AFAIK, but I'd like to avoid DOS bugs for now
-            .map_err(ProcessPegOutSigError::ErrorFinalizingPsbt)?;
+        let tx = psbt.extract_tx();
 
         Ok(PendingTransaction {
             tx,
@@ -1226,6 +1227,8 @@ pub enum ProcessPegOutSigError {
     UnknownTransaction(Txid),
     #[error("Expected {0} signatures, got {1}")]
     WrongSignatureCount(usize, usize),
+    #[error("Bad Sighash")]
+    SighashError,
     #[error("Malformed signature: {0}")]
     MalformedSignature(secp256k1::Error),
     #[error("Invalid signature")]
@@ -1234,8 +1237,11 @@ pub enum ProcessPegOutSigError {
     DuplicateSignature,
     #[error("Missing change tweak")]
     MissingOrMalformedChangeTweak,
-    #[error("Error finalizing PSBT {0}")]
-    ErrorFinalizingPsbt(miniscript::psbt::Error),
+    // FIXME
+    // #[error("Error finalizing PSBT {0}")]
+    // ErrorFinalizingPsbt(miniscript::psbt::Error),
+    #[error("Error finalizing PSBT")]
+    ErrorFinalizingPsbt,
 }
 
 impl From<bitcoincore_rpc::Error> for WalletError {
