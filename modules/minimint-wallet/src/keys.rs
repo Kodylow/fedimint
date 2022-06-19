@@ -37,7 +37,7 @@ impl ToPublicKey for CompressedPublicKey {
     fn to_public_key(&self) -> PublicKey {
         PublicKey {
             compressed: true,
-            key: self.key,
+            inner: self.key,
         }
     }
 
@@ -74,7 +74,7 @@ impl From<CompressedPublicKey> for bitcoin::PublicKey {
     fn from(key: CompressedPublicKey) -> Self {
         bitcoin::PublicKey {
             compressed: true,
-            key: key.key,
+            inner: key.key,
         }
     }
 }
