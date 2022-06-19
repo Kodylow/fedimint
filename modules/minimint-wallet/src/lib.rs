@@ -20,8 +20,8 @@ use bitcoin::util::psbt::raw::ProprietaryKey;
 use bitcoin::util::psbt::{Input, PartiallySignedTransaction};
 use bitcoin::util::sighash::SighashCache;
 use bitcoin::{
-    Address, AddressType, BlockHash, EcdsaSighashType, Network, Script, Transaction, TxIn, TxOut,
-    Txid,
+    Address, AddressType, BlockHash, EcdsaSig, EcdsaSighashType, Network, Script, Transaction,
+    TxIn, TxOut, Txid,
 };
 use bitcoincore_rpc::Auth;
 use itertools::Itertools;
@@ -1108,17 +1108,15 @@ impl<'a> StatelessWallet<'a> {
 
             let mut signature = self
                 .secp
-                .sign_ecdsa(&Message::from_slice(&tx_hash[..]).unwrap(), &tweaked_secret)
-                .serialize_der()
-                .to_vec();
-            signature.push(EcdsaSighashType::All.to_u32() as u8);
+                .sign_ecdsa(&Message::from_slice(&tx_hash[..]).unwrap(), &tweaked_secret);
+            //signature.push(EcdsaSighashType::All.to_u32() as u8);
 
             psbt_input.partial_sigs.insert(
                 bitcoin::PublicKey {
                     compressed: true,
                     inner: secp256k1::PublicKey::from_secret_key(self.secp, &tweaked_secret),
                 },
-                signature,
+                EcdsaSig::sighash_all(signature),
             );
         }
     }
