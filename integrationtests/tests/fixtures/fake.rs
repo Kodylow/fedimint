@@ -6,7 +6,8 @@ use bitcoin::hash_types::Txid;
 use bitcoin::hashes::{sha256, Hash};
 use bitcoin::util::merkleblock::PartialMerkleTree;
 use bitcoin::{
-    ecdsa, secp256k1, Address, Block, BlockHash, BlockHeader, Network, Transaction, TxOut,
+    ecdsa, secp256k1, Address, Block, BlockHash, BlockHeader, Network, PublicKey, Transaction,
+    TxOut,
 };
 use lightning::ln::PaymentSecret;
 use lightning_invoice::{Currency, Invoice, InvoiceBuilder};
@@ -55,7 +56,7 @@ impl LightningTest for FakeLightningTest {
             .min_final_cltv_expiry(0)
             .payment_secret(PaymentSecret([0; 32]))
             .amount_milli_satoshis(amount.milli_sat)
-            .build_signed(|m| ctx.sign_recoverable(m, &self.gateway_node_sec_key))
+            .build_signed(|m| ctx.sign_ecdsa_recoverable(m, &self.gateway_node_sec_key))
             .unwrap()
     }
 
@@ -172,10 +173,10 @@ impl BitcoinTest for FakeBitcoinTest {
     }
 
     fn get_new_address(&self) -> Address {
-        let ctx = bitcoin::secp256k1::Secp256k1::new();
+        let ctx = secp256k1::Secp256k1::new();
         let (_, public_key) = ctx.generate_keypair(&mut OsRng::new().unwrap());
 
-        Address::p2wpkh(&ecdsa::PublicKey::new(public_key), Network::Regtest).unwrap()
+        Address::p2wpkh(&PublicKey::new(public_key), Network::Regtest).unwrap()
     }
 
     fn mine_block_and_get_received(&self, address: &Address) -> Amount {
