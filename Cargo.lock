@@ -2728,8 +2728,6 @@ name = "secp256k1"
 version = "0.20.3"
 source = "git+https://github.com/fedimint/rust-secp256k1/?branch=minimint#37b9d77d98a497fddfb435df4f806b17276edb8d"
 dependencies = [
- "bitcoin_hashes",
- "rand 0.6.5",
  "secp256k1-sys 0.4.1",
  "serde",
 ]
@@ -2740,6 +2738,7 @@ version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "26947345339603ae8395f68e2f3d85a6b0a8ddfe6315818e80b8504415099db0"
 dependencies = [
+ "bitcoin_hashes",
  "rand 0.6.5",
  "secp256k1-sys 0.5.2",
  "serde",
@@ -2764,22 +2763,20 @@ dependencies = [
 
 [[package]]
 name = "secp256k1-zkp"
-version = "0.4.0"
-source = "git+https://github.com/fedimint/rust-secp256k1-zkp?branch=minimint#1c4d6e843333947804df1be20d7fe9bd636a1555"
+version = "0.6.0"
 dependencies = [
  "rand 0.6.5",
- "secp256k1 0.20.3",
+ "secp256k1 0.22.1",
  "secp256k1-zkp-sys",
  "serde",
 ]
 
 [[package]]
 name = "secp256k1-zkp-sys"
-version = "0.4.0"
-source = "git+https://github.com/fedimint/rust-secp256k1-zkp?branch=minimint#1c4d6e843333947804df1be20d7fe9bd636a1555"
+version = "0.6.0"
 dependencies = [
  "cc",
- "secp256k1-sys 0.4.1",
+ "secp256k1-sys 0.5.2",
 ]
 
 [[package]]

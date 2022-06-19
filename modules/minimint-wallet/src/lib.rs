@@ -411,7 +411,7 @@ impl FederationModule for Wallet {
 
                     // We drop SIGHASH_ALL, because we always use that and it is only present in the
                     // PSBT for compatibility with other tools.
-                    secp256k1::ecdsa::Signature::from_der(&sig[..sig.len() - 1])
+                    secp256k1::ecdsa::Signature::from_der(&sig.to_vec()[..sig.to_vec().len() - 1])
                         .expect("we serialized it ourselves that way")
                 })
                 .collect::<Vec<_>>();

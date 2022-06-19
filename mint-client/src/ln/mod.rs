@@ -57,10 +57,7 @@ impl<'c> LnClient<'c> {
             hash: *invoice.payment_hash(),
             gateway_key: gateway.mint_pub_key,
             timelock,
-            user_key: secp256k1_zkp::schnorrsig::PublicKey::from_keypair(
-                self.context.secp,
-                &user_sk,
-            ),
+            user_key: secp256k1_zkp::schnorrsig::PublicKey::from_keypair(&user_sk),
             invoice: invoice.to_string(),
         };
 
@@ -365,7 +362,7 @@ mod tests {
         fed.lock().await.set_block_height(timelock as u64);
 
         let meta = fed.lock().await.verify_input(&refund_input).unwrap();
-        let refund_pk = secp256k1_zkp::schnorrsig::PublicKey::from_keypair(&ctx, refund_key);
+        let refund_pk = secp256k1_zkp::schnorrsig::PublicKey::from_keypair(refund_key);
         assert_eq!(meta.keys, vec![refund_pk]);
         assert_eq!(meta.amount, expected_amount);
 

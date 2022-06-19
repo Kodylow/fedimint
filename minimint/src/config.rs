@@ -1,4 +1,3 @@
-use bitcoin::secp256k1::rand::{CryptoRng, RngCore};
 use clap::Parser;
 use hbbft::crypto::serde_impl::SerdeSecret;
 use minimint_api::config::GenerateConfig;
@@ -6,6 +5,7 @@ use minimint_api::PeerId;
 use minimint_ln::config::{LightningModuleClientConfig, LightningModuleConfig};
 use minimint_mint::config::{MintClientConfig, MintConfig};
 use minimint_wallet::config::{WalletClientConfig, WalletConfig};
+use rand::{CryptoRng, RngCore};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;

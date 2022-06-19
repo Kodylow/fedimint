@@ -28,9 +28,9 @@ impl MiniscriptKey for CompressedPublicKey {
         (*self).clone()
     }
 
-    fn serialized_len(&self) -> usize {
-        secp256k1::constants::PUBLIC_KEY_SIZE
-    }
+    //     fn serialized_len(&self) -> usize {
+    //         secp256k1::constants::PUBLIC_KEY_SIZE
+    //     }
 }
 
 impl ToPublicKey for CompressedPublicKey {

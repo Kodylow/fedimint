@@ -30,8 +30,7 @@ impl<'c> WalletClient<'c> {
         mut rng: R,
     ) -> Address {
         let peg_in_sec_key = secp256k1_zkp::schnorrsig::KeyPair::new(self.context.secp, &mut rng);
-        let peg_in_pub_key =
-            secp256k1_zkp::schnorrsig::PublicKey::from_keypair(self.context.secp, &peg_in_sec_key);
+        let peg_in_pub_key = secp256k1_zkp::schnorrsig::PublicKey::from_keypair(&peg_in_sec_key);
 
         // TODO: check at startup that no bare descriptor is used in config
         // TODO: check if there are other failure cases
@@ -49,7 +48,7 @@ impl<'c> WalletClient<'c> {
             PegInKey {
                 peg_in_script: script,
             },
-            peg_in_sec_key.serialize_secret(),
+            peg_in_sec_key.secret_bytes(),
         );
 
         batch.commit();
@@ -81,10 +80,8 @@ impl<'c> WalletClient<'c> {
             &secret_tweak_key_bytes,
         )
         .expect("sec key was generated and saved by us");
-        let public_tweak_key = secp256k1_zkp::schnorrsig::PublicKey::from_keypair(
-            self.context.secp,
-            &secret_tweak_key,
-        );
+        let public_tweak_key =
+            secp256k1_zkp::schnorrsig::PublicKey::from_keypair(&secret_tweak_key);
 
         let peg_in_proof = PegInProof::new(
             txout_proof,

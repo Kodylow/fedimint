@@ -127,10 +127,7 @@ impl<'c> MintClient<'c> {
 
                 // We check for coin validity in case we got it from an untrusted third party. We
                 // don't want to needlessly create invalid tx and bother the federation with them.
-                let spend_pub_key = secp256k1_zkp::schnorrsig::PublicKey::from_keypair(
-                    self.context.secp,
-                    &spend_key,
-                );
+                let spend_pub_key = secp256k1_zkp::schnorrsig::PublicKey::from_keypair(&spend_key);
                 if &spend_pub_key == coin.coin.spend_key() {
                     Ok((spend_key, (amt, coin.coin)))
                 } else {
@@ -350,13 +347,13 @@ impl CoinRequest {
     {
         let spend_key = secp256k1_zkp::schnorrsig::KeyPair::new(ctx, &mut rng);
         let nonce = CoinNonce(secp256k1_zkp::schnorrsig::PublicKey::from_keypair(
-            ctx, &spend_key,
+            &spend_key,
         ));
 
         let (blinding_key, blinded_nonce) = blind_message(nonce.to_message());
 
         let cr = CoinRequest {
-            spend_key: spend_key.serialize_secret(),
+            spend_key: spend_key.secret_bytes(),
             nonce,
             blinding_key,
         };
@@ -609,7 +606,7 @@ mod tests {
             meta.keys,
             spend_keys
                 .into_iter()
-                .map(|key| secp256k1_zkp::schnorrsig::PublicKey::from_keypair(&ctx, &key))
+                .map(|key| secp256k1_zkp::schnorrsig::PublicKey::from_keypair(&key))
                 .collect::<Vec<_>>()
         );
 
@@ -638,7 +635,7 @@ mod tests {
             meta.keys,
             spend_keys
                 .into_iter()
-                .map(|key| secp256k1_zkp::schnorrsig::PublicKey::from_keypair(&ctx, &key))
+                .map(|key| secp256k1_zkp::schnorrsig::PublicKey::from_keypair(&key))
                 .collect::<Vec<_>>()
         );
 

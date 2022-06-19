@@ -3,7 +3,7 @@ use bitcoin::hashes::Hash as BitcoinHash;
 use minimint_api::encoding::{Decodable, Encodable};
 use minimint_api::{Amount, FederationModule, TransactionId};
 use rand::Rng;
-use secp256k1_zkp::{schnorrsig, Secp256k1, Signing};
+use secp256k1_zkp::{schnorrsig, Secp256k1, Signing, Verification};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -189,16 +189,16 @@ pub fn agg_keys(keys: &[schnorrsig::PublicKey]) -> schnorrsig::PublicKey {
 fn new_pre_session<C>(
     keys: &[schnorrsig::PublicKey],
     ctx: &Secp256k1<C>,
-) -> secp256k1_zkp::MusigPreSession
+) -> secp256k1_zkp::MusigKeyAggCache
 where
-    C: Signing,
+    C: Signing + Verification,
 {
     assert!(
         !keys.is_empty(),
         "Must supply more than 0 keys for aggregation"
     );
 
-    secp256k1_zkp::MusigPreSession::new(ctx, keys).expect("more than zero were supplied")
+    secp256k1_zkp::MusigKeyAggCache::new(ctx, keys)
 }
 
 pub fn agg_sign<R, C, M>(
@@ -209,13 +209,13 @@ pub fn agg_sign<R, C, M>(
 ) -> schnorrsig::Signature
 where
     R: rand::RngCore + rand::CryptoRng,
-    C: Signing,
+    C: Signing + Verification,
     M: Into<secp256k1_zkp::Message>,
 {
     let msg = msg.into();
     let pub_keys = keys
         .iter()
-        .map(|key| schnorrsig::PublicKey::from_keypair(ctx, key))
+        .map(|key| schnorrsig::PublicKey::from_keypair(key))
         .collect::<Vec<_>>();
     let pre_session = new_pre_session(&pub_keys, ctx);
 
@@ -225,17 +225,14 @@ where
         .map(|key| {
             // FIXME: upstream
             pre_session
-                .nonce_gen(ctx, &session_id, key, &msg, None)
+                .nonce_gen(ctx, session_id, key.into(), msg, None)
                 .expect("should not fail for valid inputs (ensured by type system)")
         })
         .unzip();
 
-    let agg_nonce = secp256k1_zkp::MusigAggNonce::new(ctx, &pub_nonces)
-        .expect("Should not fail for cooperative protocol runs");
+    let agg_nonce = secp256k1_zkp::MusigAggNonce::new(ctx, &pub_nonces);
 
-    let session = pre_session
-        .nonce_process(ctx, &agg_nonce, &msg, None)
-        .expect("Should not fail for cooperative protocol runs");
+    let session = secp256k1_zkp::MusigSession::new(ctx, &pre_session, agg_nonce, msg, None);
 
     let partial_sigs = sec_nonces
         .into_iter()
@@ -247,9 +244,7 @@ where
         })
         .collect::<Vec<_>>();
 
-    session
-        .partial_sig_agg(ctx, &partial_sigs)
-        .expect("Should not fail for cooperative protocol runs")
+    session.partial_sig_agg(&partial_sigs)
 }
 
 #[derive(Debug, Error)]

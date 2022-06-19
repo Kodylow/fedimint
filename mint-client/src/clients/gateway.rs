@@ -106,10 +106,8 @@ impl GatewayClient {
         &self,
         account: &OutgoingContractAccount,
     ) -> Result<PaymentParameters> {
-        let our_pub_key = secp256k1_zkp::schnorrsig::PublicKey::from_keypair(
-            &self.context.secp,
-            &self.context.config.redeem_key,
-        );
+        let our_pub_key =
+            secp256k1_zkp::schnorrsig::PublicKey::from_keypair(&self.context.config.redeem_key);
 
         if account.contract.gateway_key != our_pub_key {
             return Err(GatewayClientError::NotOurKey);

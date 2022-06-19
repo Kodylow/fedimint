@@ -56,7 +56,7 @@ impl Decodable for secp256k1_zkp::schnorrsig::Signature {
 
 impl Encodable for secp256k1_zkp::schnorrsig::KeyPair {
     fn consensus_encode<W: Write>(&self, writer: W) -> Result<usize, Error> {
-        self.serialize_secret().consensus_encode(writer)
+        self.secret_bytes().consensus_encode(writer)
     }
 }
 
@@ -91,7 +91,7 @@ mod tests {
         let ctx = secp256k1_zkp::global::SECP256K1;
         let mut rng = rand::rngs::OsRng::new().unwrap();
         let sec_key = secp256k1_zkp::schnorrsig::KeyPair::new(ctx, &mut rng);
-        let pub_key = secp256k1_zkp::schnorrsig::PublicKey::from_keypair(ctx, &sec_key);
+        let pub_key = secp256k1_zkp::schnorrsig::PublicKey::from_keypair(&sec_key);
         test_roundtrip(pub_key);
 
         let sig = ctx.schnorrsig_sign(
