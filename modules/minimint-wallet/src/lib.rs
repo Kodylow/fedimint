@@ -16,11 +16,12 @@ use crate::txoproof::{PegInProof, PegInProofError};
 use async_trait::async_trait;
 use bitcoin::hashes::{sha256, Hash as BitcoinHash, HashEngine, Hmac, HmacEngine};
 use bitcoin::secp256k1::{All, Secp256k1};
-use bitcoin::util::bip143::SigHashCache;
 use bitcoin::util::psbt::raw::ProprietaryKey;
 use bitcoin::util::psbt::{Global, Input, PartiallySignedTransaction};
+use bitcoin::util::sighash::SighashCache;
 use bitcoin::{
-    Address, AddressType, BlockHash, Network, Script, SigHashType, Transaction, TxIn, TxOut, Txid,
+    Address, AddressType, BlockHash, EcdsaSighashType, Network, Script, Transaction, TxIn, TxOut,
+    Txid,
 };
 use bitcoincore_rpc::Auth;
 use itertools::Itertools;
@@ -617,7 +618,7 @@ impl Wallet {
             ));
         }
 
-        let mut tx_hasher = SigHashCache::new(&psbt.global.unsigned_tx);
+        let mut tx_hasher = SighashCache::new(&psbt.global.unsigned_tx);
         for (idx, (input, signature)) in psbt
             .inputs
             .iter_mut()
@@ -631,7 +632,7 @@ impl Wallet {
                     .as_ref()
                     .expect("Missing witness script"),
                 input.witness_utxo.as_ref().expect("Missing UTXO").value,
-                SigHashType::All,
+                EcdsaSighashType::All,
             );
 
             let tweak = input
@@ -652,7 +653,7 @@ impl Wallet {
                 .serialize_der()
                 .iter()
                 .copied()
-                .chain(std::iter::once(SigHashType::All.as_u32() as u8))
+                .chain(std::iter::once(EcdsaSighashType::All.as_u32() as u8))
                 .collect();
 
             if input
@@ -1056,7 +1057,7 @@ impl<'a> StatelessWallet<'a> {
     }
 
     fn sign_psbt(&self, psbt: &mut PartiallySignedTransaction) {
-        let mut tx_hasher = SigHashCache::new(&psbt.global.unsigned_tx);
+        let mut tx_hasher = SighashCache::new(&psbt.global.unsigned_tx);
 
         for (idx, (psbt_input, _tx_input)) in psbt
             .inputs
@@ -1096,7 +1097,7 @@ impl<'a> StatelessWallet<'a> {
                     .as_ref()
                     .expect("Missing UTXO")
                     .value,
-                SigHashType::All,
+                EcdsaSighashType::All,
             );
 
             let mut signature = self
@@ -1104,7 +1105,7 @@ impl<'a> StatelessWallet<'a> {
                 .sign(&Message::from_slice(&tx_hash[..]).unwrap(), &tweaked_secret)
                 .serialize_der()
                 .to_vec();
-            signature.push(SigHashType::All.as_u32() as u8);
+            signature.push(EcdsaSighashType::All.as_u32() as u8);
 
             psbt_input.partial_sigs.insert(
                 bitcoin::PublicKey {
