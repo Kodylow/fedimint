@@ -1022,7 +1022,10 @@ impl<'a> StatelessWallet<'a> {
                         sighash_type: None,
                         redeem_script: None,
                         witness_script: Some(
-                            self.descriptor.tweak(&utxo.tweak, self.secp).script_code(),
+                            self.descriptor
+                                .tweak(&utxo.tweak, self.secp)
+                                .script_code()
+                                .expect("Failed to tweak descriptor"),
                         ),
                         bip32_derivation: Default::default(),
                         final_script_sig: None,
