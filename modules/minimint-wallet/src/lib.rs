@@ -23,7 +23,7 @@ use bitcoin::{
     Address, AddressType, BlockHash, EcdsaSig, EcdsaSighashType, Network, Script, Transaction,
     TxIn, TxOut, Txid,
 };
-use bitcoincore_rpc::Auth;
+use bitcoind::BitcoinRpcError;
 use itertools::Itertools;
 use minimint_api::db::batch::{BatchItem, BatchTx};
 use minimint_api::db::Database;
@@ -39,8 +39,8 @@ use rand::{CryptoRng, Rng, RngCore};
 use secp256k1::Message;
 use serde::{Deserialize, Serialize};
 use std::ops::Sub;
+use std::time::Duration;
 use thiserror::Error;
-use tokio::time::Duration;
 use tracing::{debug, error, info, instrument, trace, warn};
 
 pub mod bitcoind;
@@ -49,6 +49,9 @@ pub mod db;
 pub mod keys;
 pub mod tweakable;
 pub mod txoproof;
+
+#[cfg(feature = "native")]
+pub mod bitcoincore_rpc;
 
 pub const CONFIRMATION_TARGET: u16 = 24;
 
@@ -518,18 +521,6 @@ impl FederationModule for Wallet {
 }
 
 impl Wallet {
-    pub fn bitcoind(cfg: WalletConfig) -> impl Fn() -> Box<dyn BitcoindRpc> {
-        move || -> Box<dyn BitcoindRpc> {
-            Box::new(
-                bitcoincore_rpc::Client::new(
-                    &cfg.btc_rpc_address,
-                    Auth::UserPass(cfg.btc_rpc_user.clone(), cfg.btc_rpc_pass.clone()),
-                )
-                .expect("Could not connect to bitcoind"),
-            )
-        }
-    }
-
     // TODO: work around bitcoind_gen being a closure, maybe make clonable?
     pub async fn new_with_bitcoind(
         cfg: WalletConfig,
@@ -538,7 +529,7 @@ impl Wallet {
     ) -> Result<Wallet, WalletError> {
         let broadcaster_bitcoind_rpc = bitcoind_gen();
         let broadcaster_db = db.clone();
-        tokio::spawn(async move {
+        minimint_api::task::spawn(async move {
             run_broadcast_pending_tx(broadcaster_db, broadcaster_bitcoind_rpc).await;
         });
 
@@ -1160,7 +1151,7 @@ pub fn is_address_valid_for_network(address: &Address, network: Network) -> bool
 pub async fn run_broadcast_pending_tx(db: Arc<dyn Database>, rpc: Box<dyn BitcoindRpc>) {
     loop {
         broadcast_pending_tx(&db, rpc.as_ref()).await;
-        tokio::time::sleep(Duration::from_secs(10)).await;
+        minimint_api::task::sleep(Duration::from_secs(10)).await;
     }
 }
 
@@ -1210,13 +1201,13 @@ pub enum WalletError {
     #[error("Connected bitcoind is on wrong network, expected {0}, got {1}")]
     WrongNetwork(Network, Network),
     #[error("Error querying bitcoind: {0}")]
-    RpcError(bitcoincore_rpc::Error),
+    RpcError(#[from] BitcoinRpcError),
     #[error("Unknown bitcoin network: {0}")]
     UnknownNetwork(String),
     #[error("Unknown block hash in peg-in proof: {0}")]
     UnknownPegInProofBlock(BlockHash),
     #[error("Invalid peg-in proof: {0}")]
-    PegInProofError(PegInProofError),
+    PegInProofError(#[from] PegInProofError),
     #[error("The peg-in was already claimed")]
     PegInAlreadyClaimed,
 }
@@ -1242,18 +1233,6 @@ pub enum ProcessPegOutSigError {
     // ErrorFinalizingPsbt(miniscript::psbt::Error),
     #[error("Error finalizing PSBT")]
     ErrorFinalizingPsbt,
-}
-
-impl From<bitcoincore_rpc::Error> for WalletError {
-    fn from(e: bitcoincore_rpc::Error) -> Self {
-        WalletError::RpcError(e)
-    }
-}
-
-impl From<PegInProofError> for WalletError {
-    fn from(e: PegInProofError) -> Self {
-        WalletError::PegInProofError(e)
-    }
 }
 
 // FIXME: make FakeFed not require Eq

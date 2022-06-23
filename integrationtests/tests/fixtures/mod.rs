@@ -14,11 +14,13 @@ use bitcoin::{secp256k1, Address, Transaction};
 use cln_rpc::ClnRpc;
 use futures::executor::block_on;
 use futures::future::join_all;
+use hbbft::honey_badger::Message;
 
 use itertools::Itertools;
 use lightning_invoice::Invoice;
+use minimint_api::task::spawn;
+use minimint_wallet::bitcoincore_rpc;
 use rand::rngs::OsRng;
-use tokio::spawn;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::Mutex;
 use tracing::{info, warn};
@@ -30,6 +32,9 @@ use ln_gateway::LnGateway;
 use minimint::config::ServerConfigParams;
 use minimint::config::{ClientConfig, FeeConsensus, ServerConfig};
 use minimint::consensus::{ConsensusItem, ConsensusOutcome, ConsensusProposal, MinimintConsensus};
+use minimint::net::connect::mock::MockNetwork;
+use minimint::net::connect::{Connector, InsecureTcpConnector};
+use minimint::net::peers::PeerConnector;
 use minimint::transaction::{Input, Output};
 use minimint::MinimintServer;
 use minimint_api::config::GenerateConfig;
@@ -44,7 +49,7 @@ use minimint_wallet::bitcoind::BitcoindRpc;
 use minimint_wallet::config::WalletConfig;
 use minimint_wallet::db::UTXOKey;
 use minimint_wallet::txoproof::TxOutProof;
-use minimint_wallet::{SpendableUTXO, Wallet, WalletConsensusItem};
+use minimint_wallet::{SpendableUTXO, WalletConsensusItem};
 use mint_client::api::HttpFederationApi;
 use mint_client::clients::gateway::{GatewayClient, GatewayClientConfig};
 use mint_client::ln::gateway::LightningGateway;
@@ -114,7 +119,7 @@ pub async fn fixtures(
             let dir =
                 env::var("MINIMINT_TEST_DIR").expect("Must have test dir defined for real tests");
             let wallet_config = server_config.iter().last().unwrap().1.wallet.clone();
-            let bitcoin_rpc = Wallet::bitcoind(wallet_config.clone());
+            let bitcoin_rpc = bitcoincore_rpc::bitcoind_gen(wallet_config.clone());
             let bitcoin = RealBitcoinTest::new(wallet_config);
             let socket_gateway = PathBuf::from(dir.clone()).join("ln1/regtest/lightning-rpc");
             let socket_other = PathBuf::from(dir).join("ln2/regtest/lightning-rpc");
@@ -126,7 +131,8 @@ pub async fn fixtures(
                     .await
                     .expect("connect to ln_socket"),
             );
-            let fed = FederationTest::new(server_config.clone(), &bitcoin_rpc).await;
+            let connect_gen = |peer| InsecureTcpConnector::new(peer).to_any();
+            let fed = FederationTest::new(server_config.clone(), &bitcoin_rpc, &connect_gen).await;
             let user = UserTest::new(client_config.clone(), peers);
             let gateway = GatewayTest::new(
                 Box::new(lightning_rpc),
@@ -142,7 +148,10 @@ pub async fn fixtures(
             let bitcoin = FakeBitcoinTest::new();
             let bitcoin_rpc = || Box::new(bitcoin.clone()) as Box<dyn BitcoindRpc>;
             let lightning = FakeLightningTest::new();
-            let fed = FederationTest::new(server_config.clone(), &bitcoin_rpc).await;
+            let net = MockNetwork::new();
+            let net_ref = &net;
+            let connect_gen = move |peer| net_ref.connector(peer).to_any();
+            let fed = FederationTest::new(server_config.clone(), &bitcoin_rpc, &connect_gen).await;
             let user = UserTest::new(client_config.clone(), peers);
             let gateway = GatewayTest::new(
                 Box::new(lightning.clone()),
@@ -556,6 +565,7 @@ impl FederationTest {
     async fn new(
         server_config: BTreeMap<PeerId, ServerConfig>,
         bitcoin_gen: &impl Fn() -> Box<dyn BitcoindRpc>,
+        connect_gen: &impl Fn(PeerId) -> PeerConnector<Message<PeerId>>,
     ) -> Self {
         let servers = join_all(server_config.values().map(|cfg| async move {
             let bitcoin_rpc = bitcoin_gen();
@@ -578,6 +588,7 @@ impl FederationTest {
             spawn(minimint::hbbft(
                 outcome_sender,
                 proposal_receiver,
+                connect_gen(cfg.identity),
                 cfg.clone(),
                 initial_cis,
                 OsRng::new().unwrap(),

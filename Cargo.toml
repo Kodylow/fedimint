@@ -4,9 +4,11 @@ members = [
     "crypto/tbs",
     "ln-gateway",
     "minimint",
+    "minimint-core",
     "minimint-derive",
     "minimint-api",
-    "mint-client",
+    "client/cli",
+    "client/client-lib",
     "modules/minimint-mint",
     "modules/minimint-ln",
     "modules/minimint-wallet",
@@ -15,4 +17,4 @@ members = [
 
 [patch.crates-io]
 bitcoin_hashes = { version = "0.10.0", git = 'https://github.com/fedimint/bitcoin_hashes', branch = 'minimint' }
-# secp256k1 = { git = "https://github.com/fedimint/rust-secp256k1/", branch = "minimint" }
+secp256k1 = { git = "https://github.com/fedimint/rust-secp256k1/", branch = "minimint" }
