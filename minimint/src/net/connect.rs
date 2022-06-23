@@ -1,28 +1,3 @@
-<<<<<<< HEAD
-use crate::config::ServerConfig;
-use crate::net::framed::{FramedTransport, TcpBidiFramed};
-use crate::net::PeerConnections;
-use async_trait::async_trait;
-use futures::future::select_all;
-use futures::future::try_join_all;
-use futures::StreamExt;
-use futures::{FutureExt, SinkExt};
-use hbbft::Target;
-use minimint_api::PeerId;
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use std::collections::HashMap;
-use std::time::Duration;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio::net::{TcpListener, TcpStream};
-use tokio::spawn;
-use tokio::time::sleep;
-use tracing::{debug, info, instrument, trace, warn};
-
-// FIXME: make connections dynamically managed
-pub struct Connections<T> {
-    connections: HashMap<PeerId, Box<dyn FramedTransport<T> + Send + Unpin>>,
-=======
 use crate::net::framed::{AnyFramedTransport, BidiFramed, FramedTransport};
 use async_trait::async_trait;
 use futures::Stream;
@@ -55,7 +30,6 @@ pub trait Connector<M> {
 
 pub struct InsecureTcpConnector {
     our_id: PeerId,
->>>>>>> d3bb6abacf745aa45ba7deaea440333b4e1e1aa8
 }
 
 impl InsecureTcpConnector {
@@ -75,18 +49,6 @@ where
         Ok((peer, Box::new(BidiFramed::new_from_tcp(connection))))
     }
 
-<<<<<<< HEAD
-        let peers = try_join_all(handshakes)
-            .await
-            .expect("Error during peer handshakes")
-            .into_iter()
-            .map(
-                |(id, stream)| -> (PeerId, Box<dyn FramedTransport<T> + Send + Unpin>) {
-                    (id, Box::new(TcpBidiFramed::new_from_tcp(stream)))
-                },
-            )
-            .collect::<HashMap<_, _>>();
-=======
     async fn listen(
         &self,
         bind_addr: String,
@@ -112,7 +74,6 @@ where
         Ok(Box::pin(stream))
     }
 }
->>>>>>> d3bb6abacf745aa45ba7deaea440333b4e1e1aa8
 
 async fn do_handshake<S>(our_id: PeerId, stream: &mut S) -> Result<PeerId, anyhow::Error>
 where
@@ -220,14 +181,6 @@ pub mod mock {
         }
     }
 
-<<<<<<< HEAD
-    async fn receive_from_peer(
-        id: PeerId,
-        peer: &mut (dyn FramedTransport<T> + Send + Unpin),
-    ) -> (PeerId, T) {
-        let msg = peer
-            .next()
-=======
     #[tokio::test]
     async fn test_mock_network() {
         let peer_a = PeerId::from(1);
@@ -241,7 +194,6 @@ pub mod mock {
         let conn_a_fut = tokio::spawn(async move { listener.next().await.unwrap().unwrap() });
 
         let (auth_peer_b, mut conn_b) = Connector::<u64>::connect_framed(&conn_b, "a".into())
->>>>>>> d3bb6abacf745aa45ba7deaea440333b4e1e1aa8
             .await
             .unwrap();
         let (auth_peer_a, mut conn_a) = conn_a_fut.await.unwrap();
@@ -256,44 +208,6 @@ pub mod mock {
         assert_eq!(conn_b.next().await.unwrap().unwrap(), 42);
     }
 
-<<<<<<< HEAD
-#[async_trait]
-impl<T> PeerConnections<T> for Connections<T>
-where
-    T: Serialize + DeserializeOwned + Clone + Unpin + Send + Sync + 'static,
-{
-    type Id = PeerId;
-
-    async fn send(&mut self, target: Target<Self::Id>, msg: T) {
-        trace!(?target, "Sending message to");
-        match target {
-            Target::All => {
-                for peer in self.connections.values_mut() {
-                    if peer.send(msg.clone()).await.is_err() {
-                        warn!("Failed to send message to peer");
-                    }
-                }
-            }
-            Target::Node(peer_id) => {
-                if let Some(peer) = self.connections.get_mut(&peer_id) {
-                    if peer.send(msg).await.is_err() {
-                        warn!("Failed to send message to peer");
-                    }
-                }
-            }
-        }
-    }
-
-    async fn receive(&mut self) -> (Self::Id, T) {
-        // TODO: optimize, don't throw away remaining futures
-        select_all(
-            self.connections
-                .iter_mut()
-                .map(|(id, peer)| Self::receive_from_peer(*id, &mut **peer).boxed()),
-        )
-        .map(|(msg, _, _)| msg)
-        .await
-=======
     #[allow(dead_code)]
     async fn timeout<F, T>(f: F) -> Option<T>
     where
@@ -337,6 +251,5 @@ where
         .boxed();
 
         tokio::join!(send_future, receive_future);
->>>>>>> d3bb6abacf745aa45ba7deaea440333b4e1e1aa8
     }
 }
