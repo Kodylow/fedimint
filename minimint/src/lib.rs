@@ -3,7 +3,7 @@ extern crate minimint_api;
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex};
 
-use hbbft::honey_badger::{HoneyBadger, Step};
+use hbbft::honey_badger::{HoneyBadger, Message, Step};
 use hbbft::{Epoched, NetworkInfo};
 use rand::rngs::OsRng;
 use rand::{CryptoRng, RngCore};
@@ -15,13 +15,15 @@ use config::ServerConfig;
 use consensus::ConsensusOutcome;
 use minimint_api::db::Database;
 use minimint_api::PeerId;
-use minimint_ln::LightningModule;
-use minimint_wallet::bitcoind::BitcoindRpc;
-use minimint_wallet::Wallet;
+use minimint_core::modules::ln::LightningModule;
+use minimint_core::modules::wallet::bitcoind::BitcoindRpc;
+use minimint_core::modules::wallet::{bitcoincore_rpc, Wallet};
+
+pub use minimint_core::*;
 
 use crate::consensus::{ConsensusItem, ConsensusProposal, MinimintConsensus};
-use crate::net::connect::Connections;
-use crate::net::PeerConnections;
+use crate::net::connect::{Connector, InsecureTcpConnector};
+use crate::net::peers::{PeerConnections, PeerConnector, ReconnectPeerConnections};
 use crate::rng::RngGenerator;
 
 /// The actual implementation of the federated mint
@@ -36,16 +38,8 @@ pub mod net;
 /// MiniMint toplevel config
 pub mod config;
 
-pub mod outcome;
 /// Some abstractions to handle randomness
 mod rng;
-pub mod transaction;
-
-pub mod modules {
-    pub use minimint_ln as ln;
-    pub use minimint_mint as mint;
-    pub use minimint_wallet as wallet;
-}
 
 pub struct MinimintServer {
     pub outcome_sender: Sender<ConsensusOutcome>,
@@ -72,6 +66,7 @@ pub async fn run_minimint(cfg: ServerConfig) {
     spawn(hbbft(
         outcome_sender,
         proposal_receiver,
+        InsecureTcpConnector::new(cfg.identity).to_any(),
         cfg.clone(),
         initial_cis,
         OsRng::new().unwrap(),
@@ -83,7 +78,7 @@ pub async fn minimint_server(cfg: ServerConfig) -> MinimintServer {
     minimint_server_with(
         cfg.clone(),
         Arc::new(sled::open(&cfg.db_path).unwrap().open_tree("mint").unwrap()),
-        Wallet::bitcoind(cfg.wallet.clone()),
+        bitcoincore_rpc::bitcoind_gen(cfg.wallet.clone()),
     )
     .await
 }
@@ -101,7 +96,8 @@ pub async fn minimint_server_with(
 
     let threshold = cfg.peers.len() - cfg.max_faulty();
 
-    let mint = minimint_mint::Mint::new(cfg.mint.clone(), threshold, database.clone());
+    let mint =
+        minimint_core::modules::mint::Mint::new(cfg.mint.clone(), threshold, database.clone());
 
     let wallet = Wallet::new_with_bitcoind(cfg.wallet.clone(), database.clone(), bitcoind)
         .await
@@ -157,7 +153,7 @@ pub async fn run_consensus(
         if we_contributed {
             // TODO: define latency target for consensus rounds and monitor it
             // give others a chance to catch up
-            tokio::time::sleep(tokio::time::Duration::from_millis(2000)).await;
+            minimint_api::task::sleep(std::time::Duration::from_millis(2000)).await;
         }
     }
 }
@@ -195,11 +191,14 @@ pub async fn run_consensus_epoch(
 pub async fn hbbft(
     outcome_sender: Sender<ConsensusOutcome>,
     mut proposal_receiver: Receiver<ConsensusProposal>,
+    connector: PeerConnector<Message<PeerId>>,
     cfg: ServerConfig,
     initial_cis: ConsensusProposal,
     mut rng: impl RngCore + CryptoRng + Clone + Send + 'static,
 ) {
-    let mut connections = Connections::connect_to_all(&cfg).await;
+    let mut connections = ReconnectPeerConnections::new(cfg.network_config(), connector)
+        .await
+        .to_any();
 
     let net_info = NetworkInfo::new(
         cfg.identity,
@@ -223,7 +222,7 @@ pub async fn hbbft(
             .expect("This is always refilled");
 
         for peer in contribution.drop_peers.iter() {
-            connections.drop_peer(peer);
+            connections.ban_peer(*peer).await;
         }
 
         debug!(

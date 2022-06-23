@@ -1,19 +1,19 @@
 pub mod ln;
 
 use crate::ln::{LightningError, LnRpc};
-use minimint::modules::ln::contracts::ContractId;
-use minimint_api::db::Database;
+use bitcoin_hashes::sha256::Hash;
+use minimint::modules::ln::contracts::{incoming::Preimage, ContractId};
+use minimint_api::{db::Database, Amount, OutPoint, TransactionId};
 use mint_client::clients::gateway::{GatewayClient, GatewayClientConfig, GatewayClientError};
 use rand::{CryptoRng, RngCore};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
+use std::time::Instant;
 use thiserror::Error;
 use tokio::sync::Mutex;
-use tokio::time::Instant;
-use tracing::{debug, instrument};
-use tracing::{error, warn};
+use tracing::{debug, error, instrument, warn};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LnGatewayConfig {
@@ -59,12 +59,36 @@ impl LnGateway {
         }
     }
 
+    pub async fn buy_preimage_offer(
+        &self,
+        payment_hash: &Hash,
+        amount: &Amount,
+        rng: impl RngCore + CryptoRng,
+    ) -> Result<(TransactionId, ContractId), LnGatewayError> {
+        let (txid, contract_id) = self
+            .federation_client
+            .buy_preimage_offer(payment_hash, amount, rng)
+            .await?;
+        Ok((txid, contract_id))
+    }
+
+    pub async fn await_preimage_decryption(
+        &self,
+        outpoint: OutPoint,
+    ) -> Result<Preimage, LnGatewayError> {
+        let preimage = self
+            .federation_client
+            .await_preimage_decryption(outpoint)
+            .await?;
+        Ok(preimage)
+    }
+
     #[instrument(skip_all, fields(%contract_id))]
     pub async fn pay_invoice(
         &self,
         contract_id: ContractId,
         rng: impl RngCore + CryptoRng,
-    ) -> Result<(), LnGatewayError> {
+    ) -> Result<OutPoint, LnGatewayError> {
         debug!("Fetching contract");
         let contract_account = self
             .federation_client
@@ -106,18 +130,23 @@ impl LnGateway {
 
         // FIXME: figure out how to treat RNGs (maybe include in context?)
         debug!("Claiming outgoing contract");
-        self.federation_client
+        let outpoint = self
+            .federation_client
             .claim_outgoing_contract(contract_id, preimage, rng)
             .await?;
 
-        Ok(())
+        Ok(outpoint)
     }
 
-    pub async fn await_contract_claimed(&self, contract_id: ContractId) {
-        self.federation_client
-            .await_claimed_outgoing_accepted(contract_id)
-            .await;
-        debug!("Claim transaction accepted");
+    pub async fn await_outgoing_contract_claimed(
+        &self,
+        contract_id: ContractId,
+        outpoint: OutPoint,
+    ) -> Result<(), LnGatewayError> {
+        Ok(self
+            .federation_client
+            .await_outgoing_contract_claimed(contract_id, outpoint)
+            .await?)
     }
 }
 
@@ -142,7 +171,7 @@ async fn background_fetch(federation_client: Arc<GatewayClient>, _ln_client: Arc
             })
             .collect::<Vec<_>>();
         futures::future::join_all(pending_fetches).await;
-        tokio::time::sleep_until(least_wait_until).await;
+        minimint_api::task::sleep_until(least_wait_until).await;
     }
 }
 
@@ -156,13 +185,7 @@ impl Drop for LnGateway {
 #[derive(Debug, Error)]
 pub enum LnGatewayError {
     #[error("Federation operation error: {0:?}")]
-    FederationError(GatewayClientError),
+    FederationError(#[from] GatewayClientError),
     #[error("Our LN node could not route the payment: {0:?}")]
     CouldNotRoute(LightningError),
-}
-
-impl From<GatewayClientError> for LnGatewayError {
-    fn from(e: GatewayClientError) -> Self {
-        LnGatewayError::FederationError(e)
-    }
 }

@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::convert::TryInto;
 use std::hash::Hasher;
 use std::sync::Arc;
@@ -7,8 +7,8 @@ use crate::bitcoind::BitcoindRpc;
 use crate::config::WalletConfig;
 use crate::db::{
     BlockHashKey, PegOutTxSignatureCI, PegOutTxSignatureCIPrefix, PendingPegOutKey,
-    PendingPegOutPrefixKey, PendingTransaction, PendingTransactionKey, PendingTransactionPrefixKey,
-    RoundConsensusKey, UTXOKey, UTXOPrefixKey, UnsignedTransactionKey,
+    PendingPegOutPrefixKey, PendingTransactionKey, PendingTransactionPrefixKey, RoundConsensusKey,
+    UTXOKey, UTXOPrefixKey, UnsignedTransactionKey, UnsignedTransactionPrefixKey,
 };
 use crate::keys::CompressedPublicKey;
 use crate::tweakable::Tweakable;
@@ -22,7 +22,7 @@ use bitcoin::util::psbt::{Global, Input, PartiallySignedTransaction};
 use bitcoin::{
     Address, AddressType, BlockHash, Network, Script, SigHashType, Transaction, TxIn, TxOut, Txid,
 };
-use bitcoincore_rpc::Auth;
+use bitcoind::BitcoinRpcError;
 use itertools::Itertools;
 use minimint_api::db::batch::{BatchItem, BatchTx};
 use minimint_api::db::Database;
@@ -36,8 +36,9 @@ use miniscript::{Descriptor, DescriptorTrait, TranslatePk2};
 use rand::{CryptoRng, Rng, RngCore};
 use secp256k1::Message;
 use serde::{Deserialize, Serialize};
+use std::ops::Sub;
+use std::time::Duration;
 use thiserror::Error;
-use tokio::time::Duration;
 use tracing::{debug, error, info, instrument, trace, warn};
 
 pub mod bitcoind;
@@ -46,6 +47,9 @@ pub mod db;
 pub mod keys;
 pub mod tweakable;
 pub mod txoproof;
+
+#[cfg(feature = "native")]
+pub mod bitcoincore_rpc;
 
 pub const CONFIRMATION_TARGET: u16 = 24;
 
@@ -71,7 +75,7 @@ pub struct RoundConsensusItem {
     pub randomness: [u8; 32],
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Encodable, Decodable)]
 pub struct PegOutSignatureItem {
     pub txid: Txid,
     pub signature: Vec<secp256k1::Signature>,
@@ -104,6 +108,20 @@ pub struct PendingPegOut {
     #[serde(with = "bitcoin::util::amount::serde::as_sat")]
     amount: bitcoin::Amount,
     pending_since_block: u32,
+}
+
+/// A peg-out tx that is ready to be broadcast with a tweak for the change UTXO
+#[derive(Clone, Debug, Encodable, Decodable)]
+pub struct PendingTransaction {
+    pub tx: Transaction,
+    pub tweak: [u8; 32],
+}
+
+/// A PSBT that is awaiting enough signatures from the federation to becoming a `PendingTransaction`
+#[derive(Clone, Debug, Encodable, Decodable)]
+pub struct UnsignedTransaction {
+    pub psbt: PartiallySignedTransaction,
+    pub signatures: Vec<(PeerId, PegOutSignatureItem)>,
 }
 
 struct StatelessWallet<'a> {
@@ -210,12 +228,8 @@ impl FederationModule for Wallet {
             round_consensus,
         } = consensus_items.into_iter().unzip_wallet_consensus_item();
 
-        // Apply signatures to peg-out tx
-        for (peer, sig) in peg_out_signatures {
-            if let Err(e) = self.process_peg_out_signature(batch.subtransaction(), peer, &sig) {
-                warn!(%peer, error = %e, "Error processing peg-out signature");
-            };
-        }
+        // Save signatures to the database
+        self.save_peg_out_signatures(batch.subtransaction(), peg_out_signatures);
 
         // FIXME: also warn on less than 1/3, that should never happen
         // Make sure we have enough contributions to continue
@@ -343,7 +357,7 @@ impl FederationModule for Wallet {
 
     async fn end_consensus_epoch<'a>(
         &'a self,
-        _consensus_peers: &HashSet<PeerId>,
+        consensus_peers: &HashSet<PeerId>,
         mut batch: BatchTx<'a>,
         _rng: impl RngCore + CryptoRng + 'a,
     ) -> Vec<PeerId> {
@@ -412,20 +426,72 @@ impl FederationModule for Wallet {
                     .map(|input| BatchItem::delete(UTXOKey(input.previous_output))),
             );
 
-            // Delete pe-outs from pending list
+            // Delete peg-outs from pending list
             batch.append_from_iter(
                 peg_out_ids
                     .into_iter()
                     .map(|peg_out| BatchItem::delete(PendingPegOutKey(peg_out))),
             );
 
-            batch.append_insert_new(UnsignedTransactionKey(psbt.global.unsigned_tx.txid()), psbt);
+            batch.append_insert_new(
+                UnsignedTransactionKey(psbt.global.unsigned_tx.txid()),
+                UnsignedTransaction {
+                    psbt,
+                    signatures: vec![],
+                },
+            );
             batch.append_insert_new(PegOutTxSignatureCI(txid), sigs);
         }
-        batch.commit();
 
-        // FIXME should use to drop non-contributing peers
-        vec![]
+        // Sign and finalize any unsigned transactions that have signatures
+        let unsigned_txs: Vec<(UnsignedTransactionKey, UnsignedTransaction)> = self
+            .db
+            .find_by_prefix(&UnsignedTransactionPrefixKey)
+            .map(|res| res.expect("DB error"))
+            .filter(|(_, unsigned)| !unsigned.signatures.is_empty())
+            .collect();
+
+        let mut drop_peers = Vec::<PeerId>::new();
+        for (key, unsigned) in unsigned_txs {
+            let UnsignedTransaction {
+                mut psbt,
+                signatures,
+            } = unsigned;
+
+            let signers: HashSet<PeerId> = signatures
+                .iter()
+                .filter_map(
+                    |(peer, sig)| match self.sign_peg_out_psbt(&mut psbt, peer, sig) {
+                        Ok(_) => Some(*peer),
+                        Err(error) => {
+                            warn!("Error with {} partial sig {:?}", peer, error);
+                            None
+                        }
+                    },
+                )
+                .collect();
+
+            for peer in consensus_peers.sub(&signers) {
+                error!("Dropping {:?} for not contributing sigs to PSBT", peer);
+                drop_peers.push(peer);
+            }
+
+            match self.finalize_peg_out_psbt(&mut psbt) {
+                Ok(pending_tx) => {
+                    // We were able to finalize the transaction, so we will delete the PSBT and instead keep the
+                    // extracted tx for periodic transmission and to accept the change into our wallet
+                    // eventually once it confirms.
+                    batch.append_insert_new(PendingTransactionKey(key.0), pending_tx);
+                    batch.append_delete(PegOutTxSignatureCI(key.0));
+                    batch.append_delete(key);
+                }
+                Err(e) => {
+                    warn!("Unable to finalize PSBT due to {:?}", e)
+                }
+            }
+        }
+        batch.commit();
+        drop_peers
     }
 
     fn output_status(&self, _out_point: OutPoint) -> Option<Self::TxOutputOutcome> {
@@ -454,18 +520,6 @@ impl FederationModule for Wallet {
 }
 
 impl Wallet {
-    pub fn bitcoind(cfg: WalletConfig) -> impl Fn() -> Box<dyn BitcoindRpc> {
-        move || -> Box<dyn BitcoindRpc> {
-            Box::new(
-                bitcoincore_rpc::Client::new(
-                    &cfg.btc_rpc_address,
-                    Auth::UserPass(cfg.btc_rpc_user.clone(), cfg.btc_rpc_pass.clone()),
-                )
-                .expect("Could not connect to bitcoind"),
-            )
-        }
-    }
-
     // TODO: work around bitcoind_gen being a closure, maybe make clonable?
     pub async fn new_with_bitcoind(
         cfg: WalletConfig,
@@ -474,7 +528,7 @@ impl Wallet {
     ) -> Result<Wallet, WalletError> {
         let broadcaster_bitcoind_rpc = bitcoind_gen();
         let broadcaster_db = db.clone();
-        tokio::spawn(async move {
+        minimint_api::task::spawn(async move {
             run_broadcast_pending_tx(broadcaster_db, broadcaster_bitcoind_rpc).await;
         });
 
@@ -504,23 +558,47 @@ impl Wallet {
         randomness.into_iter().fold([0; 32], xor)
     }
 
-    /// Try to attach a contributed signature to a pending peg-out tx and try to finalize it.
-    fn process_peg_out_signature(
+    fn save_peg_out_signatures(
         &self,
         mut batch: BatchTx,
-        peer: PeerId,
+        signatures: Vec<(PeerId, PegOutSignatureItem)>,
+    ) {
+        let mut cache: BTreeMap<Txid, UnsignedTransaction> = self
+            .db
+            .find_by_prefix(&UnsignedTransactionPrefixKey)
+            .map(|res| {
+                let (key, val) = res.expect("DB error");
+                (key.0, val)
+            })
+            .collect();
+
+        for (peer, sig) in signatures.into_iter() {
+            match cache.get_mut(&sig.txid) {
+                Some(unsigned) => unsigned.signatures.push((peer, sig)),
+                None => warn!(
+                    "{} sent peg-out signature for unknown PSBT {}",
+                    peer, sig.txid
+                ),
+            }
+        }
+
+        for (txid, unsigned) in cache.into_iter() {
+            batch.append_insert(UnsignedTransactionKey(txid), unsigned);
+        }
+        batch.commit();
+    }
+
+    /// Try to attach signatures to a pending peg-out tx.
+    fn sign_peg_out_psbt(
+        &self,
+        psbt: &mut PartiallySignedTransaction,
+        peer: &PeerId,
         signature: &PegOutSignatureItem,
     ) -> Result<(), ProcessPegOutSigError> {
-        let mut psbt = self
-            .db
-            .get_value(&UnsignedTransactionKey(signature.txid))
-            .expect("DB error")
-            .ok_or(ProcessPegOutSigError::UnknownTransaction(signature.txid))?;
-
         let peer_key = self
             .cfg
             .peer_peg_in_keys
-            .get(&peer)
+            .get(peer)
             .expect("always called with valid peer id");
 
         if psbt.inputs.len() != signature.signature.len() {
@@ -573,11 +651,17 @@ impl Wallet {
                 .insert(tweaked_peer_key.into(), psbt_sig)
                 .is_some()
             {
+                // Should never happen since peers only sign a PSBT once
                 return Err(ProcessPegOutSigError::DuplicateSignature);
             }
-            // TODO: delete signature item if it's our own
         }
+        Ok(())
+    }
 
+    fn finalize_peg_out_psbt(
+        &self,
+        psbt: &mut PartiallySignedTransaction,
+    ) -> Result<PendingTransaction, ProcessPegOutSigError> {
         // We need to save the change output's tweak key to be able to access the funds later on.
         // The tweak is extracted here because the psbt is moved next and not available anymore
         // when the tweak is actually needed in the end to be put into the batch on success.
@@ -590,53 +674,18 @@ impl Wallet {
             .try_into()
             .map_err(|_| ProcessPegOutSigError::MissingOrMalformedChangeTweak)?;
 
-        match miniscript::psbt::finalize(&mut psbt, &self.secp) {
-            Ok(()) => {}
-            Err(error) => {
-                trace!(
-                    txid = %signature.txid,
-                    %error,
-                    "can't finalize peg-out yet");
-
-                // We want to save the new signature, so we need to overwrite the PSBT
-                batch.append_insert(UnsignedTransactionKey(signature.txid), psbt);
-                batch.commit();
-                return Ok(());
-            }
+        if let Err(error) = miniscript::psbt::finalize(psbt, &self.secp) {
+            return Err(ProcessPegOutSigError::ErrorFinalizingPsbt(error));
         }
 
-        let tx = match miniscript::psbt::extract(&psbt, &self.secp) {
-            Ok(tx) => tx,
-            Err(error) => {
-                // FIXME: this should never happen AFAIK, but I'd like to avoid DOS bugs for now
-                error!(
-                    %error,
-                    "This shouldn't happen: could not extract tx from finalized PSBT",
-                );
+        let tx = miniscript::psbt::extract(psbt, &self.secp)
+            // This should never happen AFAIK, but I'd like to avoid DOS bugs for now
+            .map_err(ProcessPegOutSigError::ErrorFinalizingPsbt)?;
 
-                // Who knows what went wrong, we still want to save the received signature
-                batch.append_insert(UnsignedTransactionKey(signature.txid), psbt);
-                batch.commit();
-                return Ok(());
-            }
-        };
-
-        debug!(txid = %tx.txid(), "Finalized peg-out");
-        trace!(transaction = ?tx);
-
-        // We were able to finalize the transaction, so we will delete the PSBT and instead keep the
-        // extracted tx for periodic transmission and to accept the change into our wallet
-        // eventually once it confirms.
-        batch.append_delete(UnsignedTransactionKey(signature.txid));
-        batch.append_insert_new(
-            PendingTransactionKey(signature.txid),
-            PendingTransaction {
-                tx,
-                tweak: change_tweak,
-            },
-        );
-        batch.commit();
-        Ok(())
+        Ok(PendingTransaction {
+            tx,
+            tweak: change_tweak,
+        })
     }
 
     /// # Panics
@@ -1101,7 +1150,7 @@ pub fn is_address_valid_for_network(address: &Address, network: Network) -> bool
 pub async fn run_broadcast_pending_tx(db: Arc<dyn Database>, rpc: Box<dyn BitcoindRpc>) {
     loop {
         broadcast_pending_tx(&db, rpc.as_ref()).await;
-        tokio::time::sleep(Duration::from_secs(10)).await;
+        minimint_api::task::sleep(Duration::from_secs(10)).await;
     }
 }
 
@@ -1151,13 +1200,13 @@ pub enum WalletError {
     #[error("Connected bitcoind is on wrong network, expected {0}, got {1}")]
     WrongNetwork(Network, Network),
     #[error("Error querying bitcoind: {0}")]
-    RpcError(bitcoincore_rpc::Error),
+    RpcError(#[from] BitcoinRpcError),
     #[error("Unknown bitcoin network: {0}")]
     UnknownNetwork(String),
     #[error("Unknown block hash in peg-in proof: {0}")]
     UnknownPegInProofBlock(BlockHash),
     #[error("Invalid peg-in proof: {0}")]
-    PegInProofError(PegInProofError),
+    PegInProofError(#[from] PegInProofError),
     #[error("The peg-in was already claimed")]
     PegInAlreadyClaimed,
 }
@@ -1176,18 +1225,8 @@ pub enum ProcessPegOutSigError {
     DuplicateSignature,
     #[error("Missing change tweak")]
     MissingOrMalformedChangeTweak,
-}
-
-impl From<bitcoincore_rpc::Error> for WalletError {
-    fn from(e: bitcoincore_rpc::Error) -> Self {
-        WalletError::RpcError(e)
-    }
-}
-
-impl From<PegInProofError> for WalletError {
-    fn from(e: PegInProofError) -> Self {
-        WalletError::PegInProofError(e)
-    }
+    #[error("Error finalizing PSBT {0}")]
+    ErrorFinalizingPsbt(miniscript::psbt::Error),
 }
 
 // FIXME: make FakeFed not require Eq

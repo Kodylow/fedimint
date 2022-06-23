@@ -18,10 +18,10 @@ use minimint_api::db::batch::{BatchTx, DbBatch};
 use minimint_api::db::Database;
 use minimint_api::encoding::{Decodable, Encodable};
 use minimint_api::{FederationModule, OutPoint, PeerId, TransactionId};
+use minimint_core::modules::ln::{LightningModule, LightningModuleError};
+use minimint_core::modules::mint::{Mint, MintError};
+use minimint_core::modules::wallet::{Wallet, WalletError};
 use minimint_derive::UnzipConsensus;
-use minimint_ln::{LightningModule, LightningModuleError};
-use minimint_mint::{Mint, MintError};
-use minimint_wallet::{Wallet, WalletError};
 use rand::{CryptoRng, RngCore};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -246,8 +246,14 @@ where
                 .end_consensus_epoch(&epoch_peers, db_batch.transaction(), self.rng_gen.get_rng())
                 .await;
 
+            let mut drop_ln = self
+                .ln
+                .end_consensus_epoch(&epoch_peers, db_batch.transaction(), self.rng_gen.get_rng())
+                .await;
+
             drop_peers.append(&mut drop_wallet);
             drop_peers.append(&mut drop_mint);
+            drop_peers.append(&mut drop_ln);
 
             let mut batch_tx = db_batch.transaction();
             for peer in drop_peers {
@@ -289,6 +295,13 @@ where
                     .await
                     .into_iter()
                     .map(ConsensusItem::Mint),
+            )
+            .chain(
+                self.ln
+                    .consensus_proposal(self.rng_gen.get_rng())
+                    .await
+                    .into_iter()
+                    .map(ConsensusItem::LN),
             )
             .collect();
 
@@ -489,7 +502,7 @@ impl<'a, R: RngCore + CryptoRng> From<&'a MinimintConsensus<R>> for &'a Lightnin
 #[derive(Debug, Error)]
 pub enum TransactionSubmissionError {
     #[error("High level transaction error: {0}")]
-    TransactionError(TransactionError),
+    TransactionError(#[from] TransactionError),
     #[error("Input coin error: {0}")]
     InputCoinError(MintError),
     #[error("Input peg-in error: {0}")]
@@ -502,10 +515,4 @@ pub enum TransactionSubmissionError {
     OutputPegOut(WalletError),
     #[error("LN contract output error: {0}")]
     ContractOutputError(LightningModuleError),
-}
-
-impl From<TransactionError> for TransactionSubmissionError {
-    fn from(e: TransactionError) -> Self {
-        TransactionSubmissionError::TransactionError(e)
-    }
 }

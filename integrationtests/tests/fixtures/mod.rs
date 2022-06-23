@@ -9,15 +9,18 @@ use std::sync::atomic::AtomicU16;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 
+use bitcoin::hashes::{sha256, Hash};
 use bitcoin::{secp256k1, Address, Transaction};
 use cln_rpc::ClnRpc;
 use futures::executor::block_on;
 use futures::future::join_all;
+use hbbft::honey_badger::Message;
 
 use itertools::Itertools;
 use lightning_invoice::Invoice;
+use minimint_api::task::spawn;
+use minimint_wallet::bitcoincore_rpc;
 use rand::rngs::OsRng;
-use tokio::spawn;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::Mutex;
 use tracing::{info, warn};
@@ -29,21 +32,24 @@ use ln_gateway::LnGateway;
 use minimint::config::ServerConfigParams;
 use minimint::config::{ClientConfig, FeeConsensus, ServerConfig};
 use minimint::consensus::{ConsensusItem, ConsensusOutcome, ConsensusProposal, MinimintConsensus};
+use minimint::net::connect::mock::MockNetwork;
+use minimint::net::connect::{Connector, InsecureTcpConnector};
+use minimint::net::peers::PeerConnector;
 use minimint::transaction::{Input, Output};
 use minimint::MinimintServer;
 use minimint_api::config::GenerateConfig;
 use minimint_api::db::batch::DbBatch;
 use minimint_api::db::mem_impl::MemDatabase;
 use minimint_api::db::Database;
-use minimint_api::{Amount, FederationModule, OutPoint, PeerId};
+use minimint_api::{Amount, FederationModule, OutPoint, PeerId, TransactionId};
 use minimint_ln::contracts::Contract;
 use minimint_ln::{ContractOrOfferOutput, ContractOutput};
 use minimint_mint::PartiallySignedRequest;
 use minimint_wallet::bitcoind::BitcoindRpc;
 use minimint_wallet::config::WalletConfig;
-use minimint_wallet::db::UnsignedTransactionKey;
+use minimint_wallet::db::UTXOKey;
 use minimint_wallet::txoproof::TxOutProof;
-use minimint_wallet::{Wallet, WalletConsensusItem};
+use minimint_wallet::{SpendableUTXO, WalletConsensusItem};
 use mint_client::api::HttpFederationApi;
 use mint_client::clients::gateway::{GatewayClient, GatewayClientConfig};
 use mint_client::ln::gateway::LightningGateway;
@@ -62,6 +68,14 @@ pub fn rng() -> OsRng {
 
 pub fn sats(amount: u64) -> Amount {
     Amount::from_sat(amount)
+}
+
+pub fn sha256(data: &[u8]) -> sha256::Hash {
+    bitcoin::hashes::sha256::Hash::hash(data)
+}
+
+pub fn secp() -> secp256k1::Secp256k1<secp256k1::All> {
+    bitcoin::secp256k1::Secp256k1::new()
 }
 
 /// Generates the fixtures for an integration test and spawns API and HBBFT consensus threads for
@@ -105,7 +119,7 @@ pub async fn fixtures(
             let dir =
                 env::var("MINIMINT_TEST_DIR").expect("Must have test dir defined for real tests");
             let wallet_config = server_config.iter().last().unwrap().1.wallet.clone();
-            let bitcoin_rpc = Wallet::bitcoind(wallet_config.clone());
+            let bitcoin_rpc = bitcoincore_rpc::bitcoind_gen(wallet_config.clone());
             let bitcoin = RealBitcoinTest::new(wallet_config);
             let socket_gateway = PathBuf::from(dir.clone()).join("ln1/regtest/lightning-rpc");
             let socket_other = PathBuf::from(dir).join("ln2/regtest/lightning-rpc");
@@ -117,7 +131,8 @@ pub async fn fixtures(
                     .await
                     .expect("connect to ln_socket"),
             );
-            let fed = FederationTest::new(server_config.clone(), &bitcoin_rpc).await;
+            let connect_gen = |peer| InsecureTcpConnector::new(peer).to_any();
+            let fed = FederationTest::new(server_config.clone(), &bitcoin_rpc, &connect_gen).await;
             let user = UserTest::new(client_config.clone(), peers);
             let gateway = GatewayTest::new(
                 Box::new(lightning_rpc),
@@ -133,7 +148,10 @@ pub async fn fixtures(
             let bitcoin = FakeBitcoinTest::new();
             let bitcoin_rpc = || Box::new(bitcoin.clone()) as Box<dyn BitcoindRpc>;
             let lightning = FakeLightningTest::new();
-            let fed = FederationTest::new(server_config.clone(), &bitcoin_rpc).await;
+            let net = MockNetwork::new();
+            let net_ref = &net;
+            let connect_gen = move |peer| net_ref.connector(peer).to_any();
+            let fed = FederationTest::new(server_config.clone(), &bitcoin_rpc, &connect_gen).await;
             let user = UserTest::new(client_config.clone(), peers);
             let gateway = GatewayTest::new(
                 Box::new(lightning.clone()),
@@ -167,7 +185,7 @@ pub trait BitcoinTest {
 }
 
 pub trait LightningTest {
-    /// Creates an invoice from a non-gateway LN node
+    /// Creates invoice from a non-gateway LN node
     fn invoice(&self, amount: Amount) -> Invoice;
 
     /// Returns the amount that the gateway LN node has sent
@@ -177,14 +195,14 @@ pub trait LightningTest {
 pub struct GatewayTest {
     pub server: LnGateway,
     pub keys: LightningGateway,
-    pub user_client: UserClient,
+    pub user: UserTest,
     pub client: Arc<GatewayClient>,
 }
 
 impl GatewayTest {
     async fn new(
         ln_client: Box<dyn LnRpc>,
-        client: ClientConfig,
+        client_config: ClientConfig,
         node_pub_key: secp256k1::PublicKey,
     ) -> Self {
         let mut rng = OsRng::new().unwrap();
@@ -192,7 +210,7 @@ impl GatewayTest {
         let (secret_key_fed, public_key_fed) = ctx.generate_schnorrsig_keypair(&mut rng);
 
         let federation_client = GatewayClientConfig {
-            common: client.clone(),
+            common: client_config.clone(),
             redeem_key: secret_key_fed,
             timelock_delta: 10,
         };
@@ -204,15 +222,20 @@ impl GatewayTest {
         };
 
         let database = Box::new(MemDatabase::new());
-        let user_client = UserClient::new(client, database.clone(), Default::default());
-
+        let user_client =
+            UserClient::new(client_config.clone(), database.clone(), Default::default());
+        let user = UserTest {
+            client: user_client,
+            config: client_config,
+            database: database.clone(),
+        };
         let client = Arc::new(GatewayClient::new(federation_client, database.clone()));
         let server = LnGateway::new(client.clone(), ln_client).await;
 
         GatewayTest {
             server,
             keys,
-            user_client,
+            user,
             client,
         }
     }
@@ -220,7 +243,7 @@ impl GatewayTest {
 
 pub struct UserTest {
     pub client: UserClient,
-    config: ClientConfig,
+    pub config: ClientConfig,
     database: Box<dyn Database>,
 }
 
@@ -232,6 +255,14 @@ impl UserTest {
             .map(|i| PeerId::from(*i))
             .collect::<Vec<PeerId>>();
         Self::new(self.config.clone(), peers)
+    }
+
+    /// Helper to simplify the peg_out method call
+    pub async fn peg_out(&self, amount: u64, address: &Address) -> TransactionId {
+        self.client
+            .peg_out(bitcoin::Amount::from_sat(amount), address.clone(), rng())
+            .await
+            .unwrap()
     }
 
     /// Returns the amount denominations of all coins from lowest to highest
@@ -321,6 +352,17 @@ impl FederationTest {
         }
     }
 
+    /// Submit a minimint transaction to all federation servers
+    pub fn submit_transaction(&self, transaction: minimint::transaction::Transaction) {
+        for server in &self.servers {
+            server
+                .borrow_mut()
+                .consensus
+                .submit_transaction(transaction.clone())
+                .unwrap();
+        }
+    }
+
     /// Returns a fixture that only calls on a subset of the peers.  Note that PeerIds are always
     /// starting at 0 in tests.
     pub fn subset_peers(&self, peers: &[u16]) -> Self {
@@ -348,6 +390,37 @@ impl FederationTest {
         self.database_add_coins_for_user(user, amount);
         self.run_consensus_epochs(1).await;
         user.client.fetch_all_coins().await.unwrap();
+    }
+
+    pub fn mine_spendable_utxo(
+        &self,
+        user: &UserTest,
+        bitcoin: &dyn BitcoinTest,
+        amount: bitcoin::Amount,
+    ) {
+        let address = user.client.get_new_pegin_address(rng());
+        let (txout_proof, btc_transaction) = bitcoin.send_and_mine_block(&address, amount);
+        let (_, input) = user
+            .client
+            .wallet_client()
+            .create_pegin_input(txout_proof, btc_transaction)
+            .unwrap();
+
+        for server in &self.servers {
+            let mut batch = DbBatch::new();
+            let mut batch_tx = batch.transaction();
+
+            batch_tx.append_insert_new(
+                UTXOKey(input.outpoint()),
+                SpendableUTXO {
+                    tweak: input.tweak_contract_key().serialize(),
+                    amount: bitcoin::Amount::from_sat(input.tx_output().value),
+                },
+            );
+            batch_tx.commit();
+
+            server.borrow_mut().database.apply_batch(batch).unwrap();
+        }
     }
 
     pub fn has_dropped_peer(&self, peer: u16) -> bool {
@@ -426,6 +499,31 @@ impl FederationTest {
         }
     }
 
+    /// Simulates sending an empty epoch which can happen in production (see run_consensus_epochs).
+    pub async fn run_empty_epoch(&self) {
+        for server in &self.servers {
+            let wallet_items = block_on(server.borrow().consensus.wallet.consensus_proposal(rng()));
+
+            let items = wallet_items
+                .into_iter()
+                .filter_map(|item| match item {
+                    WalletConsensusItem::RoundConsensus(_) => Some(ConsensusItem::Wallet(item)),
+                    _ => None,
+                })
+                .collect();
+
+            block_on(minimint::run_consensus_epoch(
+                ConsensusProposal {
+                    items,
+                    drop_peers: vec![],
+                },
+                &self.last_consensus.borrow(),
+                &server.borrow().proposal_sender,
+            ));
+        }
+        self.process_outcomes().await;
+    }
+
     pub fn send_proposals(&self) {
         for server in &self.servers {
             let mut s = server.borrow_mut();
@@ -454,10 +552,7 @@ impl FederationTest {
 
             // only need to update last_consensus_items and print one output since consensus is always the same
             if self.last_consensus.borrow().epoch < consensus_outcome.epoch {
-                let message = FederationTest::epoch_debug_message(
-                    &filtered_consensus,
-                    &server.borrow().database,
-                );
+                let message = FederationTest::epoch_debug_message(&filtered_consensus);
                 warn!("{}", message);
                 *self.last_consensus.borrow_mut() = filtered_consensus;
             }
@@ -470,6 +565,7 @@ impl FederationTest {
     async fn new(
         server_config: BTreeMap<PeerId, ServerConfig>,
         bitcoin_gen: &impl Fn() -> Box<dyn BitcoindRpc>,
+        connect_gen: &impl Fn(PeerId) -> PeerConnector<Message<PeerId>>,
     ) -> Self {
         let servers = join_all(server_config.values().map(|cfg| async move {
             let bitcoin_rpc = bitcoin_gen();
@@ -492,6 +588,7 @@ impl FederationTest {
             spawn(minimint::hbbft(
                 outcome_sender,
                 proposal_receiver,
+                connect_gen(cfg.identity),
                 cfg.clone(),
                 initial_cis,
                 OsRng::new().unwrap(),
@@ -556,38 +653,27 @@ impl FederationTest {
     }
 
     // outputs a useful debug message for epochs indicating what happened
-    fn epoch_debug_message(consensus: &ConsensusOutcome, database: &Arc<dyn Database>) -> String {
+    fn epoch_debug_message(consensus: &ConsensusOutcome) -> String {
         let peers = consensus.contributions.keys();
         let mut debug = format!("\n- Epoch: {} {:?} -", consensus.epoch, peers);
 
         for (peer, items) in consensus.contributions.iter() {
             for item in items {
-                let item_debug = Self::item_debug_message(item, database);
+                let item_debug = Self::item_debug_message(item);
                 write!(debug, "\n  Peer {}: {}", peer, item_debug).unwrap();
             }
         }
         debug
     }
 
-    fn item_debug_message(item: &ConsensusItem, database: &Arc<dyn Database>) -> String {
+    fn item_debug_message(item: &ConsensusItem) -> String {
         match item {
             ConsensusItem::Wallet(WalletConsensusItem::RoundConsensus(
                 minimint_wallet::RoundConsensusItem { block_height, .. },
             )) => format!("Wallet Block Height {}", block_height),
             ConsensusItem::Wallet(WalletConsensusItem::PegOutSignature(
                 minimint_wallet::PegOutSignatureItem { txid, .. },
-            )) => {
-                let sigs = database
-                    .get_value(&UnsignedTransactionKey(*txid))
-                    .unwrap()
-                    .unwrap()
-                    .inputs
-                    .first()
-                    .unwrap()
-                    .partial_sigs
-                    .len();
-                format!("Wallet Peg Out PSBT {:.8} with {} signatures", txid, sigs)
-            }
+            )) => format!("Wallet Peg Out PSBT {:.8}", txid),
             ConsensusItem::Mint(PartiallySignedRequest {
                 out_point,
                 partial_signature,
@@ -614,7 +700,7 @@ impl FederationTest {
                             format!("Wallet PegIn with TxId {:.8}", t.outpoint().txid)
                         }
                         Input::LN(t) => {
-                            format!("LN Contract {} with id {:.8}", t.amount, t.crontract_id)
+                            format!("LN Contract {} with id {:.8}", t.amount, t.contract_id)
                         }
                     };
                     write!(tx_debug, "\n    Input: {}", input_debug).unwrap();

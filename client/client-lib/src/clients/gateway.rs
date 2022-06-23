@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::api::{ApiError, FederationApi};
 use crate::clients::gateway::db::{
     OutgoingPaymentClaimKey, OutgoingPaymentClaimKeyPrefix, OutgoingPaymentKey,
@@ -8,13 +10,16 @@ use crate::ln::{LnClient, LnClientError};
 use crate::mint::{MintClient, MintClientError};
 use crate::{api, OwnedClientContext};
 use lightning_invoice::Invoice;
-use minimint::config::ClientConfig;
-use minimint::modules::ln::contracts::{outgoing, ContractId, IdentifyableContract};
-use minimint::outcome::TransactionStatus;
-use minimint::transaction::{Input, Transaction};
 use minimint_api::db::batch::DbBatch;
 use minimint_api::db::Database;
-use minimint_api::{Amount, OutPoint, PeerId};
+use minimint_api::{Amount, OutPoint, PeerId, TransactionId};
+use minimint_core::config::ClientConfig;
+use minimint_core::modules::ln::contracts::{
+    incoming::{DecryptedPreimage, IncomingContract, IncomingContractOffer, Preimage},
+    outgoing, Contract, ContractId, IdentifyableContract, OutgoingContractOutcome,
+};
+use minimint_core::modules::ln::{ContractOrOfferOutput, ContractOutput};
+use minimint_core::transaction::Input;
 use rand::{CryptoRng, RngCore};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -150,7 +155,7 @@ impl GatewayClient {
     /// to be called prior to instructing the lightning node to pay the invoice since otherwise a
     /// crash could lead to loss of funds.
     ///
-    /// Not though that extended periods of staying offline will result in loss of funds anyway if
+    /// Note though that extended periods of staying offline will result in loss of funds anyway if
     /// the client can not claim the respective contract in time.
     pub fn save_outgoing_payment(&self, contract: OutgoingContractAccount) {
         self.context
@@ -216,6 +221,83 @@ impl GatewayClient {
         Ok(OutPoint { txid, out_idx: 0 })
     }
 
+    pub async fn buy_preimage_offer(
+        &self,
+        payment_hash: &bitcoin_hashes::sha256::Hash,
+        amount: &Amount,
+        mut rng: impl RngCore + CryptoRng,
+    ) -> Result<(minimint_api::TransactionId, ContractId)> {
+        let mut batch = DbBatch::new();
+
+        // Fetch offer for this payment hash
+        let offer: IncomingContractOffer = self.ln_client().get_offer(*payment_hash).await?;
+        if &offer.amount > amount || &offer.hash != payment_hash {
+            return Err(GatewayClientError::InvalidOffer);
+        }
+
+        // Inputs
+        let (mut coin_keys, coin_input) = self
+            .mint_client()
+            .create_coin_input(batch.transaction(), offer.amount)?;
+
+        // Outputs
+        let our_pub_key = secp256k1_zkp::schnorrsig::PublicKey::from_keypair(
+            &self.context.secp,
+            &self.context.config.redeem_key,
+        );
+        let contract = Contract::Incoming(IncomingContract {
+            hash: offer.hash,
+            encrypted_preimage: offer.encrypted_preimage.clone(),
+            decrypted_preimage: DecryptedPreimage::Pending,
+            gateway_key: our_pub_key,
+        });
+        let incoming_output = minimint_core::transaction::Output::LN(
+            ContractOrOfferOutput::Contract(ContractOutput {
+                amount: *amount,
+                contract: contract.clone(),
+            }),
+        );
+
+        // Submit transaction
+        let mut builder = TransactionBuilder::default();
+        builder.input(&mut coin_keys, Input::Mint(coin_input));
+        builder.output(incoming_output);
+        let change = builder.change_required(&self.context.config.common.fee_consensus);
+        let tx = self
+            .mint_client()
+            .finalize_change(change, batch.transaction(), builder, &mut rng);
+        let mint_tx_id = self.context.api.submit_transaction(tx).await?;
+
+        self.context.db.apply_batch(batch).expect("DB error");
+
+        Ok((mint_tx_id, contract.contract_id()))
+    }
+
+    /// Claw back funds after outgoing contract that had invalid preimage
+    pub async fn claim_incoming_contract(
+        &self,
+        contract_id: ContractId,
+        mut rng: impl RngCore + CryptoRng,
+    ) -> Result<TransactionId> {
+        let mut batch = DbBatch::new();
+        let contract_account = self.ln_client().get_incoming_contract(contract_id).await?;
+
+        let mut builder = TransactionBuilder::default();
+
+        // Input claims this contract
+        builder.input(
+            &mut vec![self.context.config.redeem_key],
+            Input::LN(contract_account.claim()),
+        );
+        let change = builder.change_required(&self.context.config.common.fee_consensus);
+        let tx = self
+            .mint_client()
+            .finalize_change(change, batch.transaction(), builder, &mut rng);
+        let mint_tx_id = self.context.api.submit_transaction(tx).await?;
+        self.context.db.apply_batch(batch).expect("DB error");
+        Ok(mint_tx_id)
+    }
+
     /// Lists all claim transactions for outgoing contracts that we have submitted but were not part
     /// of the consensus yet.
     pub fn list_pending_claimed_outgoing(&self) -> Vec<ContractId> {
@@ -226,75 +308,37 @@ impl GatewayClient {
             .collect()
     }
 
+    /// Wait for a lightning preimage gateway has purchased to be decrypted by the federation
+    pub async fn await_preimage_decryption(&self, outpoint: OutPoint) -> Result<Preimage> {
+        Ok(self
+            .context
+            .api
+            .await_output_outcome::<Preimage>(outpoint, Duration::from_secs(10))
+            .await?)
+    }
+
     // TODO: improve error propagation on tx transmission
     /// Waits for a outgoing contract claim transaction to be confirmed and retransmits it
     /// periodically if this does not happen.
-    ///
-    /// # Panics
-    /// * If the contract with the given ID isn't in the database. Only call this function with
-    ///   pending claimed contracts returned by `list_pending_claimed_outgoing`.
-    /// * If the task can not be completed in reasonable time meaning something went horribly
-    ///   wrong (should not happen with an honest federation).
-    pub async fn await_claimed_outgoing_accepted(&self, contract_id: ContractId) {
-        let transaction: Transaction = self
-            .context
+    pub async fn await_outgoing_contract_claimed(
+        &self,
+        contract_id: ContractId,
+        outpoint: OutPoint,
+    ) -> Result<()> {
+        self.context
+            .api
+            .await_output_outcome::<OutgoingContractOutcome>(outpoint, Duration::from_secs(10))
+            .await?;
+        // We remove the entry that indicates we are still waiting for transaction
+        // confirmation. This does not mean we are finished yet. As a last step we need
+        // to fetch the blind signatures for the newly issued tokens, but as long as the
+        // federation is honest as a whole they will produce the signatures, so we don't
+        // have to worry
+        self.context
             .db
-            .get_value(&OutgoingPaymentClaimKey(contract_id))
-            .expect("DB error")
-            .expect("Contract not found");
-        let txid = transaction.tx_hash();
-
-        let await_confirmed = || async {
-            loop {
-                match self.context.api.fetch_tx_outcome(txid).await {
-                    Ok(TransactionStatus::Accepted { .. }) => return,
-                    Ok(TransactionStatus::Error(e)) => {
-                        panic!("Transaction was rejected by federation: {}", e);
-                    }
-                    Err(e) => {
-                        if e.is_retryable_fetch_coins() {
-                            tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-                        } else {
-                            // FIXME: maybe survive a few of these and only bail if the error remains, federation could be unreachable
-                            panic!(
-                                "Federation returned error when fetching tx outcome: {:?}",
-                                e
-                            );
-                        }
-                    }
-                }
-            }
-        };
-
-        let timeout = tokio::time::Duration::from_secs(10);
-        for _ in 0..6 {
-            tokio::select! {
-                () = await_confirmed() => {
-                    // We remove the entry that indicates we are still waiting for transaction
-                    // confirmation. This does not mean we are finished yet. As a last step we need
-                    // to fetch the blind signatures for the newly issued tokens, but as long as the
-                    // federation is honest as a whole they will produce the signatures, so we don't
-                    // have to worry about that.
-                    self.context
-                        .db
-                        .remove_entry(&OutgoingPaymentClaimKey(contract_id))
-                        .expect("DB error");
-                    return;
-                },
-                _ = tokio::time::sleep(timeout) => {
-                    self.context
-                        .api
-                        .submit_transaction(transaction.clone())
-                        .await
-                        .expect("Error submitting transaction");
-                }
-            };
-        }
-
-        panic!(
-            "Could not get claim transaction for contract {} finalized",
-            contract_id
-        );
+            .remove_entry(&OutgoingPaymentClaimKey(contract_id))
+            .expect("DB error");
+        Ok(())
     }
 
     pub fn list_fetchable_coins(&self) -> Vec<OutPoint> {
@@ -322,11 +366,11 @@ type Result<T> = std::result::Result<T, GatewayClientError>;
 #[derive(Error, Debug)]
 pub enum GatewayClientError {
     #[error("Error querying federation: {0}")]
-    MintApiError(ApiError),
+    MintApiError(#[from] ApiError),
     #[error("Mint client error: {0}")]
-    MintClientError(MintClientError),
+    MintClientError(#[from] MintClientError),
     #[error("Lightning client error: {0}")]
-    LnClientError(LnClientError),
+    LnClientError(#[from] LnClientError),
     #[error("The Account or offer is keyed to another gateway")]
     NotOurKey,
     #[error("Can't parse contract's invoice: {0:?}")]
@@ -337,26 +381,26 @@ pub enum GatewayClientError {
     Underfunded(Amount, Amount),
     #[error("The contract's timeout is in the past or does not allow for a safety margin")]
     TimeoutTooClose,
-}
-
-impl From<LnClientError> for GatewayClientError {
-    fn from(e: LnClientError) -> Self {
-        GatewayClientError::LnClientError(e)
-    }
-}
-
-impl From<ApiError> for GatewayClientError {
-    fn from(e: ApiError) -> Self {
-        GatewayClientError::MintApiError(e)
-    }
+    #[error("No offer")]
+    NoOffer,
+    #[error("Invalid offer")]
+    InvalidOffer,
+    #[error("Wrong contract type")]
+    WrongContractType,
+    #[error("Wrong transaction type")]
+    WrongTransactionType,
+    #[error("Invalid transaction {0}")]
+    InvalidTransaction(String),
+    #[error("Invalid preimage")]
+    InvalidPreimage,
 }
 
 mod db {
     use crate::ln::outgoing::OutgoingContractAccount;
-    use minimint::modules::ln::contracts::ContractId;
-    use minimint::transaction::Transaction;
     use minimint_api::db::DatabaseKeyPrefixConst;
     use minimint_api::encoding::{Decodable, Encodable};
+    use minimint_core::modules::ln::contracts::ContractId;
+    use minimint_core::transaction::Transaction;
 
     const DB_PREFIX_OUTGOING_PAYMENT: u8 = 0x50;
     const DB_PREFIX_OUTGOING_PAYMENT_CLAIM: u8 = 0x51;

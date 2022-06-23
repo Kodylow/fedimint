@@ -1,13 +1,13 @@
 use crate::BorrowedClientContext;
 use bitcoin::Address;
 use db::PegInKey;
-use minimint::config::FeeConsensus;
-use minimint::modules::wallet::config::WalletClientConfig;
-use minimint::modules::wallet::tweakable::Tweakable;
-use minimint::modules::wallet::txoproof::{PegInProof, PegInProofError, TxOutProof};
-use minimint::modules::wallet::PegOut;
 use minimint_api::db::batch::BatchTx;
 use minimint_api::Amount;
+use minimint_core::config::FeeConsensus;
+use minimint_core::modules::wallet::config::WalletClientConfig;
+use minimint_core::modules::wallet::tweakable::Tweakable;
+use minimint_core::modules::wallet::txoproof::{PegInProof, PegInProofError, TxOutProof};
+use minimint_core::modules::wallet::PegOut;
 use miniscript::DescriptorTrait;
 use rand::{CryptoRng, RngCore};
 use secp256k1_zkp::schnorrsig::KeyPair;
@@ -137,18 +137,22 @@ mod tests {
     use crate::OwnedClientContext;
     use async_trait::async_trait;
     use bitcoin::Address;
-    use minimint::config::FeeConsensus;
-    use minimint::modules::ln::contracts::ContractId;
-    use minimint::modules::ln::ContractAccount;
-    use minimint::modules::wallet::bitcoind::test::{FakeBitcoindRpc, FakeBitcoindRpcController};
-    use minimint::modules::wallet::config::WalletClientConfig;
-    use minimint::modules::wallet::db::UTXOKey;
-    use minimint::modules::wallet::{SpendableUTXO, Wallet};
-    use minimint::outcome::{OutputOutcome, TransactionStatus};
-    use minimint::transaction::Transaction;
+
     use minimint_api::db::mem_impl::MemDatabase;
     use minimint_api::module::testing::FakeFed;
     use minimint_api::{Amount, OutPoint, TransactionId};
+    use minimint_core::config::FeeConsensus;
+    use minimint_core::modules::ln::contracts::incoming::IncomingContractOffer;
+    use minimint_core::modules::ln::contracts::ContractId;
+    use minimint_core::modules::ln::ContractAccount;
+    use minimint_core::modules::wallet::bitcoind::test::{
+        FakeBitcoindRpc, FakeBitcoindRpcController,
+    };
+    use minimint_core::modules::wallet::config::WalletClientConfig;
+    use minimint_core::modules::wallet::db::UTXOKey;
+    use minimint_core::modules::wallet::{SpendableUTXO, Wallet};
+    use minimint_core::outcome::{OutputOutcome, TransactionStatus};
+    use minimint_core::transaction::Transaction;
     use std::str::FromStr;
     use std::sync::Arc;
     use std::time::Duration;
@@ -186,6 +190,13 @@ mod tests {
 
         async fn fetch_consensus_block_height(&self) -> crate::api::Result<u64> {
             unimplemented!()
+        }
+
+        async fn fetch_offer(
+            &self,
+            _payment_hash: bitcoin::hashes::sha256::Hash,
+        ) -> crate::api::Result<IncomingContractOffer> {
+            unimplemented!();
         }
     }
 
@@ -283,7 +294,7 @@ mod tests {
         fed.lock().await.consensus_round(&[], &[]).await;
 
         // wait for broadcast
-        tokio::time::sleep(Duration::from_secs(12)).await;
+        minimint_api::task::sleep(Duration::from_secs(12)).await;
         assert!(btc_rpc.is_btc_sent_to(amount, addr).await);
 
         let wallet_value = fed

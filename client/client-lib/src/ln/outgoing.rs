@@ -1,8 +1,8 @@
-use minimint::modules::ln::contracts::outgoing::{OutgoingContract, Preimage};
-use minimint::modules::ln::contracts::IdentifyableContract;
-use minimint::modules::ln::ContractInput;
 use minimint_api::encoding::{Decodable, Encodable};
 use minimint_api::Amount;
+use minimint_core::modules::ln::contracts::outgoing::{OutgoingContract, Preimage};
+use minimint_core::modules::ln::contracts::IdentifyableContract;
+use minimint_core::modules::ln::ContractInput;
 
 #[derive(Debug, Encodable, Decodable)]
 pub struct OutgoingContractData {
@@ -17,10 +17,9 @@ pub struct OutgoingContractAccount {
 }
 
 impl OutgoingContractAccount {
-    #[allow(dead_code)]
     pub fn claim(&self, preimage: Preimage) -> ContractInput {
         ContractInput {
-            crontract_id: self.contract.contract_id(),
+            contract_id: self.contract.contract_id(),
             amount: self.amount,
             witness: Some(preimage),
         }
@@ -28,7 +27,7 @@ impl OutgoingContractAccount {
 
     pub fn refund(&self) -> ContractInput {
         ContractInput {
-            crontract_id: self.contract.contract_id(),
+            contract_id: self.contract.contract_id(),
             amount: self.amount,
             witness: None,
         }
