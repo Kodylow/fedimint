@@ -14,7 +14,7 @@ itertools = "0.10.1"
 lightning = "0.0.108"
 lightning-invoice = "0.16.0"
 minimint-api = { path = "../../minimint-api" }
-secp256k1 = "0.22.1"
+secp256k1 = "0.23.0"
 serde = {version = "1.0.130", features = [ "derive" ] }
 threshold_crypto = { git = "https://github.com/fedimint/threshold_crypto" }
 thiserror = "1.0.23"

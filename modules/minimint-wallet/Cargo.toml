@@ -19,7 +19,7 @@ minimint-api = { path = "../../minimint-api" }
 minimint-derive = { path = "../../minimint-derive" }
 miniscript = { version = "7.0.0", features = [ "compiler", "use-serde" ] }
 rand = "0.6.0"
-secp256k1 = { version = "0.22.1", features = [ "serde" ] }
+secp256k1 = { version = "0.23.0", features = [ "serde" ] }
 serde = { version = "1.0.118", features = [ "derive" ] }
 thiserror = "1.0.23"
 tokio = { version = "1.0.1", features = ["sync"], optional = true }
