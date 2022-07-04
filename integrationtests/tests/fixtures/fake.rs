@@ -4,11 +4,9 @@ use std::sync::{Arc, Mutex};
 use async_trait::async_trait;
 use bitcoin::hash_types::Txid;
 use bitcoin::hashes::{sha256, Hash};
-use bitcoin::secp256k1::{PublicKey, SecretKey};
+use bitcoin::secp256k1::{PublicKey, Secp256k1, SecretKey};
 use bitcoin::util::merkleblock::PartialMerkleTree;
-use bitcoin::{
-    secp256k1, Address, Block, BlockHash, BlockHeader, KeyPair, Network, Transaction, TxOut,
-};
+use bitcoin::{Address, Block, BlockHash, BlockHeader, KeyPair, Network, Transaction, TxOut};
 use lightning::ln::PaymentSecret;
 use lightning_invoice::{Currency, Invoice, InvoiceBuilder};
 use rand::rngs::OsRng;
@@ -23,8 +21,8 @@ use crate::fixtures::{BitcoinTest, LightningTest};
 
 #[derive(Clone, Debug)]
 pub struct FakeLightningTest {
-    pub gateway_node_pub_key: secp256k1::PublicKey,
-    gateway_node_sec_key: secp256k1::SecretKey,
+    pub gateway_node_pub_key: PublicKey,
+    gateway_node_sec_key: SecretKey,
     amount_sent: Arc<Mutex<u64>>,
 }
 
@@ -32,7 +30,7 @@ impl FakeLightningTest {
     const PREIMAGE: [u8; 32] = [1; 32];
 
     pub fn new() -> Self {
-        let ctx = bitcoin::secp256k1::Secp256k1::new();
+        let ctx = Secp256k1::new();
         let kp = KeyPair::new(&ctx, &mut OsRng::new().unwrap());
         let amount_sent = Arc::new(Mutex::new(0));
 
@@ -46,7 +44,7 @@ impl FakeLightningTest {
 
 impl LightningTest for FakeLightningTest {
     fn invoice(&self, amount: Amount) -> Invoice {
-        let ctx = bitcoin::secp256k1::Secp256k1::new();
+        let ctx = Secp256k1::new();
 
         InvoiceBuilder::new(Currency::Regtest)
             .description("".to_string())
@@ -172,7 +170,7 @@ impl BitcoinTest for FakeBitcoinTest {
     }
 
     fn get_new_address(&self) -> Address {
-        let ctx = bitcoin::secp256k1::Secp256k1::new();
+        let ctx = Secp256k1::new();
         let (_, public_key) = ctx.generate_keypair(&mut OsRng::new().unwrap());
 
         Address::p2wpkh(&bitcoin::PublicKey::new(public_key), Network::Regtest).unwrap()

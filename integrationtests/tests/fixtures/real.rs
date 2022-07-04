@@ -5,7 +5,7 @@ use std::str::FromStr;
 use std::thread;
 use std::time::Duration;
 
-use bitcoin::secp256k1;
+use bitcoin::secp256k1::PublicKey;
 use bitcoin::{Address, Transaction};
 use bitcoincore_rpc::Client;
 use bitcoincore_rpc::{Auth, RpcApi};
@@ -26,7 +26,7 @@ pub struct RealLightningTest {
     rpc_gateway: LightningRPC,
     rpc_other: LightningRPC,
     initial_balance: Amount,
-    pub gateway_node_pub_key: secp256k1::PublicKey,
+    pub gateway_node_pub_key: PublicKey,
 }
 
 impl LightningTest for RealLightningTest {
@@ -60,8 +60,7 @@ impl RealLightningTest {
             Self::fund_channel(&mut rpc_gateway, &rpc_other, bitcoin);
         }
         let initial_balance = Self::channel_balance(&rpc_gateway);
-        let gateway_pubkey =
-            secp256k1::PublicKey::from_str(&rpc_gateway.getinfo().unwrap().id).unwrap();
+        let gateway_pubkey = PublicKey::from_str(&rpc_gateway.getinfo().unwrap().id).unwrap();
 
         RealLightningTest {
             rpc_gateway,

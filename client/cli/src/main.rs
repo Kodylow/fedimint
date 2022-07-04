@@ -1,6 +1,7 @@
 use bitcoin::{Address, Transaction};
 use bitcoin_hashes::hex::ToHex;
 use clap::Parser;
+use lightning_invoice::Invoice;
 use minimint_api::Amount;
 use minimint_core::config::load_from_file;
 use minimint_core::modules::mint::tiered::coins::Coins;
@@ -51,7 +52,7 @@ enum Command {
     },
 
     /// Pay a lightning invoice via a gateway
-    LnPay { bolt11: lightning_invoice::Invoice },
+    LnPay { bolt11: Invoice },
 
     /// Fetch (re-)issued coins and finalize issuance process
     Fetch,

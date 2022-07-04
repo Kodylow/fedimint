@@ -15,7 +15,7 @@ use crate::outcome::OutputOutcome;
 use crate::rng::RngGenerator;
 use crate::transaction::{Input, Output, Transaction, TransactionError};
 use futures::future::select_all;
-use hbbft::honey_badger::Batch;
+use hbbft::honey_badger::{Batch, self};
 use minimint_api::db::batch::{BatchTx, DbBatch};
 use minimint_api::db::Database;
 use minimint_api::encoding::{Decodable, Encodable};
@@ -41,7 +41,7 @@ pub enum ConsensusItem {
     LN(<LightningModule as FederationModule>::ConsensusItem),
 }
 
-pub type HoneyBadgerMessage = hbbft::honey_badger::Message<PeerId>;
+pub type HoneyBadgerMessage = honey_badger::Message<PeerId>;
 pub type ConsensusOutcome = Batch<Vec<ConsensusItem>, PeerId>;
 
 /// Proposed HBBFT consensus changes including removing peers

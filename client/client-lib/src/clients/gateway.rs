@@ -9,6 +9,9 @@ use crate::ln::outgoing::OutgoingContractAccount;
 use crate::ln::{LnClient, LnClientError};
 use crate::mint::{MintClient, MintClientError};
 use crate::{api, OwnedClientContext};
+use bitcoin::secp256k1::Secp256k1;
+use bitcoin::XOnlyPublicKey;
+use bitcoin_hashes::sha256;
 use lightning_invoice::Invoice;
 use minimint_api::db::batch::DbBatch;
 use minimint_api::db::Database;
@@ -19,7 +22,7 @@ use minimint_core::modules::ln::contracts::{
     outgoing, Contract, ContractId, IdentifyableContract, OutgoingContractOutcome,
 };
 use minimint_core::modules::ln::{ContractOrOfferOutput, ContractOutput};
-use minimint_core::transaction::Input;
+use minimint_core::transaction::{Input, Output};
 use rand::{CryptoRng, RngCore};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -71,7 +74,7 @@ impl GatewayClient {
                 config,
                 db,
                 api,
-                secp: secp256k1_zkp::Secp256k1::new(),
+                secp: Secp256k1::new(),
             },
         }
     }
@@ -107,8 +110,7 @@ impl GatewayClient {
         &self,
         account: &OutgoingContractAccount,
     ) -> Result<PaymentParameters> {
-        let our_pub_key =
-            secp256k1_zkp::XOnlyPublicKey::from_keypair(&self.context.config.redeem_key);
+        let our_pub_key = XOnlyPublicKey::from_keypair(&self.context.config.redeem_key);
 
         if account.contract.gateway_key != our_pub_key {
             return Err(GatewayClientError::NotOurKey);
@@ -222,7 +224,7 @@ impl GatewayClient {
 
     pub async fn buy_preimage_offer(
         &self,
-        payment_hash: &bitcoin_hashes::sha256::Hash,
+        payment_hash: &sha256::Hash,
         amount: &Amount,
         mut rng: impl RngCore + CryptoRng,
     ) -> Result<(minimint_api::TransactionId, ContractId)> {
@@ -240,20 +242,17 @@ impl GatewayClient {
             .create_coin_input(batch.transaction(), offer.amount)?;
 
         // Outputs
-        let our_pub_key =
-            secp256k1_zkp::XOnlyPublicKey::from_keypair(&self.context.config.redeem_key);
+        let our_pub_key = XOnlyPublicKey::from_keypair(&self.context.config.redeem_key);
         let contract = Contract::Incoming(IncomingContract {
             hash: offer.hash,
             encrypted_preimage: offer.encrypted_preimage.clone(),
             decrypted_preimage: DecryptedPreimage::Pending,
             gateway_key: our_pub_key,
         });
-        let incoming_output = minimint_core::transaction::Output::LN(
-            ContractOrOfferOutput::Contract(ContractOutput {
-                amount: *amount,
-                contract: contract.clone(),
-            }),
-        );
+        let incoming_output = Output::LN(ContractOrOfferOutput::Contract(ContractOutput {
+            amount: *amount,
+            contract: contract.clone(),
+        }));
 
         // Submit transaction
         let mut builder = TransactionBuilder::default();
@@ -440,8 +439,8 @@ mod db {
 }
 
 pub mod serde_keypair {
+    use bitcoin::secp256k1::{SecretKey, SECP256K1};
     use bitcoin::KeyPair;
-    use secp256k1_zkp::SecretKey;
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
     #[allow(missing_docs)]
@@ -459,9 +458,6 @@ pub mod serde_keypair {
     {
         let secret_key = SecretKey::deserialize(deserializer)?;
 
-        Ok(KeyPair::from_secret_key(
-            secp256k1_zkp::SECP256K1,
-            secret_key,
-        ))
+        Ok(KeyPair::from_secret_key(SECP256K1, secret_key))
     }
 }

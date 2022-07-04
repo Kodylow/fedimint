@@ -5,6 +5,7 @@ use crate::ln::{LnClient, LnClientError};
 use crate::mint::{MintClient, MintClientError, SpendableCoin};
 use crate::wallet::{WalletClient, WalletClientError};
 use crate::{api, OwnedClientContext};
+use bitcoin::secp256k1::{All, Secp256k1};
 use bitcoin::util::key::KeyPair;
 use bitcoin::{Address, Network, Transaction as BitcoinTransaction};
 use bitcoin_hashes::Hash;
@@ -25,7 +26,6 @@ use minimint_core::modules::mint::BlindToken;
 use minimint_core::modules::wallet::txoproof::TxOutProof;
 use minimint_core::transaction::{Input, Output, TransactionItem};
 use rand::{CryptoRng, RngCore};
-use secp256k1_zkp::{All, Secp256k1};
 use std::time::Duration;
 use thiserror::Error;
 

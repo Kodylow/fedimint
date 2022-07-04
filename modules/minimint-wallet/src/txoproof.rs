@@ -1,10 +1,10 @@
 use crate::keys::CompressedPublicKey;
 use crate::tweakable::{Contract, Tweakable};
+use bitcoin::secp256k1::{Secp256k1, Verification};
 use bitcoin::util::merkleblock::PartialMerkleTree;
 use bitcoin::{BlockHash, BlockHeader, OutPoint, Transaction, Txid};
 use minimint_api::encoding::{Decodable, DecodeError, Encodable};
 use miniscript::{Descriptor, DescriptorTrait, TranslatePk2};
-use secp256k1::{Secp256k1, Verification};
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::hash::Hash;

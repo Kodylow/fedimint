@@ -10,8 +10,8 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use bitcoin::hashes::{sha256, Hash};
-use bitcoin::KeyPair;
-use bitcoin::{secp256k1, Address, Transaction};
+use bitcoin::secp256k1::{All, PublicKey, Secp256k1};
+use bitcoin::{Address, KeyPair, Transaction};
 use cln_rpc::ClnRpc;
 use futures::executor::block_on;
 use futures::future::{join_all, select_all};
@@ -20,6 +20,7 @@ use hbbft::honey_badger::Message;
 
 use itertools::Itertools;
 use lightning_invoice::Invoice;
+use minimint::db::AcceptedTransactionKey;
 use minimint_api::task::spawn;
 use minimint_wallet::bitcoincore_rpc;
 use rand::rngs::OsRng;
@@ -31,14 +32,13 @@ use tracing_subscriber::EnvFilter;
 use fake::{FakeBitcoinTest, FakeLightningTest};
 use ln_gateway::ln::LnRpc;
 use ln_gateway::LnGateway;
-use minimint::config::ServerConfigParams;
-use minimint::config::{ClientConfig, FeeConsensus, ServerConfig};
+use minimint::config::{ClientConfig, FeeConsensus, ServerConfig, ServerConfigParams};
 use minimint::consensus::{ConsensusItem, ConsensusOutcome, ConsensusProposal};
 use minimint::net::connect::mock::MockNetwork;
 use minimint::net::connect::{Connector, InsecureTcpConnector};
 use minimint::net::peers::PeerConnector;
 use minimint::transaction::Output;
-use minimint::{consensus, MinimintServer};
+use minimint::{consensus, transaction, MinimintServer};
 use minimint_api::config::GenerateConfig;
 use minimint_api::db::batch::DbBatch;
 use minimint_api::db::mem_impl::MemDatabase;
@@ -71,11 +71,11 @@ pub fn sats(amount: u64) -> Amount {
 }
 
 pub fn sha256(data: &[u8]) -> sha256::Hash {
-    bitcoin::hashes::sha256::Hash::hash(data)
+    sha256::Hash::hash(data)
 }
 
-pub fn secp() -> secp256k1::Secp256k1<secp256k1::All> {
-    bitcoin::secp256k1::Secp256k1::new()
+pub fn secp() -> Secp256k1<All> {
+    Secp256k1::new()
 }
 
 /// Generates the fixtures for an integration test and spawns API and HBBFT consensus threads for
@@ -203,10 +203,10 @@ impl GatewayTest {
     async fn new(
         ln_client: Box<dyn LnRpc>,
         client_config: ClientConfig,
-        node_pub_key: secp256k1::PublicKey,
+        node_pub_key: PublicKey,
     ) -> Self {
         let mut rng = OsRng::new().unwrap();
-        let ctx = bitcoin::secp256k1::Secp256k1::new();
+        let ctx = Secp256k1::new();
         let kp = KeyPair::new(&ctx, &mut rng);
 
         let federation_client = GatewayClientConfig {
@@ -362,7 +362,7 @@ impl FederationTest {
     }
 
     /// Submit a minimint transaction to all federation servers
-    pub fn submit_transaction(&self, transaction: minimint::transaction::Transaction) {
+    pub fn submit_transaction(&self, transaction: transaction::Transaction) {
         for server in &self.servers {
             server
                 .borrow_mut()
@@ -479,15 +479,15 @@ impl FederationTest {
                 for server in &self.servers {
                     let mut batch = DbBatch::new();
                     let mut batch_tx = batch.transaction();
-                    let transaction = minimint::transaction::Transaction {
+                    let transaction = transaction::Transaction {
                         inputs: vec![],
                         outputs: vec![Output::Mint(tokens.clone())],
                         signature: None,
                     };
 
                     batch_tx.append_insert(
-                        minimint::db::AcceptedTransactionKey(out_point.txid),
-                        minimint::consensus::AcceptedTransaction {
+                        AcceptedTransactionKey(out_point.txid),
+                        consensus::AcceptedTransaction {
                             epoch: 0,
                             transaction,
                         },

@@ -3,6 +3,7 @@ mod db;
 use crate::api::ApiError;
 use crate::clients::transaction::TransactionBuilder;
 use crate::BorrowedClientContext;
+use bitcoin::secp256k1::{Secp256k1, Signing};
 use bitcoin::KeyPair;
 use db::{CoinKey, CoinKeyPrefix, OutputFinalizationKey, OutputFinalizationKeyPrefix};
 use minimint_api::db::batch::{BatchItem, BatchTx};
@@ -15,7 +16,6 @@ use minimint_core::modules::mint::{
 };
 use minimint_core::transaction::{Output, Transaction};
 use rand::{CryptoRng, Rng, RngCore};
-use secp256k1_zkp::{Secp256k1, Signing};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tbs::{blind_message, unblind_signature, AggregatePublicKey, BlindedMessage, BlindingKey};
@@ -343,7 +343,7 @@ impl CoinRequest {
     where
         C: Signing,
     {
-        let spend_key = bitcoin::KeyPair::new(ctx, &mut rng);
+        let spend_key = KeyPair::new(ctx, &mut rng);
         let nonce = CoinNonce(spend_key.public_key());
         let (blinding_key, blinded_nonce) = blind_message(nonce.to_message());
 
@@ -416,6 +416,9 @@ mod tests {
     use crate::OwnedClientContext;
     use async_trait::async_trait;
     use bitcoin::hashes::Hash;
+    use bitcoin::secp256k1::Secp256k1;
+    use bitcoin::XOnlyPublicKey;
+    use bitcoin_hashes::sha256;
     use futures::executor::block_on;
     use minimint_api::db::batch::DbBatch;
     use minimint_api::db::mem_impl::MemDatabase;
@@ -429,6 +432,7 @@ mod tests {
     use minimint_core::modules::mint::Mint;
     use minimint_core::outcome::{OutputOutcome, TransactionStatus};
     use minimint_core::transaction::Transaction;
+    use rand::rngs::OsRng;
     use std::sync::Arc;
 
     type Fed = FakeFed<Mint, MintClientConfig>;
@@ -473,7 +477,7 @@ mod tests {
 
         async fn fetch_offer(
             &self,
-            _payment_hash: bitcoin::hashes::sha256::Hash,
+            _payment_hash: sha256::Hash,
         ) -> crate::api::Result<IncomingContractOffer> {
             unimplemented!();
         }
@@ -498,7 +502,7 @@ mod tests {
             config: fed.lock().await.client_cfg().clone(),
             db: Box::new(MemDatabase::new()),
             api: Box::new(api),
-            secp: secp256k1_zkp::Secp256k1::new(),
+            secp: Secp256k1::new(),
         };
 
         (fed, client_context)
@@ -533,7 +537,7 @@ mod tests {
 
     #[test_log::test(tokio::test)]
     async fn create_output() {
-        let mut rng = rand::rngs::OsRng::new().unwrap();
+        let mut rng = OsRng::new().unwrap();
         let (fed, client_context) = new_mint_and_client().await;
 
         let client = MintClient {
@@ -555,7 +559,7 @@ mod tests {
 
     #[test_log::test(tokio::test)]
     async fn create_input() {
-        let mut rng = rand::rngs::OsRng::new().unwrap();
+        let mut rng = OsRng::new().unwrap();
 
         const SPEND_AMOUNT: Amount = Amount::from_sat(21);
 
@@ -587,7 +591,7 @@ mod tests {
             meta.keys,
             spend_keys
                 .into_iter()
-                .map(|key| secp256k1_zkp::XOnlyPublicKey::from_keypair(&key))
+                .map(|key| XOnlyPublicKey::from_keypair(&key))
                 .collect::<Vec<_>>()
         );
 
@@ -616,7 +620,7 @@ mod tests {
             meta.keys,
             spend_keys
                 .into_iter()
-                .map(|key| secp256k1_zkp::XOnlyPublicKey::from_keypair(&key))
+                .map(|key| XOnlyPublicKey::from_keypair(&key))
                 .collect::<Vec<_>>()
         );
 

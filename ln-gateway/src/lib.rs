@@ -2,6 +2,7 @@ pub mod ln;
 
 use crate::ln::{LightningError, LnRpc};
 use bitcoin_hashes::sha256::Hash;
+use cln_rpc::ClnRpc;
 use minimint::modules::ln::contracts::{incoming::Preimage, ContractId};
 use minimint_api::{db::Database, Amount, OutPoint, TransactionId};
 use mint_client::clients::gateway::{GatewayClient, GatewayClientConfig, GatewayClientError};
@@ -34,9 +35,7 @@ impl LnGateway {
             ln_socket,
         } = cfg;
         let federation_client = GatewayClient::new(federation_client, db);
-        let ln_client = cln_rpc::ClnRpc::new(ln_socket)
-            .await
-            .expect("connect to ln_socket");
+        let ln_client = ClnRpc::new(ln_socket).await.expect("connect to ln_socket");
         let ln_client = Mutex::new(ln_client);
 
         Self::new(Arc::new(federation_client), Box::new(ln_client)).await

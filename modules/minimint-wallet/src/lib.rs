@@ -16,7 +16,7 @@ use crate::tweakable::Tweakable;
 use crate::txoproof::{PegInProof, PegInProofError};
 use async_trait::async_trait;
 use bitcoin::hashes::{sha256, Hash as BitcoinHash, HashEngine, Hmac, HmacEngine};
-use bitcoin::secp256k1::{All, Secp256k1};
+use bitcoin::secp256k1::{All, PublicKey, Secp256k1};
 use bitcoin::util::psbt::raw::ProprietaryKey;
 use bitcoin::util::psbt::{Input, PartiallySignedTransaction};
 use bitcoin::util::sighash::SighashCache;
@@ -34,7 +34,7 @@ use minimint_api::module::ApiEndpoint;
 use minimint_api::{FederationModule, InputMeta, OutPoint, PeerId};
 use minimint_derive::UnzipConsensus;
 use miniscript::psbt::PsbtExt;
-use miniscript::{Descriptor, DescriptorTrait, TranslatePk2};
+use miniscript::{Descriptor, DescriptorTrait, ToPublicKey, TranslatePk2};
 use rand::{CryptoRng, Rng, RngCore};
 use secp256k1::Message;
 use serde::{Deserialize, Serialize};
@@ -679,7 +679,10 @@ impl Wallet {
 
             if input
                 .partial_sigs
-                .insert(tweaked_peer_key.into(), EcdsaSig::sighash_all(*signature))
+                .insert(
+                    tweaked_peer_key.to_public_key(),
+                    EcdsaSig::sighash_all(*signature),
+                )
                 .is_some()
             {
                 // Should never happen since peers only sign a PSBT once
@@ -1142,7 +1145,7 @@ impl<'a> StatelessWallet<'a> {
             psbt_input.partial_sigs.insert(
                 bitcoin::PublicKey {
                     compressed: true,
-                    inner: secp256k1::PublicKey::from_secret_key(self.secp, &tweaked_secret),
+                    inner: PublicKey::from_secret_key(self.secp, &tweaked_secret),
                 },
                 EcdsaSig::sighash_all(signature),
             );

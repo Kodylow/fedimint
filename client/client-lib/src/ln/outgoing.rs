@@ -1,3 +1,4 @@
+use bitcoin::KeyPair;
 use minimint_api::encoding::{Decodable, Encodable};
 use minimint_api::Amount;
 use minimint_core::modules::ln::contracts::outgoing::{OutgoingContract, Preimage};
@@ -6,7 +7,7 @@ use minimint_core::modules::ln::ContractInput;
 
 #[derive(Debug, Encodable, Decodable)]
 pub struct OutgoingContractData {
-    pub recovery_key: bitcoin::KeyPair,
+    pub recovery_key: KeyPair,
     pub contract_account: OutgoingContractAccount,
 }
 

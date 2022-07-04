@@ -1,7 +1,7 @@
 use std::convert::TryInto;
 
 use async_trait::async_trait;
-use cln_rpc::model::requests::PayRequest;
+use cln_rpc::{model::requests::PayRequest, ClnRpc};
 use tokio::sync::Mutex;
 use tracing::{debug, instrument};
 
@@ -20,7 +20,7 @@ pub trait LnRpc: Send + Sync + 'static {
 pub struct LightningError(Option<i32>);
 
 #[async_trait]
-impl LnRpc for Mutex<cln_rpc::ClnRpc> {
+impl LnRpc for Mutex<ClnRpc> {
     #[instrument(name = "LnRpc::pay", skip(self))]
     async fn pay(
         &self,

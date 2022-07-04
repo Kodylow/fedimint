@@ -1,12 +1,12 @@
 use clap::Parser;
 use ln_gateway::LnGatewayConfig;
-use minimint::config::load_from_file;
+use minimint::config::{load_from_file, ClientConfig};
 use mint_client::clients::gateway::GatewayClientConfig;
 use mint_client::ln::gateway::LightningGateway;
 use mint_client::ClientAndGatewayConfig;
 use rand::thread_rng;
-use secp256k1::{KeyPair, PublicKey};
-use std::path::PathBuf;
+use secp256k1::{KeyPair, PublicKey, Secp256k1};
+use std::{fs::File, path::PathBuf};
 
 #[derive(Parser)]
 struct Opts {
@@ -18,11 +18,10 @@ struct Opts {
 fn main() {
     let opts = Opts::parse();
     let federation_client_cfg_path = opts.workdir.join("federation_client.json");
-    let federation_client_cfg: minimint::config::ClientConfig =
-        load_from_file(&federation_client_cfg_path);
+    let federation_client_cfg: ClientConfig = load_from_file(&federation_client_cfg_path);
 
     let mut rng = thread_rng();
-    let ctx = secp256k1::Secp256k1::new();
+    let ctx = Secp256k1::new();
 
     let kp = KeyPair::new(&ctx, &mut rng);
 
@@ -36,7 +35,7 @@ fn main() {
     };
 
     let gw_cfg_file_path: PathBuf = opts.workdir.join("gateway.json");
-    let gw_cfg_file = std::fs::File::create(gw_cfg_file_path).expect("Could not create cfg file");
+    let gw_cfg_file = File::create(gw_cfg_file_path).expect("Could not create cfg file");
     serde_json::to_writer_pretty(gw_cfg_file, &gateway_cfg).unwrap();
 
     let client_cfg = ClientAndGatewayConfig {
@@ -49,7 +48,6 @@ fn main() {
     };
 
     let client_cfg_file_path: PathBuf = opts.workdir.join("client.json");
-    let client_cfg_file =
-        std::fs::File::create(client_cfg_file_path).expect("Could not create cfg file");
+    let client_cfg_file = File::create(client_cfg_file_path).expect("Could not create cfg file");
     serde_json::to_writer_pretty(client_cfg_file, &client_cfg).unwrap();
 }

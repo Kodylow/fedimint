@@ -5,6 +5,7 @@ use minimint_api::{
     module::{http, ApiEndpoint},
     FederationModule, TransactionId,
 };
+use rand::rngs::OsRng;
 use std::fmt::Formatter;
 use std::sync::Arc;
 use tide::{Body, Request, Server};
@@ -12,7 +13,7 @@ use tracing::debug;
 
 #[derive(Clone)]
 struct State {
-    minimint: Arc<MinimintConsensus<rand::rngs::OsRng>>,
+    minimint: Arc<MinimintConsensus<OsRng>>,
 }
 
 impl std::fmt::Debug for State {
@@ -21,7 +22,7 @@ impl std::fmt::Debug for State {
     }
 }
 
-pub async fn run_server(cfg: ServerConfig, minimint: Arc<MinimintConsensus<rand::rngs::OsRng>>) {
+pub async fn run_server(cfg: ServerConfig, minimint: Arc<MinimintConsensus<OsRng>>) {
     let state = State {
         minimint: minimint.clone(),
     };
@@ -55,7 +56,7 @@ fn attach_endpoints<M>(
     endpoints: &'static [ApiEndpoint<M>],
     base_name: Option<&str>,
 ) where
-    MinimintConsensus<rand::rngs::OsRng>: AsRef<M>,
+    MinimintConsensus<OsRng>: AsRef<M>,
 {
     for endpoint in endpoints {
         for param in endpoint.params {
@@ -90,7 +91,7 @@ fn attach_endpoints<M>(
     }
 }
 
-fn server_endpoints() -> &'static [ApiEndpoint<MinimintConsensus<rand::rngs::OsRng>>] {
+fn server_endpoints() -> &'static [ApiEndpoint<MinimintConsensus<OsRng>>] {
     &[
         ApiEndpoint {
             path_spec: "/transaction",

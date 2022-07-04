@@ -1,5 +1,6 @@
 use rand::{CryptoRng, RngCore};
 
+use bitcoin::secp256k1::{All, Secp256k1};
 use bitcoin::KeyPair;
 use minimint_api::Amount;
 use minimint_core::config::FeeConsensus;
@@ -39,7 +40,7 @@ impl TransactionBuilder {
 
     pub fn build<R: RngCore + CryptoRng>(
         mut self,
-        secp: &secp256k1_zkp::Secp256k1<secp256k1_zkp::All>,
+        secp: &Secp256k1<All>,
         mut rng: R,
     ) -> Transaction {
         if !self.keys.is_empty() {

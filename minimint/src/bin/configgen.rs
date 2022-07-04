@@ -3,6 +3,7 @@ use minimint::config::{ServerConfig, ServerConfigParams};
 use minimint_api::config::GenerateConfig;
 use minimint_api::{Amount, PeerId};
 use rand::rngs::OsRng;
+use std::fs::File;
 use std::path::PathBuf;
 
 #[derive(Parser)]
@@ -46,14 +47,14 @@ fn main() {
         let mut path: PathBuf = cfg_path.clone();
         path.push(format!("server-{}.json", id));
 
-        let file = std::fs::File::create(path).expect("Could not create cfg file");
+        let file = File::create(path).expect("Could not create cfg file");
         serde_json::to_writer_pretty(file, &cfg).unwrap();
     }
 
     let mut client_cfg_file_path: PathBuf = cfg_path;
     client_cfg_file_path.push("federation_client.json");
     let client_cfg_file =
-        std::fs::File::create(client_cfg_file_path).expect("Could not create cfg file");
+        File::create(client_cfg_file_path).expect("Could not create cfg file");
 
     serde_json::to_writer_pretty(client_cfg_file, &client_cfg).unwrap();
 }
