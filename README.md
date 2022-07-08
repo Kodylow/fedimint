@@ -1,17 +1,19 @@
 # MiniMint
 
-MiniMint is a federated [Chaumian e-cash](https://en.wikipedia.org/wiki/Ecash) mint backed by bitcoin with deposits and withdrawals that can occur on-chain or via Lightning.
+MiniMint is a Bitcoin native Rust implementation of a federated chaumian e-cash mint. It offers a privacy preserving, federated custody solution for Bitcoin, and is directly interoperable with Bitcoin's base layer and lightning network.
 
-**DO NOT USE IT WITH REAL MONEY, THERE ARE MULTIPLE KNOWN SECURITY ISSUES.**
+
+**DO NOT USE IT WITH REAL MONEY, THERE ARE CURRENTLY KNOWN SECURITY ISSUES.**
 
 ## Getting involved
 
-If you want to learn more about the general idea go to [fedimint.org](https://fedimint.org/), beyond a high level explanation you can also find links to talks and blog posts at the bottom of the page.
+For in depth explanations of the tradeoffs and benefits of using federated chaumian mints as a Bitcoin custody solution, see [fedimint.org](https://fedimint.org) or our [Fedimint FAQ](https://docs.google.com/document/d/1ZLjWmczADUhCsaRjE2ta_8BbgqPxPhabzxhLEsUlmoo/edit?usp=sharing)
 
-Visit our [Telegram group](https://t.me/fedimint) for high-level discussions (no codebase questions please).
+Visit our [Telegram group](https://t.me/fedimint) for high-level discussions about Federated E-Cash Mints for Bitcoin (no codebase questions please).
 
 To get started with development have a look at the:
-* [Developer discord](https://discord.gg/JEdvZ8fv) - only for programming questions and discussing the codebase
+* [Developer discord](https://discord.gg/JEdvZ8fv) - only for programming questions and discussing the codebase.
+* [Weekly Developer Call](https://tinyurl.com/2p8z3b8w) - Mondays at 3PM UTC in our Discord Voice Channel
 * [GitHub Issues](https://github.com/fedimint/minimint/issues) - things to fix, planned features, longer term architectural choices, etc.
 * [Architecture](docs/architecture.md) - high-level description of the codebase and design
 * [Integration tests](integrationtests/README.md) - instructions on how to write and run the integration tests
