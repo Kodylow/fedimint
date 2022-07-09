@@ -7,7 +7,7 @@ MiniMint is a Bitcoin native Rust implementation of a federated chaumian e-cash 
 
 ## Getting involved
 
-For in depth explanations of the tradeoffs and benefits of using federated chaumian mints as a Bitcoin custody solution, see [fedimint.org](https://fedimint.org) or our [Fedimint FAQ](https://docs.google.com/document/d/1ZLjWmczADUhCsaRjE2ta_8BbgqPxPhabzxhLEsUlmoo/edit?usp=sharing)
+For in depth explanations of the tradeoffs and benefits of using federated chaumian mints as a Bitcoin custody solution, see [fedimint.org](https://fedimint.org) or our [Fedimint FAQ](https://docs.google.com/document/d/1ZLjWmczADUhCsaRjE2ta_8BbgqPxPhabzxhLEsUlmoo/edit?usp=sharing).
 
 Visit our [Telegram group](https://t.me/fedimint) for high-level discussions about Federated E-Cash Mints for Bitcoin (no codebase questions please).
 
