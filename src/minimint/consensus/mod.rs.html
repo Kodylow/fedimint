@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `minimint/src/consensus/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../minimint/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../minimint/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../minimint/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `minimint/src/consensus/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../minimint/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../minimint/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../minimint/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -516,9 +509,79 @@
 <span id="509">509</span>
 <span id="510">510</span>
 <span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::let_unit_value</span>)]</span>
 
 <span class="kw">mod</span> <span class="ident">conflictfilter</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">debug</span>;
 <span class="kw">mod</span> <span class="ident">interconnect</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::config::ServerConfig</span>;
@@ -526,26 +589,30 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::consensus::interconnect::MinimintInterconnect</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::db</span>::{
     <span class="ident">AcceptedTransactionKey</span>, <span class="ident">DropPeerKey</span>, <span class="ident">DropPeerKeyPrefix</span>, <span class="ident">ProposedTransactionKey</span>,
-    <span class="ident">ProposedTransactionKeyPrefix</span>,
+    <span class="ident">ProposedTransactionKeyPrefix</span>, <span class="ident">RejectedTransactionKey</span>,
 };
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::outcome::OutputOutcome</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rng::RngGenerator</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transaction</span>::{<span class="ident">Input</span>, <span class="ident">Output</span>, <span class="ident">Transaction</span>, <span class="ident">TransactionError</span>};
+<span class="kw">use</span> <span class="ident">futures::future::select_all</span>;
 <span class="kw">use</span> <span class="ident">hbbft::honey_badger::Batch</span>;
 <span class="kw">use</span> <span class="ident">minimint_api::db::batch</span>::{<span class="ident">BatchTx</span>, <span class="ident">DbBatch</span>};
 <span class="kw">use</span> <span class="ident">minimint_api::db::Database</span>;
 <span class="kw">use</span> <span class="ident">minimint_api::encoding</span>::{<span class="ident">Decodable</span>, <span class="ident">Encodable</span>};
+<span class="kw">use</span> <span class="ident">minimint_api::module::audit::Audit</span>;
 <span class="kw">use</span> <span class="ident">minimint_api</span>::{<span class="ident">FederationModule</span>, <span class="ident">OutPoint</span>, <span class="ident">PeerId</span>, <span class="ident">TransactionId</span>};
+<span class="kw">use</span> <span class="ident">minimint_core::modules::ln</span>::{<span class="ident">LightningModule</span>, <span class="ident">LightningModuleError</span>};
+<span class="kw">use</span> <span class="ident">minimint_core::modules::mint</span>::{<span class="ident">Mint</span>, <span class="ident">MintError</span>};
+<span class="kw">use</span> <span class="ident">minimint_core::modules::wallet</span>::{<span class="ident">Wallet</span>, <span class="ident">WalletError</span>};
+<span class="kw">use</span> <span class="ident">minimint_core::outcome::TransactionStatus</span>;
 <span class="kw">use</span> <span class="ident">minimint_derive::UnzipConsensus</span>;
-<span class="kw">use</span> <span class="ident">minimint_ln</span>::{<span class="ident">LightningModule</span>, <span class="ident">LightningModuleError</span>};
-<span class="kw">use</span> <span class="ident">minimint_mint</span>::{<span class="ident">Mint</span>, <span class="ident">MintError</span>};
-<span class="kw">use</span> <span class="ident">minimint_wallet</span>::{<span class="ident">Wallet</span>, <span class="ident">WalletError</span>};
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">CryptoRng</span>, <span class="ident">RngCore</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
-<span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">debug</span>, <span class="ident">error</span>, <span class="ident">info_span</span>, <span class="ident">instrument</span>, <span class="ident">trace</span>, <span class="ident">warn</span>};
+<span class="kw">use</span> <span class="ident">tokio::sync::Notify</span>;
+<span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">debug</span>, <span class="ident">error</span>, <span class="ident">info</span>, <span class="ident">info_span</span>, <span class="ident">instrument</span>, <span class="ident">trace</span>, <span class="ident">warn</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Hash</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">UnzipConsensus</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ConsensusItem</span> {
@@ -581,6 +648,9 @@
 
     <span class="doccomment">/// KV Database into which all state is persisted to recover from in case of a crash</span>
     <span class="kw">pub</span> <span class="ident">db</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Database</span><span class="op">&gt;</span>,
+
+    <span class="comment">// Notifies tasks when there is a new transaction</span>
+    <span class="kw">pub</span> <span class="ident">transaction_notify</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Notify</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Hash</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>, <span class="ident">Encodable</span>, <span class="ident">Decodable</span>)]</span>
@@ -666,11 +736,13 @@
             <span class="macro">warn!</span>(<span class="string">&quot;Added consensus item was already in consensus queue&quot;</span>);
         }
 
+        <span class="self">self</span>.<span class="ident">transaction_notify</span>.<span class="ident">notify_one</span>();
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip_all</span>, <span class="ident">fields</span>(<span class="ident">epoch</span> <span class="op">=</span> <span class="ident">consensus_outcome</span>.<span class="ident">epoch</span>))]</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">process_consensus_outcome</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">consensus_outcome</span>: <span class="ident">ConsensusOutcome</span>) {
+        <span class="macro">info!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">debug::epoch_message</span>(<span class="kw-2">&amp;</span><span class="ident">consensus_outcome</span>));
         <span class="kw">let</span> <span class="ident">epoch</span> <span class="op">=</span> <span class="ident">consensus_outcome</span>.<span class="ident">epoch</span>;
         <span class="kw">let</span> <span class="ident">epoch_peers</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">PeerId</span><span class="op">&gt;</span> <span class="op">=</span>
             <span class="ident">consensus_outcome</span>.<span class="ident">contributions</span>.<span class="ident">keys</span>().<span class="ident">copied</span>().<span class="ident">collect</span>();
@@ -709,18 +781,25 @@
             <span class="comment">// There are two item types that need checking:</span>
             <span class="comment">//  * peg-ins that each peg-in tx is only used to issue coins once</span>
             <span class="comment">//  * coin spends to avoid double spends in one batch</span>
-            <span class="kw">let</span> <span class="ident">filtered_transactions</span> <span class="op">=</span> <span class="ident">transaction_cis</span>
+            <span class="comment">//  * only one peg-out allowed per epoch</span>
+            <span class="kw">let</span> (<span class="ident">ok_tx</span>, <span class="ident">err_tx</span>) <span class="op">=</span> <span class="ident">transaction_cis</span>
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">filter_conflicts</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">tx</span>)<span class="op">|</span> <span class="ident">tx</span>)
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+                .<span class="ident">partitioned</span>();
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">db_batch</span> <span class="op">=</span> <span class="ident">DbBatch::new</span>();
-            <span class="kw">let</span> <span class="ident">caches</span> <span class="op">=</span>
-                <span class="self">self</span>.<span class="ident">build_verification_caches</span>(<span class="ident">filtered_transactions</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">tx</span>)<span class="op">|</span> <span class="ident">tx</span>));
-            <span class="kw">for</span> (<span class="ident">peer</span>, <span class="ident">transaction</span>) <span class="kw">in</span> <span class="ident">filtered_transactions</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch_tx</span> <span class="op">=</span> <span class="ident">db_batch</span>.<span class="ident">transaction</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch_tx</span> <span class="op">=</span> <span class="ident">db_batch</span>.<span class="ident">transaction</span>();
 
-                <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">info_span!</span>(<span class="string">&quot;Processing transaction&quot;</span>, <span class="op">%</span><span class="ident">peer</span>);
+            <span class="kw">for</span> <span class="ident">transaction</span> <span class="kw">in</span> <span class="ident">err_tx</span> {
+                <span class="ident">batch_tx</span>.<span class="ident">append_insert</span>(
+                    <span class="ident">RejectedTransactionKey</span>(<span class="ident">transaction</span>.<span class="ident">tx_hash</span>()),
+                    <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">TransactionSubmissionError::TransactionConflictError</span>),
+                );
+            }
+
+            <span class="kw">let</span> <span class="ident">caches</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">build_verification_caches</span>(<span class="ident">ok_tx</span>.<span class="ident">iter</span>());
+            <span class="kw">for</span> <span class="ident">transaction</span> <span class="kw">in</span> <span class="ident">ok_tx</span> {
+                <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">info_span!</span>(<span class="string">&quot;Processing transaction&quot;</span>);
                 <span class="comment">// in_scope to make sure that no await is in the middle of the span</span>
                 <span class="kw">let</span> <span class="ident">_enter</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">in_scope</span>(<span class="op">|</span><span class="op">|</span> {
                     <span class="macro">trace!</span>(<span class="question-mark">?</span><span class="ident">transaction</span>);
@@ -739,13 +818,16 @@
                             );
                         }
                         <span class="prelude-val">Err</span>(<span class="ident">error</span>) =&gt; {
-                            <span class="comment">// TODO: log error for user</span>
                             <span class="macro">warn!</span>(<span class="op">%</span><span class="ident">error</span>, <span class="string">&quot;Transaction failed&quot;</span>);
+                            <span class="ident">batch_tx</span>.<span class="ident">append_insert</span>(
+                                <span class="ident">RejectedTransactionKey</span>(<span class="ident">transaction</span>.<span class="ident">tx_hash</span>()),
+                                <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">error</span>),
+                            );
                         }
                     }
-                    <span class="ident">batch_tx</span>.<span class="ident">commit</span>();
                 });
             }
+            <span class="ident">batch_tx</span>.<span class="ident">commit</span>();
             <span class="self">self</span>.<span class="ident">db</span>.<span class="ident">apply_batch</span>(<span class="ident">db_batch</span>).<span class="ident">expect</span>(<span class="string">&quot;DB error&quot;</span>);
         }
 
@@ -764,8 +846,14 @@
                 .<span class="ident">end_consensus_epoch</span>(<span class="kw-2">&amp;</span><span class="ident">epoch_peers</span>, <span class="ident">db_batch</span>.<span class="ident">transaction</span>(), <span class="self">self</span>.<span class="ident">rng_gen</span>.<span class="ident">get_rng</span>())
                 .<span class="kw">await</span>;
 
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drop_ln</span> <span class="op">=</span> <span class="self">self</span>
+                .<span class="ident">ln</span>
+                .<span class="ident">end_consensus_epoch</span>(<span class="kw-2">&amp;</span><span class="ident">epoch_peers</span>, <span class="ident">db_batch</span>.<span class="ident">transaction</span>(), <span class="self">self</span>.<span class="ident">rng_gen</span>.<span class="ident">get_rng</span>())
+                .<span class="kw">await</span>;
+
             <span class="ident">drop_peers</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">drop_wallet</span>);
             <span class="ident">drop_peers</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">drop_mint</span>);
+            <span class="ident">drop_peers</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">drop_ln</span>);
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch_tx</span> <span class="op">=</span> <span class="ident">db_batch</span>.<span class="ident">transaction</span>();
             <span class="kw">for</span> <span class="ident">peer</span> <span class="kw">in</span> <span class="ident">drop_peers</span> {
@@ -775,6 +863,23 @@
 
             <span class="self">self</span>.<span class="ident">db</span>.<span class="ident">apply_batch</span>(<span class="ident">db_batch</span>).<span class="ident">expect</span>(<span class="string">&quot;DB error&quot;</span>);
         }
+
+        <span class="kw">let</span> <span class="ident">audit</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">audit</span>();
+        <span class="kw">if</span> <span class="ident">audit</span>.<span class="ident">sum</span>().<span class="ident">milli_sat</span> <span class="op">&lt;</span> <span class="number">0</span> {
+            <span class="macro">panic!</span>(
+                <span class="string">&quot;Balance sheet of the fed has gone negative, this should never happen! {}&quot;</span>,
+                <span class="ident">audit</span>
+            )
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">await_consensus_proposal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="ident">select_all</span>(<span class="macro">vec!</span>[
+            <span class="self">self</span>.<span class="ident">wallet</span>.<span class="ident">await_consensus_proposal</span>(<span class="self">self</span>.<span class="ident">rng_gen</span>.<span class="ident">get_rng</span>()),
+            <span class="self">self</span>.<span class="ident">ln</span>.<span class="ident">await_consensus_proposal</span>(<span class="self">self</span>.<span class="ident">rng_gen</span>.<span class="ident">get_rng</span>()),
+            <span class="self">self</span>.<span class="ident">mint</span>.<span class="ident">await_consensus_proposal</span>(<span class="self">self</span>.<span class="ident">rng_gen</span>.<span class="ident">get_rng</span>()),
+        ])
+        .<span class="kw">await</span>;
     }
 
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_consensus_proposal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ConsensusProposal</span> {
@@ -807,6 +912,13 @@
                     .<span class="kw">await</span>
                     .<span class="ident">into_iter</span>()
                     .<span class="ident">map</span>(<span class="ident">ConsensusItem::Mint</span>),
+            )
+            .<span class="ident">chain</span>(
+                <span class="self">self</span>.<span class="ident">ln</span>
+                    .<span class="ident">consensus_proposal</span>(<span class="self">self</span>.<span class="ident">rng_gen</span>.<span class="ident">get_rng</span>())
+                    .<span class="kw">await</span>
+                    .<span class="ident">into_iter</span>()
+                    .<span class="ident">map</span>(<span class="ident">ConsensusItem::LN</span>),
             )
             .<span class="ident">collect</span>();
 
@@ -932,13 +1044,22 @@
                 })
                 .<span class="ident">collect</span>();
 
-            <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::outcome::TransactionStatus::Accepted</span> {
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::outcome::TransactionStatus::Accepted</span> {
                 <span class="ident">epoch</span>: <span class="ident">accepted_tx</span>.<span class="ident">epoch</span>,
                 <span class="ident">outputs</span>,
-            })
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
+            });
         }
+
+        <span class="kw">let</span> <span class="ident">rejected</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">db</span>
+            .<span class="ident">get_value</span>(<span class="kw-2">&amp;</span><span class="ident">RejectedTransactionKey</span>(<span class="ident">txid</span>))
+            .<span class="ident">expect</span>(<span class="string">&quot;DB error&quot;</span>);
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">message</span>) <span class="op">=</span> <span class="ident">rejected</span> {
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">TransactionStatus::Rejected</span>(<span class="ident">message</span>));
+        }
+
+        <span class="prelude-val">None</span>
     }
 
     <span class="kw">fn</span> <span class="ident">build_verification_caches</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
@@ -981,33 +1102,47 @@
         }
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">audit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Audit</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">audit</span> <span class="op">=</span> <span class="ident">Audit::default</span>();
+        <span class="self">self</span>.<span class="ident">mint</span>.<span class="ident">audit</span>(<span class="kw-2">&amp;mut</span> <span class="ident">audit</span>);
+        <span class="self">self</span>.<span class="ident">ln</span>.<span class="ident">audit</span>(<span class="kw-2">&amp;mut</span> <span class="ident">audit</span>);
+        <span class="self">self</span>.<span class="ident">wallet</span>.<span class="ident">audit</span>(<span class="kw-2">&amp;mut</span> <span class="ident">audit</span>);
+        <span class="ident">audit</span>
+    }
+
     <span class="kw">fn</span> <span class="ident">build_interconnect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">MinimintInterconnect</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
         <span class="ident">MinimintInterconnect</span> { <span class="ident">minimint</span>: <span class="self">self</span> }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="ident">RngCore</span> <span class="op">+</span> <span class="ident">CryptoRng</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MinimintConsensus</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Wallet</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">fed</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MinimintConsensus</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw-2">&amp;</span><span class="ident">fed</span>.<span class="ident">wallet</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">RngCore</span> <span class="op">+</span> <span class="ident">CryptoRng</span><span class="op">&gt;</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Wallet</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MinimintConsensus</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Wallet</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">wallet</span>
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="ident">RngCore</span> <span class="op">+</span> <span class="ident">CryptoRng</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MinimintConsensus</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Mint</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">fed</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MinimintConsensus</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw-2">&amp;</span><span class="ident">fed</span>.<span class="ident">mint</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">RngCore</span> <span class="op">+</span> <span class="ident">CryptoRng</span><span class="op">&gt;</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Mint</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MinimintConsensus</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Mint</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mint</span>
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="ident">RngCore</span> <span class="op">+</span> <span class="ident">CryptoRng</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MinimintConsensus</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">LightningModule</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">fed</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MinimintConsensus</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw-2">&amp;</span><span class="ident">fed</span>.<span class="ident">ln</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">RngCore</span> <span class="op">+</span> <span class="ident">CryptoRng</span><span class="op">&gt;</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">LightningModule</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MinimintConsensus</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">LightningModule</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ln</span>
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">RngCore</span> <span class="op">+</span> <span class="ident">CryptoRng</span><span class="op">&gt;</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">MinimintConsensus</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MinimintConsensus</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">MinimintConsensus</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
+        <span class="self">self</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TransactionSubmissionError</span> {
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;High level transaction error: {0}&quot;</span>)]</span>
-    <span class="ident">TransactionError</span>(<span class="ident">TransactionError</span>),
+    <span class="ident">TransactionError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">TransactionError</span>),
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Input coin error: {0}&quot;</span>)]</span>
     <span class="ident">InputCoinError</span>(<span class="ident">MintError</span>),
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Input peg-in error: {0}&quot;</span>)]</span>
@@ -1020,13 +1155,8 @@
     <span class="ident">OutputPegOut</span>(<span class="ident">WalletError</span>),
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;LN contract output error: {0}&quot;</span>)]</span>
     <span class="ident">ContractOutputError</span>(<span class="ident">LightningModuleError</span>),
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TransactionError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TransactionSubmissionError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">TransactionError</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">TransactionSubmissionError::TransactionError</span>(<span class="ident">e</span>)
-    }
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Transaction conflict error&quot;</span>)]</span>
+    <span class="ident">TransactionConflictError</span>,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="minimint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (99930ac7f 2022-06-11)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="minimint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (34a6cae28 2022-08-09)" ></div></body></html>

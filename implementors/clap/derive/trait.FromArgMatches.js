@@ -1,6 +1,7 @@
-(function() {var implementors = {};
-implementors["configgen"] = [{"text":"impl FromArgMatches for <a class=\"struct\" href=\"configgen/struct.Options.html\" title=\"struct configgen::Options\">Options</a>","synthetic":false,"types":["configgen::Options"]}];
-implementors["gw_configgen"] = [{"text":"impl FromArgMatches for <a class=\"struct\" href=\"gw_configgen/struct.Opts.html\" title=\"struct gw_configgen::Opts\">Opts</a>","synthetic":false,"types":["gw_configgen::Opts"]}];
-implementors["ln_gateway"] = [{"text":"impl FromArgMatches for <a class=\"struct\" href=\"ln_gateway/struct.Opts.html\" title=\"struct ln_gateway::Opts\">Opts</a>","synthetic":false,"types":["ln_gateway::Opts"]}];
-implementors["minimint"] = [{"text":"impl FromArgMatches for <a class=\"struct\" href=\"minimint/config/struct.ServerOpts.html\" title=\"struct minimint::config::ServerOpts\">ServerOpts</a>","synthetic":false,"types":["minimint::config::ServerOpts"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"clientd_cli":[["impl FromArgMatches for <a class=\"struct\" href=\"clientd_cli/struct.Cli.html\" title=\"struct clientd_cli::Cli\">Cli</a>"],["impl FromArgMatches for <a class=\"enum\" href=\"clientd_cli/enum.Commands.html\" title=\"enum clientd_cli::Commands\">Commands</a>"]],
+"configgen":[["impl FromArgMatches for <a class=\"struct\" href=\"configgen/struct.Options.html\" title=\"struct configgen::Options\">Options</a>"]],
+"mint_client_cli":[["impl FromArgMatches for <a class=\"struct\" href=\"mint_client_cli/struct.Options.html\" title=\"struct mint_client_cli::Options\">Options</a>"],["impl FromArgMatches for <a class=\"enum\" href=\"mint_client_cli/enum.Command.html\" title=\"enum mint_client_cli::Command\">Command</a>"]],
+"mint_rpc_client":[["impl FromArgMatches for <a class=\"struct\" href=\"mint_rpc_client/struct.ApiCall.html\" title=\"struct mint_rpc_client::ApiCall\">ApiCall</a>"]],
+"server":[["impl FromArgMatches for <a class=\"struct\" href=\"server/struct.ServerOpts.html\" title=\"struct server::ServerOpts\">ServerOpts</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

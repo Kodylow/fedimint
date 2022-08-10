@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `minimint/src/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../minimint/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../minimint/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../minimint/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `minimint/src/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../minimint/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../minimint/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../minimint/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -214,40 +207,78 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">bitcoin::secp256k1::rand</span>::{<span class="ident">CryptoRng</span>, <span class="ident">RngCore</span>};
-<span class="kw">use</span> <span class="ident">clap::Parser</span>;
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">minimint_api::rand::Rand07Compat</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">minimint_core::config</span>::<span class="kw-2">*</span>;
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::net::peers</span>::{<span class="ident">ConnectionConfig</span>, <span class="ident">NetworkConfig</span>};
 <span class="kw">use</span> <span class="ident">hbbft::crypto::serde_impl::SerdeSecret</span>;
 <span class="kw">use</span> <span class="ident">minimint_api::config::GenerateConfig</span>;
 <span class="kw">use</span> <span class="ident">minimint_api::PeerId</span>;
-<span class="kw">use</span> <span class="ident">minimint_ln::config</span>::{<span class="ident">LightningModuleClientConfig</span>, <span class="ident">LightningModuleConfig</span>};
-<span class="kw">use</span> <span class="ident">minimint_mint::config</span>::{<span class="ident">MintClientConfig</span>, <span class="ident">MintConfig</span>};
-<span class="kw">use</span> <span class="ident">minimint_wallet::config</span>::{<span class="ident">WalletClientConfig</span>, <span class="ident">WalletConfig</span>};
-<span class="kw">use</span> <span class="ident">serde::de::DeserializeOwned</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
-<span class="kw">use</span> <span class="ident">std::path::Path</span>;
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
+<span class="kw">use</span> <span class="ident">minimint_core::modules::ln::config::LightningModuleConfig</span>;
+<span class="kw">use</span> <span class="ident">minimint_core::modules::mint::config::MintConfig</span>;
+<span class="kw">use</span> <span class="ident">minimint_core::modules::wallet::config::WalletConfig</span>;
+<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">CryptoRng</span>, <span class="ident">RngCore</span>};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Parser</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ServerOpts</span> {
-    <span class="kw">pub</span> <span class="ident">cfg_path</span>: <span class="ident">PathBuf</span>,
-}
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::net::connect::TlsConfig</span>;
+<span class="kw">use</span> <span class="ident">tokio_rustls::rustls</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ServerConfig</span> {
     <span class="kw">pub</span> <span class="ident">identity</span>: <span class="ident">PeerId</span>,
-    <span class="kw">pub</span> <span class="ident">hbbft_port</span>: <span class="ident">u16</span>,
-    <span class="kw">pub</span> <span class="ident">api_port</span>: <span class="ident">u16</span>,
+    <span class="kw">pub</span> <span class="ident">hbbft_bind_addr</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">api_bind_addr</span>: <span class="ident">String</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;serde_tls_cert&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">tls_cert</span>: <span class="ident">rustls::Certificate</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;serde_tls_key&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">tls_key</span>: <span class="ident">rustls::PrivateKey</span>,
 
     <span class="kw">pub</span> <span class="ident">peers</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">PeerId</span>, <span class="ident">Peer</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;serde_binary_human_readable&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">hbbft_sk</span>: <span class="ident">hbbft::crypto::serde_impl::SerdeSecret</span><span class="op">&lt;</span><span class="ident">hbbft::crypto::SecretKey</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;serde_binary_human_readable&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">hbbft_sks</span>: <span class="ident">hbbft::crypto::serde_impl::SerdeSecret</span><span class="op">&lt;</span><span class="ident">hbbft::crypto::SecretKeyShare</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;serde_binary_human_readable&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">hbbft_pk_set</span>: <span class="ident">hbbft::crypto::PublicKeySet</span>,
-
-    <span class="kw">pub</span> <span class="ident">db_path</span>: <span class="ident">PathBuf</span>,
 
     <span class="kw">pub</span> <span class="ident">wallet</span>: <span class="ident">WalletConfig</span>,
     <span class="kw">pub</span> <span class="ident">mint</span>: <span class="ident">MintConfig</span>,
@@ -259,10 +290,9 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Peer</span> {
-    <span class="kw">pub</span> <span class="ident">hbbft_port</span>: <span class="ident">u16</span>,
-    <span class="kw">pub</span> <span class="ident">api_port</span>: <span class="ident">u16</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;serde_binary_human_readable&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">hbbft_pk</span>: <span class="ident">hbbft::crypto::PublicKey</span>,
+    <span class="kw">pub</span> <span class="ident">connection</span>: <span class="ident">ConnectionConfig</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;serde_tls_cert&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">tls_cert</span>: <span class="ident">rustls::Certificate</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
@@ -270,26 +300,6 @@
     <span class="kw">pub</span> <span class="ident">hbbft_base_port</span>: <span class="ident">u16</span>,
     <span class="kw">pub</span> <span class="ident">api_base_port</span>: <span class="ident">u16</span>,
     <span class="kw">pub</span> <span class="ident">amount_tiers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">minimint_api::Amount</span><span class="op">&gt;</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ClientConfig</span> {
-    <span class="kw">pub</span> <span class="ident">api_endpoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">mint</span>: <span class="ident">MintClientConfig</span>,
-    <span class="kw">pub</span> <span class="ident">wallet</span>: <span class="ident">WalletClientConfig</span>,
-    <span class="kw">pub</span> <span class="ident">ln</span>: <span class="ident">LightningModuleClientConfig</span>,
-    <span class="kw">pub</span> <span class="ident">fee_consensus</span>: <span class="ident">FeeConsensus</span>,
-}
-
-<span class="comment">// TODO: get rid of it here, modules should govern their oen fees</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FeeConsensus</span> {
-    <span class="kw">pub</span> <span class="ident">fee_coin_spend_abs</span>: <span class="ident">minimint_api::Amount</span>,
-    <span class="kw">pub</span> <span class="ident">fee_peg_in_abs</span>: <span class="ident">minimint_api::Amount</span>,
-    <span class="kw">pub</span> <span class="ident">fee_coin_issuance_abs</span>: <span class="ident">minimint_api::Amount</span>,
-    <span class="kw">pub</span> <span class="ident">fee_peg_out_abs</span>: <span class="ident">minimint_api::Amount</span>,
-    <span class="kw">pub</span> <span class="ident">fee_contract_input</span>: <span class="ident">minimint_api::Amount</span>,
-    <span class="kw">pub</span> <span class="ident">fee_contract_output</span>: <span class="ident">minimint_api::Amount</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">GenerateConfig</span> <span class="kw">for</span> <span class="ident">ServerConfig</span> {
@@ -302,17 +312,25 @@
         <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Params</span>,
         <span class="kw-2">mut</span> <span class="ident">rng</span>: <span class="kw">impl</span> <span class="ident">RngCore</span> <span class="op">+</span> <span class="ident">CryptoRng</span>,
     ) -&gt; (<span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">PeerId</span>, <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::ClientConfig</span>) {
-        <span class="kw">let</span> <span class="ident">netinfo</span> <span class="op">=</span> <span class="ident">hbbft::NetworkInfo::generate_map</span>(<span class="ident">peers</span>.<span class="ident">to_vec</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>)
+        <span class="kw">let</span> <span class="ident">netinfo</span> <span class="op">=</span> <span class="ident">hbbft::NetworkInfo::generate_map</span>(<span class="ident">peers</span>.<span class="ident">to_vec</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">Rand07Compat</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>))
             .<span class="ident">expect</span>(<span class="string">&quot;Could not generate HBBFT netinfo&quot;</span>);
+        <span class="kw">let</span> <span class="ident">tls_keys</span> <span class="op">=</span> <span class="ident">peers</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">peer</span><span class="op">|</span> {
+                <span class="kw">let</span> (<span class="ident">cert</span>, <span class="ident">key</span>) <span class="op">=</span> <span class="ident">gen_cert_and_key</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;peer-{}&quot;</span>, <span class="ident">peer</span>.<span class="ident">to_usize</span>())).<span class="ident">unwrap</span>();
+                (<span class="kw-2">*</span><span class="ident">peer</span>, (<span class="ident">cert</span>, <span class="ident">key</span>))
+            })
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
         <span class="kw">let</span> <span class="ident">cfg_peers</span> <span class="op">=</span> <span class="ident">netinfo</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>, <span class="ident">netinf</span>)<span class="op">|</span> {
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">id_u16</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="ident">id</span>.<span class="ident">into</span>();
                 <span class="kw">let</span> <span class="ident">peer</span> <span class="op">=</span> <span class="ident">Peer</span> {
-                    <span class="ident">hbbft_port</span>: <span class="ident">params</span>.<span class="ident">hbbft_base_port</span> <span class="op">+</span> <span class="ident">id_u16</span>,
-                    <span class="ident">api_port</span>: <span class="ident">params</span>.<span class="ident">api_base_port</span> <span class="op">+</span> <span class="ident">id_u16</span>,
-                    <span class="ident">hbbft_pk</span>: <span class="kw-2">*</span><span class="ident">netinf</span>.<span class="ident">public_key</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>(),
+                    <span class="ident">connection</span>: <span class="ident">ConnectionConfig</span> {
+                        <span class="ident">addr</span>: <span class="macro">format!</span>(<span class="string">&quot;127.0.0.1:{}&quot;</span>, <span class="ident">params</span>.<span class="ident">hbbft_base_port</span> <span class="op">+</span> <span class="ident">id_u16</span>),
+                    },
+                    <span class="ident">tls_cert</span>: <span class="ident">tls_keys</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="number">0</span>.<span class="ident">clone</span>(),
                 };
 
                 (<span class="ident">id</span>, <span class="ident">peer</span>)
@@ -328,9 +346,9 @@
 
         <span class="kw">let</span> <span class="ident">fee_consensus</span> <span class="op">=</span> <span class="ident">FeeConsensus</span> {
             <span class="ident">fee_coin_spend_abs</span>: <span class="ident">minimint_api::Amount::ZERO</span>,
-            <span class="ident">fee_peg_in_abs</span>: <span class="ident">minimint_api::Amount::from_sat</span>(<span class="number">500</span>),
+            <span class="ident">fee_peg_in_abs</span>: <span class="ident">minimint_api::Amount::ZERO</span>,
             <span class="ident">fee_coin_issuance_abs</span>: <span class="ident">minimint_api::Amount::ZERO</span>,
-            <span class="ident">fee_peg_out_abs</span>: <span class="ident">minimint_api::Amount::from_sat</span>(<span class="number">500</span>),
+            <span class="ident">fee_peg_out_abs</span>: <span class="ident">minimint_api::Amount::ZERO</span>,
             <span class="ident">fee_contract_input</span>: <span class="ident">minimint_api::Amount::ZERO</span>,
             <span class="ident">fee_contract_output</span>: <span class="ident">minimint_api::Amount::ZERO</span>,
         };
@@ -341,13 +359,13 @@
                 <span class="kw">let</span> <span class="ident">id_u16</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="ident">id</span>.<span class="ident">into</span>();
                 <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">ServerConfig</span> {
                     <span class="ident">identity</span>: <span class="ident">id</span>,
-                    <span class="ident">hbbft_port</span>: <span class="ident">params</span>.<span class="ident">hbbft_base_port</span> <span class="op">+</span> <span class="ident">id_u16</span>,
-                    <span class="ident">api_port</span>: <span class="ident">params</span>.<span class="ident">api_base_port</span> <span class="op">+</span> <span class="ident">id_u16</span>,
+                    <span class="ident">hbbft_bind_addr</span>: <span class="macro">format!</span>(<span class="string">&quot;127.0.0.1:{}&quot;</span>, <span class="ident">params</span>.<span class="ident">hbbft_base_port</span> <span class="op">+</span> <span class="ident">id_u16</span>),
+                    <span class="ident">api_bind_addr</span>: <span class="macro">format!</span>(<span class="string">&quot;127.0.0.1:{}&quot;</span>, <span class="ident">params</span>.<span class="ident">api_base_port</span> <span class="op">+</span> <span class="ident">id_u16</span>),
+                    <span class="ident">tls_cert</span>: <span class="ident">tls_keys</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="number">0</span>.<span class="ident">clone</span>(),
+                    <span class="ident">tls_key</span>: <span class="ident">tls_keys</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="number">1</span>.<span class="ident">clone</span>(),
                     <span class="ident">peers</span>: <span class="ident">cfg_peers</span>.<span class="ident">clone</span>(),
-                    <span class="ident">hbbft_sk</span>: <span class="ident">SerdeSecret</span>(<span class="ident">netinf</span>.<span class="ident">secret_key</span>().<span class="ident">clone</span>()),
                     <span class="ident">hbbft_sks</span>: <span class="ident">SerdeSecret</span>(<span class="ident">netinf</span>.<span class="ident">secret_key_share</span>().<span class="ident">unwrap</span>().<span class="ident">clone</span>()),
                     <span class="ident">hbbft_pk_set</span>: <span class="ident">netinf</span>.<span class="ident">public_key_set</span>().<span class="ident">clone</span>(),
-                    <span class="ident">db_path</span>: <span class="macro">format!</span>(<span class="string">&quot;cfg/mint-{}.db&quot;</span>, <span class="ident">id</span>).<span class="ident">into</span>(),
                     <span class="ident">wallet</span>: <span class="ident">wallet_server_cfg</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">clone</span>(),
                     <span class="ident">mint</span>: <span class="ident">mint_server_cfg</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">clone</span>(),
                     <span class="ident">ln</span>: <span class="ident">ln_server_cfg</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">clone</span>(),
@@ -358,14 +376,10 @@
             .<span class="ident">collect</span>();
 
         <span class="kw">let</span> <span class="ident">client_config</span> <span class="op">=</span> <span class="ident">ClientConfig</span> {
+            <span class="ident">max_evil</span>,
             <span class="ident">api_endpoints</span>: <span class="ident">peers</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">peer</span><span class="op">|</span> {
-                    <span class="macro">format!</span>(
-                        <span class="string">&quot;http://127.0.0.1:{}&quot;</span>,
-                        <span class="ident">params</span>.<span class="ident">api_base_port</span> <span class="op">+</span> <span class="ident">u16::from</span>(<span class="ident">peer</span>)
-                    )
-                })
+                .<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">peer</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;ws://127.0.0.1:{}&quot;</span>, <span class="ident">params</span>.<span class="ident">api_base_port</span> <span class="op">+</span> <span class="ident">u16::from</span>(<span class="ident">peer</span>)))
                 .<span class="ident">collect</span>(),
             <span class="ident">mint</span>: <span class="ident">mint_client_cfg</span>,
             <span class="ident">wallet</span>: <span class="ident">wallet_client_cfg</span>,
@@ -378,11 +392,28 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ServerConfig</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_hbbft_port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u16</span> {
-        <span class="self">self</span>.<span class="ident">hbbft_port</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">network_config</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">NetworkConfig</span> {
+        <span class="ident">NetworkConfig</span> {
+            <span class="ident">identity</span>: <span class="self">self</span>.<span class="ident">identity</span>,
+            <span class="ident">bind_addr</span>: <span class="self">self</span>.<span class="ident">hbbft_bind_addr</span>.<span class="ident">clone</span>(),
+            <span class="ident">peers</span>: <span class="self">self</span>
+                .<span class="ident">peers</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>, <span class="ident">peer</span>)<span class="op">|</span> (<span class="ident">id</span>, <span class="ident">peer</span>.<span class="ident">connection</span>.<span class="ident">clone</span>()))
+                .<span class="ident">collect</span>(),
+        }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_api_port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u16</span> {
-        <span class="self">self</span>.<span class="ident">api_port</span>
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tls_config</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TlsConfig</span> {
+        <span class="ident">TlsConfig</span> {
+            <span class="ident">our_certificate</span>: <span class="self">self</span>.<span class="ident">tls_cert</span>.<span class="ident">clone</span>(),
+            <span class="ident">our_private_key</span>: <span class="self">self</span>.<span class="ident">tls_key</span>.<span class="ident">clone</span>(),
+            <span class="ident">peer_certs</span>: <span class="self">self</span>
+                .<span class="ident">peers</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">peer</span>, <span class="ident">cfg</span>)<span class="op">|</span> (<span class="kw-2">*</span><span class="ident">peer</span>, <span class="ident">cfg</span>.<span class="ident">tls_cert</span>.<span class="ident">clone</span>()))
+                .<span class="ident">collect</span>(),
+        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_incoming_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u16</span> {
@@ -394,35 +425,74 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_from_file</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">T</span> {
-    <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">std::fs::File::open</span>(<span class="ident">path</span>).<span class="ident">expect</span>(<span class="string">&quot;Can&#39;t read cfg file.&quot;</span>);
-    <span class="ident">serde_json::from_reader</span>(<span class="ident">file</span>).<span class="ident">expect</span>(<span class="string">&quot;Could not parse cfg file.&quot;</span>)
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">gen_cert_and_key</span>(
+    <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">rustls::Certificate</span>, <span class="ident">rustls::PrivateKey</span>), <span class="ident">anyhow::Error</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">keypair</span> <span class="op">=</span> <span class="ident">rcgen::KeyPair::generate</span>(<span class="kw-2">&amp;</span><span class="ident">rcgen::PKCS_ECDSA_P256_SHA256</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">keypair_ser</span> <span class="op">=</span> <span class="ident">keypair</span>.<span class="ident">serialize_der</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">rcgen::CertificateParams::new</span>(<span class="macro">vec!</span>[<span class="ident">name</span>.<span class="ident">to_owned</span>()]);
+
+    <span class="ident">params</span>.<span class="ident">key_pair</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">keypair</span>);
+    <span class="ident">params</span>.<span class="ident">alg</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">rcgen::PKCS_ECDSA_P256_SHA256</span>;
+    <span class="ident">params</span>.<span class="ident">is_ca</span> <span class="op">=</span> <span class="ident">rcgen::IsCa::SelfSignedOnly</span>;
+    <span class="ident">params</span>
+        .<span class="ident">distinguished_name</span>
+        .<span class="ident">push</span>(<span class="ident">rcgen::DnType::CommonName</span>, <span class="ident">name</span>);
+
+    <span class="kw">let</span> <span class="ident">cert</span> <span class="op">=</span> <span class="ident">rcgen::Certificate::from_params</span>(<span class="ident">params</span>)<span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>((
+        <span class="ident">rustls::Certificate</span>(<span class="ident">cert</span>.<span class="ident">serialize_der</span>()<span class="question-mark">?</span>),
+        <span class="ident">rustls::PrivateKey</span>(<span class="ident">keypair_ser</span>),
+    ))
 }
 
-<span class="kw">mod</span> <span class="ident">serde_binary_human_readable</span> {
-    <span class="kw">use</span> <span class="ident">serde::de::DeserializeOwned</span>;
+<span class="kw">mod</span> <span class="ident">serde_tls_cert</span> {
+    <span class="kw">use</span> <span class="ident">serde::de::Error</span>;
     <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
+    <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
+    <span class="kw">use</span> <span class="ident">tokio_rustls::rustls</span>;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span>, <span class="ident">S</span>: <span class="ident">Serializer</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">s</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">is_human_readable</span>() {
-            <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span>
-                <span class="ident">bincode::serialize</span>(<span class="ident">x</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">serde::ser::Error::custom</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">e</span>)))<span class="question-mark">?</span>;
-            <span class="ident">s</span>.<span class="ident">serialize_str</span>(<span class="kw-2">&amp;</span><span class="ident">hex::encode</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>))
-        } <span class="kw">else</span> {
-            <span class="ident">Serialize::serialize</span>(<span class="ident">x</span>, <span class="ident">s</span>)
-        }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">cert</span>: <span class="kw-2">&amp;</span><span class="ident">rustls::Certificate</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Serializer</span>,
+    {
+        <span class="kw">let</span> <span class="ident">hex_str</span> <span class="op">=</span> <span class="ident">hex::encode</span>(<span class="kw-2">&amp;</span><span class="ident">cert</span>.<span class="number">0</span>);
+        <span class="ident">Serialize::serialize</span>(<span class="kw-2">&amp;</span><span class="ident">hex_str</span>, <span class="ident">serializer</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;d</span>, <span class="ident">T</span>: <span class="ident">DeserializeOwned</span>, <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;d</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">D::Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">d</span>.<span class="ident">is_human_readable</span>() {
-            <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">hex::decode</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="ident">Deserialize::deserialize</span>(<span class="ident">d</span>)<span class="question-mark">?</span>)
-                .<span class="ident">map_err</span>(<span class="ident">serde::de::Error::custom</span>)<span class="question-mark">?</span>;
-            <span class="ident">bincode::deserialize</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">serde::de::Error::custom</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">e</span>)))
-        } <span class="kw">else</span> {
-            <span class="ident">Deserialize::deserialize</span>(<span class="ident">d</span>)
-        }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">rustls::Certificate</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">let</span> <span class="ident">hex_str</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Deserialize::deserialize</span>(<span class="ident">deserializer</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">hex::decode</span>(<span class="ident">hex_str</span>.<span class="ident">as_ref</span>()).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">D::Error::custom</span>(<span class="string">&quot;Invalid hex&quot;</span>))<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">rustls::Certificate</span>(<span class="ident">bytes</span>))
+    }
+}
+
+<span class="kw">mod</span> <span class="ident">serde_tls_key</span> {
+    <span class="kw">use</span> <span class="ident">serde::de::Error</span>;
+    <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
+    <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
+    <span class="kw">use</span> <span class="ident">tokio_rustls::rustls</span>;
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">rustls::PrivateKey</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Serializer</span>,
+    {
+        <span class="kw">let</span> <span class="ident">hex_str</span> <span class="op">=</span> <span class="ident">hex::encode</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="number">0</span>);
+        <span class="ident">Serialize::serialize</span>(<span class="kw-2">&amp;</span><span class="ident">hex_str</span>, <span class="ident">serializer</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">rustls::PrivateKey</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">let</span> <span class="ident">hex_str</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Deserialize::deserialize</span>(<span class="ident">deserializer</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">hex::decode</span>(<span class="ident">hex_str</span>.<span class="ident">as_ref</span>()).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">D::Error::custom</span>(<span class="string">&quot;Invalid hex&quot;</span>))<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">rustls::PrivateKey</span>(<span class="ident">bytes</span>))
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="minimint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (99930ac7f 2022-06-11)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="minimint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (34a6cae28 2022-08-09)" ></div></body></html>
