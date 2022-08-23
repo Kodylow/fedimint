@@ -1,8 +1,12 @@
 use std::path::PathBuf;
 
 use clap::Parser;
+<<<<<<< HEAD:fedimintd/src/main.rs
 use fedimint_server::config::{load_from_file, ServerConfig};
 use fedimint_server::FedimintServer;
+=======
+use fedimint::run_fedimint;
+>>>>>>> Hello world axum server with askama:fedimint/src/bin/fedimintd.rs
 
 use fedimint_wallet::bitcoincore_rpc;
 use tracing_subscriber::prelude::*;
@@ -13,6 +17,7 @@ use tracing_subscriber::Layer;
 pub struct ServerOpts {
     pub cfg_path: PathBuf,
     pub db_path: PathBuf,
+    pub setup_port: u16,
     #[cfg(feature = "telemetry")]
     #[clap(long)]
     pub with_telemetry: bool,
@@ -54,6 +59,7 @@ async fn main() -> anyhow::Result<()> {
         registry.init();
     }
 
+<<<<<<< HEAD:fedimintd/src/main.rs
     let cfg: ServerConfig = load_from_file(&opts.cfg_path);
 
     let db = fedimint_rocksdb::RocksDb::open(opts.db_path)
@@ -62,6 +68,9 @@ async fn main() -> anyhow::Result<()> {
 
     let btc_rpc = bitcoincore_rpc::make_bitcoind_rpc(&cfg.wallet.btc_rpc)?;
     FedimintServer::run(cfg, db, btc_rpc).await;
+=======
+    run_fedimint(opts.cfg_path, opts.db_path, opts.setup_port).await;
+>>>>>>> Hello world axum server with askama:fedimint/src/bin/fedimintd.rs
 
     #[cfg(feature = "telemetry")]
     opentelemetry::global::shutdown_tracer_provider();

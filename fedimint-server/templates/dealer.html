@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %} Fedimint {% endblock %}
+
+{% block content %}
+<div>
+    <div class="container text-center mt-5">
+        <h1>Federation Guardians</h1>
+        <ol class="list-group overflow-hidden px-1">
+            {% for guardian in guardians %}
+            <li class="list-group-item"><strong>{{ guardian.name }}</strong>: {{ guardian.connection_string }}</li>
+            {% endfor %}
+        </ol>
+        <button type="button" class="btn btn-primary my-3" data-bs-toggle="modal" data-bs-target="#addGuardianModal">
+            Add a Guardian
+        </button>
+        <form action="/deal" method="post">
+            <button type="submit" class="btn btn-primary">Start Your Federation</button>
+        </form>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="addGuardianModal" tabindex="-1" aria-labelledby="addGuardianModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addGuardianModalLabel">Add a Guardian</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <form action="/dealer" method="post">
+                        <div class="form-group">
+                            <label for="name">
+                                Name
+                            </label>
+                            <input type="text" class="form-control" name="name" placeholder="Satoshi Nakamoto"
+                                required />
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="connection_string">
+                                Connection String
+                            </label>
+                            <input type="text" class="form-control" name="connection_string"
+                                placeholder="021000000@127.0.0.1:10000" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3" id="addGuardianSubmit">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
