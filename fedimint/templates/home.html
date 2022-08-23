@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fedimint</title>
+</head>
+<body>
+
+{% if running %}
+    <h1>Federation is running</h1>
+    <div>Connect to it by scanning this QR</div>
+    <img src="/qr" alt="federation qr code" width="500" height="500" />
+{% else %}
+    <h3>Your Fedimint connection string</h3>
+    <div>{{ connection_string }}</div>
+    <!-- FIXME: what should this do?-->
+    <button id="dealer">Dealer</button>
+    <button id="player">Player</button>
+{% endif %}
+
+{% if can_run %}
+<form action="/start-federation" method="post">
+    <input type="submit" value="Run Fedimint">
+</form>
+{% endif %}
+
+<script>
+    const dealer = document.querySelector("#dealer");
+    dealer.addEventListener("click", function(e) {
+        location.href = "/dealer";
+    });
+    const player = document.querySelector("#player");
+    player.addEventListener("click", function(e) {
+        location.href = "/player";
+    });
+</script>
+</body>
+</html>
+

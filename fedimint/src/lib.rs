@@ -2,7 +2,7 @@ extern crate fedimint_api;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::future::Future;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -38,6 +38,7 @@ use crate::net::peers::{
     AnyPeerConnections, PeerConnections, PeerConnector, ReconnectPeerConnections,
 };
 use crate::rng::RngGenerator;
+use crate::setup::run_setup;
 
 /// The actual implementation of the federated mint
 pub mod consensus;
@@ -50,6 +51,9 @@ pub mod net;
 
 /// Fedimint toplevel config
 pub mod config;
+
+/// Setup UI
+pub mod setup;
 
 /// Some abstractions to handle randomness
 mod rng;
@@ -73,7 +77,25 @@ pub struct FedimintServer {
 }
 
 /// Start all the components of the mint and plug them together
-pub async fn run_fedimint(cfg: ServerConfig, db_path: PathBuf) {
+pub async fn run_fedimint(cfg_path: PathBuf, db_path: PathBuf, setup_port: u16) {
+    let (sender, mut receiver) = tokio::sync::mpsc::channel(1);
+
+    // TODO: this should run always as more of an admin UI
+    if !Path::new(&cfg_path).is_file() {
+        // Spawn setup UI, () sent over receive when it's finished
+        tokio::task::spawn(run_setup(
+            cfg_path.clone(),
+            db_path.clone(),
+            setup_port,
+            sender,
+        ));
+        receiver
+            .recv()
+            .await
+            .expect("failed to receive setup message");
+    }
+
+    let cfg: ServerConfig = load_from_file(&cfg_path);
     let server = FedimintServer::new(cfg.clone(), db_path.clone()).await;
     spawn(net::api::run_server(cfg, server.consensus.clone()));
     server.run_consensus().await;

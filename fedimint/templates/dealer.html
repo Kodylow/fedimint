@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head></head>
+<body>
+<h3>Add Guardians</h3>
+<form action="/dealer" method="post">
+    <div>
+        <label for="name">
+            Name:
+            <input type="text" name="name">
+        </label>
+    </div>
+    <div>
+        <label for="connection_string">
+            Connection String:
+            <input type="text" name="connection_string">
+        </label>
+    </div>
+    <div>
+        <input type="submit" value="Add Guardian">
+    </div>
+</form>
+
+<h3>Guardians</h3>
+{% for guardian in guardians %}
+    <li>{{ guardian.name }}: {{ guardian.connection_string }}</li>
+{% endfor %}
+
+{% if guardians.len() > 0 %}
+    <form action="/deal" method="post">
+        <input type="submit" value="Deal">
+    </form>
+{% endif %}
+</body>
+</html>
