@@ -3,9 +3,7 @@ name = "mint-client"
 version = "0.1.0"
 authors = ["The Fedimint Developers"]
 edition = "2021"
-rust-version = "1.56.0"
 description = "mint-client provides a library for sending transactions to the federation."
-documentation = "https://github.com/fedimint/fedimint/tree/master/docs/architecture.md"
 license = "MIT"
 license-file = "../../LICENSE"
 
