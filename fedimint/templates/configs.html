@@ -1,16 +1,14 @@
-<!doctype html>
-<html>
-<head></head>
-<body>
+{% extends "base.html" %}
 
+{% block title %} Fedimint {% endblock %}
+
+{% block content %}
 <h1>Client config</h1>
 <pre>{{ client_config }}</pre>
 
 <h1>Server configs</h1>
 {% for (guardian, server_config) in server_configs %}
-    <h3>{{ guardian.name }}</h3>
-    <pre>{{ server_config }}</pre>
+<h3>{{ guardian.name }}</h3>
+<pre>{{ server_config }}</pre>
 {% endfor %}
-
-</body>
-</html>
+{% endblock %}

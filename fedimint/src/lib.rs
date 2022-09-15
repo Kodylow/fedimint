@@ -83,12 +83,7 @@ pub async fn run_fedimint(cfg_path: PathBuf, db_path: PathBuf, setup_port: u16) 
     // TODO: this should run always as more of an admin UI
     if !Path::new(&cfg_path).is_file() {
         // Spawn setup UI, () sent over receive when it's finished
-        tokio::task::spawn(run_setup(
-            cfg_path.clone(),
-            db_path.clone(),
-            setup_port,
-            sender,
-        ));
+        tokio::task::spawn(run_setup(cfg_path.clone(), setup_port, sender));
         receiver
             .recv()
             .await

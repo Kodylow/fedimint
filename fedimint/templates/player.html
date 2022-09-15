@@ -1,15 +1,10 @@
-<!doctype html>
-<html>
-<head></head>
-<body>
-<h3>Add Guardians</h3>
+{% extends "base.html" %}
+{% block title %} Fedimint {% endblock %}
+{% block content %}
+<p>{{ connection_string }}</p>
+<h3>Message this connection string to another Guardian to get connected</h3>
+
 <form action="/player" method="post">
-  <div>
-    <label for="config">
-      Config:
-      <textarea type="text" name="config"></textarea>
-    </label>
-  </div>
   <div>
     <label for="client_config">
       Client Config:
@@ -17,9 +12,13 @@
     </label>
   </div>
   <div>
-    <input type="submit" value="Download config">
+    <label for="config">
+      Config:
+      <textarea type="text" name="config"></textarea>
+    </label>
+  </div>
+  <div>
+    <input type="submit" value="Download config" />
   </div>
 </form>
-
-</body>
-</html>
+{% endblock %}

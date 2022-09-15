@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
 use clap::Parser;
-use fedimint::config::{load_from_file, ServerConfig};
 use fedimint::run_fedimint;
 
 use tracing_subscriber::prelude::*;

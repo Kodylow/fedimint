@@ -1,6 +1,5 @@
 mod configgen;
 
-use std::collections::BTreeMap;
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, RwLock, RwLockWriteGuard};
@@ -12,23 +11,21 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use fedimint_api::PeerId;
-use fedimint_core::config::{load_from_file, ClientConfig};
+use fedimint_core::config::ClientConfig;
 use http::StatusCode;
 use qrcode_generator::QrCodeEcc;
 use rand::rngs::OsRng;
-use secp256k1_zkp::PublicKey;
 use serde::Deserialize;
 use tokio::sync::mpsc::Sender;
 
 use crate::setup::configgen::configgen;
 use crate::ServerConfig;
 use mint_client::api::WsFederationConnect;
-use mint_client::UserClientConfig;
 
 fn run_fedimint(state: &mut RwLockWriteGuard<State>) {
     let sender = state.sender.clone();
     tokio::task::spawn(async move {
+        // trying to trigger the receive message
         sender.send(()).await.expect("failed to send over channel");
     }); // FIXME: it won't let me await this
     state.running = true;
@@ -45,7 +42,6 @@ pub struct Guardian {
 #[template(path = "home.html")]
 struct HomeTemplate {
     running: bool,
-    connection_string: String,
     can_run: bool,
 }
 
@@ -54,7 +50,6 @@ async fn home(Extension(state): Extension<MutableState>) -> HomeTemplate {
     let can_run = Path::new(&state.cfg_path.clone()).is_file() && !state.running;
     HomeTemplate {
         running: state.running.clone(),
-        connection_string: state.connection_string.clone(),
         can_run,
     }
 }
@@ -85,25 +80,33 @@ async fn add_guardian(
 async fn deal(Extension(state): Extension<MutableState>) -> Result<Redirect, (StatusCode, String)> {
     let mut state = state.write().unwrap();
     let (server_configs, client_config) = configgen(state.guardians.clone());
-    state.server_configs = Some(server_configs);
-    state.client_config = Some(client_config);
+    state.server_configs = Some(server_configs.clone());
+    state.client_config = Some(client_config.clone());
 
     tracing::info!("Generated configs");
 
     // TODO: print these configs to the screen ...
+    save_configs(
+        &server_configs.clone()[0].1,
+        &client_config,
+        &state.cfg_path,
+    );
 
-    if Path::new(&state.cfg_path).is_file() {
-        run_fedimint(&mut state);
-    }
+    run_fedimint(&mut state);
+
     Ok(Redirect::to("/configs".parse().unwrap()))
 }
 
 #[derive(Template)]
 #[template(path = "player.html")]
-struct PlayerTemplate;
+struct PlayerTemplate {
+    connection_string: String,
+}
 
 async fn player(Extension(state): Extension<MutableState>) -> PlayerTemplate {
-    PlayerTemplate
+    PlayerTemplate {
+        connection_string: state.read().unwrap().connection_string.clone(),
+    }
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -118,25 +121,9 @@ async fn receive_configs(
     Form(form): Form<ReceiveConfigsForm>,
 ) -> Result<Redirect, (StatusCode, String)> {
     let mut state = state.write().unwrap();
-    // let unescaped = snailquote::unescape(&form.config).unwrap();
-    // tracing::info!("{:?}", &form.config);
-    // let unescaped = form.config.replace("\\\"", "\"");
-    // tracing::info!("{:?}", &unescaped);
-    let config: ServerConfig = serde_json::from_str(&form.config).unwrap();
+    let server_config: ServerConfig = serde_json::from_str(&form.config).unwrap();
     let client_config: ClientConfig = serde_json::from_str(&form.client_config).unwrap();
-
-    // Recursively create config directory if it doesn't exist
-    let parent = &state.cfg_path.parent().unwrap();
-    std::fs::create_dir_all(&parent).expect("Failed to create config directory");
-
-    // Save the configs
-    tracing::info!("{:?}", &state.cfg_path);
-    let cfg_file = std::fs::File::create(&state.cfg_path).expect("Could not create cfg file");
-    serde_json::to_writer_pretty(cfg_file, &config).unwrap();
-    let client_cfg_path = parent.join("client.json");
-    let client_cfg_file =
-        std::fs::File::create(&client_cfg_path).expect("Could not create cfg file");
-    serde_json::to_writer_pretty(client_cfg_file, &config).unwrap();
+    save_configs(&server_config, &client_config, &state.cfg_path);
 
     // update state
     state.client_config = Some(client_config);
@@ -145,6 +132,21 @@ async fn receive_configs(
     run_fedimint(&mut state);
 
     Ok(Redirect::to("/".parse().unwrap()))
+}
+
+fn save_configs(server_config: &ServerConfig, client_config: &ClientConfig, cfg_path: &PathBuf) {
+    // Recursively create config directory if it doesn't exist
+    let parent = cfg_path.parent().unwrap();
+    std::fs::create_dir_all(&parent).expect("Failed to create config directory");
+
+    // Save the configs
+    tracing::info!("{:?}", cfg_path);
+    let cfg_file = std::fs::File::create(&cfg_path).expect("Could not create cfg file");
+    serde_json::to_writer_pretty(cfg_file, &server_config).unwrap();
+    let client_cfg_path = parent.join("client.json");
+    let client_cfg_file =
+        std::fs::File::create(&client_cfg_path).expect("Could not create cfg file");
+    serde_json::to_writer_pretty(client_cfg_file, &client_config).unwrap();
 }
 
 #[derive(Template)]
@@ -172,7 +174,7 @@ async fn display_configs(Extension(state): Extension<MutableState>) -> DisplayCo
 async fn qr(Extension(state): Extension<MutableState>) -> impl axum::response::IntoResponse {
     let client_config = state.read().unwrap().client_config.clone().unwrap();
     let connect_info = WsFederationConnect::from(&client_config);
-    let mut string = serde_json::to_string(&connect_info).unwrap();
+    let string = serde_json::to_string(&connect_info).unwrap();
     // this was a hack to do a remote demo ... leaving just in case I need to do another!
     // .replace("127.0.0.1", "188.166.55.8");
     let png_bytes: Vec<u8> = qrcode_generator::to_png_to_vec(string, QrCodeEcc::Low, 1024).unwrap();
@@ -189,17 +191,14 @@ struct State {
     // TODO: map name to peer id
     running: bool,
     cfg_path: PathBuf,
-    db_path: PathBuf,
     connection_string: String,
-    pubkey: PublicKey,
     sender: Sender<()>,
-    port: u16,
     server_configs: Option<Vec<(Guardian, ServerConfig)>>,
     client_config: Option<ClientConfig>,
 }
 type MutableState = Arc<RwLock<State>>;
 
-pub async fn run_setup(cfg_path: PathBuf, db_path: PathBuf, port: u16, sender: Sender<()>) {
+pub async fn run_setup(cfg_path: PathBuf, port: u16, sender: Sender<()>) {
     let mut rng = OsRng::new().unwrap();
     let secp = bitcoin::secp256k1::Secp256k1::new();
     let (_, pubkey) = secp.generate_keypair(&mut rng);
@@ -213,12 +212,9 @@ pub async fn run_setup(cfg_path: PathBuf, db_path: PathBuf, port: u16, sender: S
     let state = Arc::new(RwLock::new(State {
         guardians,
         running: false,
-        pubkey,
         cfg_path,
-        db_path,
         connection_string,
         sender,
-        port,
         server_configs: None,
         client_config: None,
     }));
