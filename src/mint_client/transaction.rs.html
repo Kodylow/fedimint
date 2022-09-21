@@ -257,7 +257,7 @@
         amount: Amount,
         secp: <span class="kw-2">&amp;</span>secp256k1_zkp::Secp256k1&lt;secp256k1_zkp::All&gt;,
         tbs_pks: <span class="kw-2">&amp;</span>Tiered&lt;AggregatePublicKey&gt;,
-        rng: R,
+        rng: <span class="kw-2">&amp;mut </span>R,
     ) {
         <span class="kw">let </span>(coin_finalization_data, coin_output) =
             <span class="self">self</span>.create_output_coins(amount, secp, tbs_pks, rng);
@@ -275,7 +275,7 @@
         amount: Amount,
         secp: <span class="kw-2">&amp;</span>secp256k1_zkp::Secp256k1&lt;secp256k1_zkp::All&gt;,
         tbs_pks: <span class="kw-2">&amp;</span>Tiered&lt;AggregatePublicKey&gt;,
-        rng: R,
+        rng: <span class="kw-2">&amp;mut </span>R,
     ) -&gt; (CoinFinalizationData, TieredMulti&lt;BlindNonce&gt;) {
         <span class="kw">let </span>(coin_finalization_data, sig_req) =
             CoinFinalizationData::new(amount, tbs_pks, secp, rng);
@@ -335,4 +335,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="mint_client" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (cf9ed0dd5 2022-09-15)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="mint_client" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (432abd86f 2022-09-20)" ></div></body></html>
