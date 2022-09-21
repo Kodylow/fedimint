@@ -40,7 +40,7 @@ fedimint-api = { path = "../fedimint-api", features = ["rocksdb"] }
 fedimint-core = { path = "../fedimint-core" }
 fedimint-derive = { path = "../fedimint-derive" }
 fedimint-wallet = { path = "../modules/fedimint-wallet", features = ["native"] }
-opentelemetry = { version = "0.17.0", optional = true }
+opentelemetry = { version = "0.18.0", optional = true }
 opentelemetry-jaeger = { version = "0.16.0", optional = true }
 rand = "0.6.5"
 rayon = "1.5.0"
@@ -48,11 +48,11 @@ rcgen = "0.9.2"
 secp256k1-zkp = { version = "0.6.0", features = [ "global-context", "bitcoin_hashes" ] }
 rocksdb = "0.19.0"
 serde = { version = "1.0.118", features = [ "derive" ] }
-serde_json = "1.0.61"
+serde_json = "1.0.85"
 sha3 = "0.10.4"
 sled = "0.34.6"
 tbs = { path = "../crypto/tbs" }
-thiserror = "1.0.23"
+thiserror = "1.0.35"
 tokio = { version = "1.21.0", features = ["full"] }
 tokio-rustls = "0.23.4"
 tokio-util = { version = "0.7.3", features = [ "codec" ] }
