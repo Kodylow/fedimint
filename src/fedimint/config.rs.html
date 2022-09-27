@@ -307,11 +307,6 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
 </pre><pre class="rust"><code><span class="kw">use </span>fedimint_api::rand::Rand07Compat;
 <span class="kw">pub use </span>fedimint_core::config::<span class="kw-2">*</span>;
 
@@ -333,6 +328,7 @@
 
 <span class="attribute">#[derive(Debug, Clone, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>ServerConfig {
+    <span class="kw">pub </span>federation_name: String,
     <span class="kw">pub </span>identity: PeerId,
     <span class="kw">pub </span>hbbft_bind_addr: String,
     <span class="kw">pub </span>api_bind_addr: String,
@@ -369,6 +365,7 @@
     <span class="kw">pub </span>hbbft_base_port: u16,
     <span class="kw">pub </span>api_base_port: u16,
     <span class="kw">pub </span>amount_tiers: Vec&lt;fedimint_api::Amount&gt;,
+    <span class="kw">pub </span>federation_name: String,
 }
 
 <span class="kw">impl </span>GenerateConfig <span class="kw">for </span>ServerConfig {
@@ -377,7 +374,6 @@
 
     <span class="kw">fn </span>trusted_dealer_gen(
         peers: <span class="kw-2">&amp;</span>[PeerId],
-        max_evil: usize,
         params: <span class="kw-2">&amp;</span><span class="self">Self</span>::Params,
         <span class="kw-2">mut </span>rng: <span class="kw">impl </span>RngCore + CryptoRng,
     ) -&gt; (BTreeMap&lt;PeerId, <span class="self">Self</span>&gt;, <span class="self">Self</span>::ClientConfig) {
@@ -415,11 +411,11 @@
             .collect::&lt;BTreeMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;();
 
         <span class="kw">let </span>(wallet_server_cfg, wallet_client_cfg) =
-            WalletConfig::trusted_dealer_gen(peers, max_evil, <span class="kw-2">&amp;</span>(), <span class="kw-2">&amp;mut </span>rng);
+            WalletConfig::trusted_dealer_gen(peers, <span class="kw-2">&amp;</span>(), <span class="kw-2">&amp;mut </span>rng);
         <span class="kw">let </span>(mint_server_cfg, mint_client_cfg) =
-            MintConfig::trusted_dealer_gen(peers, max_evil, params.amount_tiers.as_ref(), <span class="kw-2">&amp;mut </span>rng);
+            MintConfig::trusted_dealer_gen(peers, params.amount_tiers.as_ref(), <span class="kw-2">&amp;mut </span>rng);
         <span class="kw">let </span>(ln_server_cfg, ln_client_cfg) =
-            LightningModuleConfig::trusted_dealer_gen(peers, max_evil, <span class="kw-2">&amp;</span>(), <span class="kw-2">&amp;mut </span>rng);
+            LightningModuleConfig::trusted_dealer_gen(peers, <span class="kw-2">&amp;</span>(), <span class="kw-2">&amp;mut </span>rng);
 
         <span class="kw">let </span>server_config = netinfo
             .iter()
@@ -427,6 +423,7 @@
                 <span class="kw">let </span>id_u16: u16 = id.into();
                 <span class="kw">let </span>epoch_keys = epochinfo.get(<span class="kw-2">&amp;</span>id).unwrap();
                 <span class="kw">let </span>config = ServerConfig {
+                    federation_name: params.federation_name.clone(),
                     identity: id,
                     hbbft_bind_addr: <span class="macro">format!</span>(<span class="string">&quot;127.0.0.1:{}&quot;</span>, params.hbbft_base_port + id_u16),
                     api_bind_addr: <span class="macro">format!</span>(<span class="string">&quot;127.0.0.1:{}&quot;</span>, params.api_base_port + id_u16),
@@ -446,15 +443,16 @@
             .collect();
 
         <span class="kw">let </span>client_config = ClientConfig {
-            max_evil,
-            api_endpoints: peers
+            federation_name: params.federation_name.clone(),
+            nodes: peers
                 .iter()
-                .map(|<span class="kw-2">&amp;</span>peer| {
-                    Url::parse(
+                .map(|<span class="kw-2">&amp;</span>peer| Node {
+                    name: <span class="macro">format!</span>(<span class="string">&quot;node #{}&quot;</span>, u16::from(peer)),
+                    url: Url::parse(
                         <span class="macro">format!</span>(<span class="string">&quot;ws://127.0.0.1:{}&quot;</span>, params.api_base_port + u16::from(peer))
                             .as_str(),
                     )
-                    .expect(<span class="string">&quot;Could not parse Url&quot;</span>)
+                    .expect(<span class="string">&quot;Could not parse Url&quot;</span>),
                 })
                 .collect(),
             mint: mint_client_cfg,
@@ -466,15 +464,17 @@
     }
 
     <span class="kw">fn </span>to_client_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::ClientConfig {
-        <span class="kw">let </span>api_endpoints: Vec&lt;Url&gt; = <span class="self">self
+        <span class="kw">let </span>nodes = <span class="self">self
             </span>.peers
             .iter()
-            .map(|(<span class="kw">_</span>, peer)| peer.connection.api_addr.clone())
+            .map(|(peer_id, peer)| Node {
+                url: peer.connection.api_addr.clone(),
+                name: <span class="macro">format!</span>(<span class="string">&quot;node #{}&quot;</span>, peer_id),
+            })
             .collect();
-        <span class="kw">let </span>max_evil = hbbft::util::max_faulty(<span class="self">self</span>.peers.len());
         ClientConfig {
-            api_endpoints,
-            max_evil,
+            federation_name: <span class="self">self</span>.federation_name.clone(),
+            nodes,
             mint: <span class="self">self</span>.mint.to_client_config(),
             wallet: <span class="self">self</span>.wallet.to_client_config(),
             ln: <span class="self">self</span>.ln.to_client_config(),
@@ -537,16 +537,6 @@
     <span class="kw">pub fn </span>get_incoming_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
         <span class="self">self</span>.identity.into()
     }
-
-    <span class="doccomment">/// how many peers can be evil without breaking consensus
-    </span><span class="kw">pub fn </span>max_faulty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        hbbft::util::max_faulty(<span class="self">self</span>.peers.len())
-    }
-
-    <span class="doccomment">/// how many peers are required for consensus
-    </span><span class="kw">pub fn </span>threshold(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        hbbft::util::max_faulty(<span class="self">self</span>.peers.len()) * <span class="number">2 </span>+ <span class="number">1
-    </span>}
 
     <span class="kw">pub fn </span>fee_consensus(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; fedimint_core::config::FeeConsensus {
         fedimint_core::config::FeeConsensus {
@@ -627,4 +617,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="fedimint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (432abd86f 2022-09-20)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="fedimint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (8b705839c 2022-09-26)" ></div></body></html>

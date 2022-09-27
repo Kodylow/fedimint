@@ -429,6 +429,20 @@
 <span id="429">429</span>
 <span id="430">430</span>
 <span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
 </pre><pre class="rust"><code><span class="comment">// TODO: once user and mint client are merged, make this private again
 </span><span class="kw">pub mod </span>db;
 <span class="kw">pub mod </span>incoming;
@@ -594,6 +608,14 @@
         .map_err(LnClientError::ApiError)
     }
 
+    <span class="kw">pub async fn </span>offer_exists(<span class="kw-2">&amp;</span><span class="self">self</span>, payment_hash: Sha256Hash) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
+        <span class="self">self</span>.context
+            .api
+            .offer_exists(payment_hash)
+            .<span class="kw">await
+            </span>.map_err(LnClientError::ApiError)
+    }
+
     <span class="kw">pub fn </span>save_confirmed_invoice(<span class="kw-2">&amp;</span><span class="self">self</span>, invoice: <span class="kw-2">&amp;</span>ConfirmedInvoice) {
         <span class="self">self</span>.context
             .db
@@ -726,6 +748,13 @@
         ) -&gt; <span class="kw">crate</span>::api::Result&lt;EpochHistory&gt; {
             <span class="macro">unimplemented!</span>()
         }
+
+        <span class="kw">async fn </span>offer_exists(
+            <span class="kw-2">&amp;</span><span class="self">self</span>,
+            _payment_hash: bitcoin::hashes::sha256::Hash,
+        ) -&gt; <span class="kw">crate</span>::api::Result&lt;bool&gt; {
+            <span class="macro">unimplemented!</span>()
+        }
     }
 
     <span class="kw">async fn </span>new_mint_and_client() -&gt; (
@@ -736,8 +765,7 @@
         <span class="kw">let </span>fed = Arc::new(tokio::sync::Mutex::new(
             FakeFed::&lt;LightningModule, LightningModuleClientConfig&gt;::new(
                 <span class="number">4</span>,
-                <span class="number">1</span>,
-                |cfg, db| <span class="kw">async </span>{ LightningModule::new(cfg, Arc::new(db)) },
+                |cfg, db| <span class="kw">async </span>{ LightningModule::new(cfg, db) },
                 <span class="kw-2">&amp;</span>(),
             )
             .<span class="kw">await</span>,
@@ -746,7 +774,7 @@
         <span class="kw">let </span>client_config = fed.lock().<span class="kw">await</span>.client_cfg().clone();
 
         <span class="kw">let </span>client_context = ClientContext {
-            db: Box::new(MemDatabase::new()),
+            db: MemDatabase::new().into(),
             api: Box::new(api),
             secp: secp256k1_zkp::Secp256k1::new(),
         };
@@ -861,4 +889,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="mint_client" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (432abd86f 2022-09-20)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="mint_client" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (8b705839c 2022-09-26)" ></div></body></html>

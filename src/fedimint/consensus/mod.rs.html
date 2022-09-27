@@ -727,7 +727,7 @@
     <span class="kw">pub </span>ln: LightningModule,
 
     <span class="doccomment">/// KV Database into which all state is persisted to recover from in case of a crash
-    </span><span class="kw">pub </span>db: Arc&lt;<span class="kw">dyn </span>Database&gt;,
+    </span><span class="kw">pub </span>db: Database,
 
     <span class="comment">// Notifies tasks when there is a new transaction
     </span><span class="kw">pub </span>transaction_notify: Arc&lt;Notify&gt;,
@@ -1295,4 +1295,4 @@
     </span>TransactionConflictError,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="fedimint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (432abd86f 2022-09-20)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="fedimint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (8b705839c 2022-09-26)" ></div></body></html>
