@@ -59,7 +59,6 @@ async fn main() -> anyhow::Result<()> {
 
     let (sender, mut receiver) = tokio::sync::mpsc::channel(1);
 
-    // TODO: this should run always as more of an admin UI
     if opts.setup_port.is_some() {
         // Spawn setup UI, () sent over receive when it's finished
         spawn(run_ui_setup(

@@ -56,14 +56,12 @@ async fn home(Extension(state): Extension<MutableState>) -> HomeTemplate {
 #[derive(Template)]
 #[template(path = "dealer.html")]
 struct DealerTemplate {
-    federation_name: String,
     guardians: Vec<Guardian>,
 }
 
 async fn dealer(Extension(state): Extension<MutableState>) -> DealerTemplate {
     let state = state.read().unwrap();
     DealerTemplate {
-        federation_name: state.federation_name.clone(),
         guardians: state.guardians.clone(),
     }
 }
@@ -134,6 +132,7 @@ async fn receive_configs(
 
     // update state
     state.client_config = Some(client_config);
+    state.federation_name = server_config.federation_name.clone();
 
     // run fedimint
     run_fedimint(&mut state);
