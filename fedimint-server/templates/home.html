@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container text-center mt-5 p-3">
     {% if running %}
-    <h1>The {{ federation_name }} is Running!</h1>
+    <h1>The {{ federation_name }} Federation is Running!</h1>
     <div>Connect to it by scanning this QR Code</div>
     <br>
     <img src="/qr" alt="federation qr code" width="200" height="200" />
@@ -24,12 +24,6 @@
     </div>
     {% endif %}
 </div>
-
-{% if can_run %}
-<form action="/start-federation" method="post">
-    <input type="submit" value="Run Fedimint" />
-</form>
-{% endif %}
 
 {% endblock %}
 

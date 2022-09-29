@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # clear out federation startup configs folder
-rm -rf $PWD/../setup
+rm -rf $PWD/fedimint-server/setup
 
 # start bitcoind in the background
 bitcoind -regtest -daemon -fallbackfee=0.0004 -txindex -server -rpcuser=bitcoin -rpcpassword=bitcoin

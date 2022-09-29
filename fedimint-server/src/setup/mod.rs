@@ -1,7 +1,7 @@
 mod configgen;
 
 use std::net::SocketAddr;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::{Arc, RwLock, RwLockWriteGuard};
 
 use askama::Template;
@@ -43,28 +43,28 @@ pub struct Guardian {
 struct HomeTemplate {
     federation_name: String,
     running: bool,
-    can_run: bool,
 }
 
 async fn home(Extension(state): Extension<MutableState>) -> HomeTemplate {
     let state = state.read().unwrap();
-    let can_run = Path::new(&state.cfg_path.clone()).is_file() && !state.running;
     HomeTemplate {
         federation_name: state.federation_name.clone(),
         running: state.running,
-        can_run,
     }
 }
 
 #[derive(Template)]
 #[template(path = "dealer.html")]
 struct DealerTemplate {
+    federation_name: String,
     guardians: Vec<Guardian>,
 }
 
 async fn dealer(Extension(state): Extension<MutableState>) -> DealerTemplate {
+    let state = state.read().unwrap();
     DealerTemplate {
-        guardians: state.read().unwrap().guardians.clone(),
+        federation_name: state.federation_name.clone(),
+        guardians: state.guardians.clone(),
     }
 }
 
@@ -79,8 +79,18 @@ async fn add_guardian(
     Ok(Redirect::to("/dealer".parse().unwrap()))
 }
 
-async fn deal(Extension(state): Extension<MutableState>) -> Result<Redirect, (StatusCode, String)> {
+#[derive(Deserialize, Debug)]
+#[allow(dead_code)]
+struct FedName {
+    federation_name: String,
+}
+
+async fn deal(
+    Extension(state): Extension<MutableState>,
+    Form(form): Form<FedName>,
+) -> Result<Redirect, (StatusCode, String)> {
     let mut state = state.write().unwrap();
+    state.federation_name = form.federation_name;
     let (server_configs, client_config) =
         configgen(state.federation_name.clone(), state.guardians.clone());
     state.server_configs = Some(server_configs.clone());
@@ -149,6 +159,7 @@ fn save_configs(server_config: &ServerConfig, client_config: &ClientConfig, cfg_
 #[derive(Template)]
 #[template(path = "configs.html")]
 struct DisplayConfigsTemplate {
+    federation_name: String,
     server_configs: Vec<(Guardian, String)>,
     client_config: String,
 }
@@ -163,6 +174,7 @@ async fn display_configs(Extension(state): Extension<MutableState>) -> DisplayCo
         .map(|(guardian, cfg)| (guardian, serde_json::to_string(&cfg).unwrap()))
         .collect();
     DisplayConfigsTemplate {
+        federation_name: state.federation_name.clone(),
         server_configs,
         client_config: serde_json::to_string(&state.client_config.as_ref().unwrap()).unwrap(),
     }

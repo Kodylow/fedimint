@@ -4,7 +4,17 @@
 {% block content %}
 <div>
     <div class="container text-center mt-5">
-        <h1>Federation Guardians</h1>
+        <form action="/deal" method="post">
+            <div class="form-group">
+                <label for="federation_name">
+                    <h1>Federation Name</h1>
+                </label>
+                <input type="text" class="form-control" name="federation_name" placeholder="{{ federation_name }}"
+                    required />
+            </div>
+            <button type="submit" class="btn btn-primary my-3">Start Your Federation</button>
+        </form>
+        <h3>Federation Guardians</h3>
         <ol class="list-group overflow-hidden px-1">
             {% for guardian in guardians %}
             <li class="list-group-item"><strong>{{ guardian.name }}</strong>: {{ guardian.connection_string }}</li>
@@ -13,9 +23,6 @@
         <button type="button" class="btn btn-primary my-3" data-bs-toggle="modal" data-bs-target="#addGuardianModal">
             Add a Guardian
         </button>
-        <form action="/deal" method="post">
-            <button type="submit" class="btn btn-primary">Start Your Federation</button>
-        </form>
     </div>
 
     <!-- Modal -->
