@@ -1,14 +1,12 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use clap::Parser;
-<<<<<<< HEAD:fedimintd/src/main.rs
 use fedimint_server::config::{load_from_file, ServerConfig};
 use fedimint_server::FedimintServer;
-=======
-use fedimint::run_fedimint;
->>>>>>> Hello world axum server with askama:fedimint/src/bin/fedimintd.rs
 
+use fedimint_server::setup::run_ui_setup;
 use fedimint_wallet::bitcoincore_rpc;
+use tokio::spawn;
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::EnvFilter;
 use tracing_subscriber::Layer;
@@ -17,7 +15,7 @@ use tracing_subscriber::Layer;
 pub struct ServerOpts {
     pub cfg_path: PathBuf,
     pub db_path: PathBuf,
-    pub setup_port: u16,
+    pub setup_port: Option<u16>,
     #[cfg(feature = "telemetry")]
     #[clap(long)]
     pub with_telemetry: bool,
@@ -59,7 +57,26 @@ async fn main() -> anyhow::Result<()> {
         registry.init();
     }
 
-<<<<<<< HEAD:fedimintd/src/main.rs
+    let (sender, mut receiver) = tokio::sync::mpsc::channel(1);
+
+    // TODO: this should run always as more of an admin UI
+    if opts.setup_port.is_some() {
+        // Spawn setup UI, () sent over receive when it's finished
+        spawn(run_ui_setup(
+            opts.cfg_path.clone(),
+            opts.setup_port.unwrap(),
+            sender,
+        ));
+        receiver
+            .recv()
+            .await
+            .expect("failed to receive setup message");
+    }
+
+    if !Path::new(&opts.cfg_path).is_file() {
+        panic!("Config file not found, you can generate one with the webui by running with port as arg 3.");
+    }
+
     let cfg: ServerConfig = load_from_file(&opts.cfg_path);
 
     let db = fedimint_rocksdb::RocksDb::open(opts.db_path)
@@ -68,9 +85,6 @@ async fn main() -> anyhow::Result<()> {
 
     let btc_rpc = bitcoincore_rpc::make_bitcoind_rpc(&cfg.wallet.btc_rpc)?;
     FedimintServer::run(cfg, db, btc_rpc).await;
-=======
-    run_fedimint(opts.cfg_path, opts.db_path, opts.setup_port).await;
->>>>>>> Hello world axum server with askama:fedimint/src/bin/fedimintd.rs
 
     #[cfg(feature = "telemetry")]
     opentelemetry::global::shutdown_tracer_provider();

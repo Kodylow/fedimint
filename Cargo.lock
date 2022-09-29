@@ -807,62 +807,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-=======
-name = "fedimint"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "askama",
- "askama_axum",
- "async-trait",
- "axum 0.4.8",
- "axum-core 0.1.2",
- "bincode",
- "bitcoin",
- "bytes",
- "clap",
- "fedimint-api",
- "fedimint-build",
- "fedimint-core",
- "fedimint-derive",
- "fedimint-rocksdb",
- "fedimint-wallet",
- "futures",
- "hbbft",
- "hex",
- "http",
- "http-body",
- "hyper",
- "itertools",
- "jsonrpsee",
- "mint-client",
- "opentelemetry 0.18.0",
- "opentelemetry-jaeger",
- "qrcode-generator",
- "rand 0.6.5",
- "rayon",
- "rcgen",
- "secp256k1-zkp",
- "serde",
- "serde_json",
- "sha3",
- "snailquote",
- "tbs",
- "thiserror",
- "threshold_crypto",
- "tokio",
- "tokio-rustls",
- "tokio-util 0.7.4",
- "tower",
- "tracing",
- "tracing-opentelemetry",
- "tracing-subscriber",
- "url",
-]
-
-[[package]]
->>>>>>> Hello world axum server with askama
 name = "fedimint-api"
 version = "0.1.0"
 dependencies = [
@@ -997,7 +941,11 @@ name = "fedimint-server"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "askama",
+ "askama_axum",
  "async-trait",
+ "axum 0.4.8",
+ "axum-core 0.1.2",
  "bincode",
  "bitcoin",
  "bytes",
@@ -1010,9 +958,13 @@ dependencies = [
  "futures",
  "hbbft",
  "hex",
+ "http",
+ "http-body",
+ "hyper",
  "itertools",
  "jsonrpsee",
  "mint-client",
+ "qrcode-generator",
  "rand 0.6.5",
  "rayon",
  "rcgen",
@@ -1020,12 +972,14 @@ dependencies = [
  "serde",
  "serde_json",
  "sha3",
+ "snailquote",
  "tbs",
  "thiserror",
  "threshold_crypto",
  "tokio",
  "tokio-rustls",
  "tokio-util 0.7.4",
+ "tower",
  "tracing",
  "tracing-subscriber",
  "url",

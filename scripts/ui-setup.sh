@@ -8,7 +8,7 @@ bitcoind -regtest -daemon -fallbackfee=0.0004 -txindex -server -rpcuser=bitcoin 
 
 # start 5 guardians, kill processes on their ports if they are already running
 
-for ((ID = 0; ID < 5; ID++)); do
+for ((ID = 0; ID < 4; ID++)); do
   npx kill-port $((10000 + $ID))
   cargo run --bin fedimintd $PWD/../setup/mint-$ID.json $PWD/../setup/mint-$ID.db $((10000 + $ID)) &
 done
