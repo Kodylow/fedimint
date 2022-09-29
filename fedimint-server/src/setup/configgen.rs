@@ -15,12 +15,16 @@ use rand::rngs::OsRng;
 use threshold_crypto::serde_impl::SerdeSecret;
 use url::Url;
 
-pub fn configgen(guardians: Vec<Guardian>) -> (Vec<(Guardian, ServerConfig)>, ClientConfig) {
+pub fn configgen(
+    federation_name: String,
+    guardians: Vec<Guardian>,
+) -> (Vec<(Guardian, ServerConfig)>, ClientConfig) {
     let amount_tiers = vec![Amount::from_sat(1), Amount::from_sat(10)];
     let mut rng = OsRng::new().unwrap();
     let num_peers = guardians.len() as u16;
     let peers = (0..num_peers).map(PeerId::from).collect::<Vec<_>>();
     let params = SetupConfigParams {
+        federation_name,
         guardians: guardians.clone(),
         amount_tiers,
     };
@@ -38,6 +42,7 @@ pub fn configgen(guardians: Vec<Guardian>) -> (Vec<(Guardian, ServerConfig)>, Cl
 }
 #[derive(Debug)]
 pub struct SetupConfigParams {
+    pub federation_name: String,
     pub guardians: Vec<Guardian>,
     pub amount_tiers: Vec<fedimint_api::Amount>,
 }
@@ -115,7 +120,7 @@ fn trusted_dealer_gen(
                 .get(&id)
                 .expect("Could not get keys from epoch info");
             let config = ServerConfig {
-                federation_name: "default".into(),
+                federation_name: params.federation_name.clone(),
                 identity: id,
                 hbbft_bind_addr: format!("{}:{}", hostnames[id_u16 as usize], hbbft_port + id_u16),
                 api_bind_addr: format!("{}:{}", hostnames[id_u16 as usize], api_port + id_u16),
@@ -140,7 +145,7 @@ fn trusted_dealer_gen(
         .collect();
 
     let client_config = ClientConfig {
-        federation_name: "todo".into(),
+        federation_name: params.federation_name.clone(),
         nodes: peers
             .iter()
             .map(|&peer| {

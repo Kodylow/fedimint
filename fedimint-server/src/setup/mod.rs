@@ -41,6 +41,7 @@ pub struct Guardian {
 #[derive(Template)]
 #[template(path = "home.html")]
 struct HomeTemplate {
+    federation_name: String,
     running: bool,
     can_run: bool,
 }
@@ -49,6 +50,7 @@ async fn home(Extension(state): Extension<MutableState>) -> HomeTemplate {
     let state = state.read().unwrap();
     let can_run = Path::new(&state.cfg_path.clone()).is_file() && !state.running;
     HomeTemplate {
+        federation_name: state.federation_name.clone(),
         running: state.running,
         can_run,
     }
@@ -79,13 +81,13 @@ async fn add_guardian(
 
 async fn deal(Extension(state): Extension<MutableState>) -> Result<Redirect, (StatusCode, String)> {
     let mut state = state.write().unwrap();
-    let (server_configs, client_config) = configgen(state.guardians.clone());
+    let (server_configs, client_config) =
+        configgen(state.federation_name.clone(), state.guardians.clone());
     state.server_configs = Some(server_configs.clone());
     state.client_config = Some(client_config.clone());
 
     tracing::info!("Generated configs");
 
-    // TODO: print these configs to the screen ...
     save_configs(&server_configs[0].1, &client_config, &state.cfg_path);
     run_fedimint(&mut state);
 
@@ -182,8 +184,8 @@ async fn qr(Extension(state): Extension<MutableState>) -> impl axum::response::I
 // TODO: write cfg_path and db_path into state so we don't re-compute them
 #[derive(Debug)]
 struct State {
+    federation_name: String,
     guardians: Vec<Guardian>,
-    // TODO: map name to peer id
     running: bool,
     cfg_path: PathBuf,
     connection_string: String,
@@ -203,8 +205,10 @@ pub async fn run_ui_setup(cfg_path: PathBuf, port: u16, sender: Sender<()>) {
         connection_string: connection_string.clone(),
         name: "You".into(),
     }];
+    let federation_name = "Cypherpunk".into();
 
     let state = Arc::new(RwLock::new(State {
+        federation_name,
         guardians,
         running: false,
         cfg_path,
