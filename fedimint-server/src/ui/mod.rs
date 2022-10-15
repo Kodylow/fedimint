@@ -68,23 +68,17 @@ async fn home(Extension(state): Extension<MutableState>) -> HomeTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "choose.html")]
-struct ChooseTemplate {}
-
-async fn choose(Extension(_state): Extension<MutableState>) -> ChooseTemplate {
-    ChooseTemplate {}
-}
-
-#[derive(Template)]
 #[template(path = "dealer.html")]
 struct DealerTemplate {
-    guardians: Vec<Guardian>,
+    count_guardians: Vec<usize>,
+    guardian: Guardian,
 }
 
 async fn dealer(Extension(state): Extension<MutableState>) -> DealerTemplate {
     let state = state.read().unwrap();
     DealerTemplate {
-        guardians: state.guardians.clone(),
+        guardian: state.guardians[0].clone(),
+        count_guardians: state.count_guardians.clone(),
     }
 }
 
@@ -153,7 +147,9 @@ async fn url_connection(Extension(_state): Extension<MutableState>) -> UrlConnec
 #[derive(Deserialize, Debug, Clone)]
 #[allow(dead_code)]
 pub struct UrlForm {
+    name: String,
     ipaddr: String,
+    count_guardians: usize,
 }
 
 async fn set_url_connection(
@@ -164,8 +160,10 @@ async fn set_url_connection(
 
     // update state
     state.connection_string = state.connection_string.clone() + "@" + &form.ipaddr;
+    state.count_guardians = (0..form.count_guardians).collect();
+    state.guardians[0].name = form.name;
     state.guardians[0].connection_string = state.connection_string.clone();
-    Ok(Redirect::to("/choose".parse().unwrap()))
+    Ok(Redirect::to("/dealer".parse().unwrap()))
 }
 
 #[derive(Template)]
@@ -267,6 +265,7 @@ async fn qr(Extension(state): Extension<MutableState>) -> impl axum::response::I
 #[derive(Debug)]
 struct State {
     federation_name: String,
+    count_guardians: Vec<usize>,
     guardians: Vec<Guardian>,
     running: bool,
     cfg_path: PathBuf,
@@ -286,6 +285,7 @@ pub enum UiMessage {
 pub async fn run_ui(cfg_path: PathBuf, sender: Sender<UiMessage>, port: u32) {
     let mut rng = OsRng;
     let secp = bitcoin::secp256k1::Secp256k1::new();
+
     let (_, pubkey) = secp.generate_keypair(&mut rng);
     let connection_string = format!("{}", pubkey);
     let guardians = vec![Guardian {
@@ -298,6 +298,7 @@ pub async fn run_ui(cfg_path: PathBuf, sender: Sender<UiMessage>, port: u32) {
 
     let state = Arc::new(RwLock::new(State {
         federation_name,
+        count_guardians: vec![],
         guardians,
         running: false,
         cfg_path,
@@ -314,7 +315,6 @@ pub async fn run_ui(cfg_path: PathBuf, sender: Sender<UiMessage>, port: u32) {
             "/url_connection",
             get(url_connection).post(set_url_connection),
         )
-        .route("/choose", get(choose))
         .route("/player", get(player).post(receive_configs))
         .route("/dealer", get(dealer).post(add_guardian))
         .route("/configs", get(display_configs))
