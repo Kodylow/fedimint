@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-core/src/transaction.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transaction.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../fedimint_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../fedimint_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../fedimint_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-core/src/transaction.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transaction.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b826345d929eb323.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-87108236bf50c158.css"><link rel="stylesheet" disabled href="../../static.files/dark-839c5fb8722cb456.css"><link rel="stylesheet" disabled href="../../static.files/ayu-d48ac194417684c8.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-74087aa2e88f4475.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0dede64717b247ca.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-201a7e04dc4c6fce.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../fedimint_core/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -183,108 +183,7 @@
 <span id="183">183</span>
 <span id="184">184</span>
 <span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::config::FeeConsensus;
-<span class="kw">use </span>bitcoin::hashes::Hash <span class="kw">as </span>BitcoinHash;
+</pre><pre class="rust"><code><span class="kw">use </span>bitcoin::hashes::Hash <span class="kw">as </span>BitcoinHash;
 <span class="kw">use </span>bitcoin::XOnlyPublicKey;
 <span class="kw">use </span>fedimint_api::encoding::{Decodable, Encodable};
 <span class="kw">use </span>fedimint_api::{Amount, FederationModule, TransactionId};
@@ -296,7 +195,7 @@
 <span class="doccomment">/// An atomic value transfer operation within the Fedimint system and consensus
 ///
 /// The mint enforces that the total value of the outputs equals the total value of the inputs, to prevent creating funds out of thin air. In some cases, the value of the inputs and outputs can both be 0 e.g. when creating an offer to a Lightning Gateway.
-</span><span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>Transaction {
     <span class="doccomment">/// [`Input`]s consumed by the transaction
     </span><span class="kw">pub </span>inputs: Vec&lt;Input&gt;,
@@ -312,7 +211,7 @@
 ///
 /// Each input has an associated secret/public key pair.
 /// Inputs can not have keys if the transaction value is 0. This is useful for non-monetary transactions to announce information to the mint like incoming LN contract offers.
-</span><span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
 </span><span class="kw">pub enum </span>Input {
     <span class="comment">// TODO: maybe treat every coin as a seperate input?
     </span>Mint(&lt;fedimint_mint::Mint <span class="kw">as </span>FederationModule&gt;::TxInput),
@@ -321,7 +220,7 @@
 }
 
 <span class="comment">// TODO: check if clippy is right
-</span><span class="attribute">#[allow(clippy::large_enum_variant)]
+</span><span class="attr">#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
 </span><span class="kw">pub enum </span>Output {
     Mint(&lt;fedimint_mint::Mint <span class="kw">as </span>FederationModule&gt;::TxOutput),
@@ -329,109 +228,7 @@
     LN(&lt;fedimint_ln::LightningModule <span class="kw">as </span>FederationModule&gt;::TxOutput),
 }
 
-<span class="doccomment">/// Common properties of value transfer for inputs and outputs.
-///
-/// Input and output both define amount transferred and fee. The fee is paid to the federation.
-</span><span class="kw">pub trait </span>TransactionItem {
-    <span class="doccomment">/// The amount before fees represented by the in/output
-    </span><span class="kw">fn </span>amount(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; fedimint_api::Amount;
-
-    <span class="doccomment">/// The fee that will be charged for this in/output
-    </span><span class="kw">fn </span>fee(<span class="kw-2">&amp;</span><span class="self">self</span>, fee_consensus: <span class="kw-2">&amp;</span>FeeConsensus) -&gt; fedimint_api::Amount;
-}
-
-<span class="kw">impl </span>TransactionItem <span class="kw">for </span>Input {
-    <span class="kw">fn </span>amount(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Amount {
-        <span class="kw">match </span><span class="self">self </span>{
-            Input::Mint(coins) =&gt; coins.total_amount(),
-            Input::Wallet(peg_in) =&gt; Amount::from_sat(peg_in.tx_output().value),
-            Input::LN(input) =&gt; input.amount,
-        }
-    }
-
-    <span class="kw">fn </span>fee(<span class="kw-2">&amp;</span><span class="self">self</span>, fee_consensus: <span class="kw-2">&amp;</span>FeeConsensus) -&gt; Amount {
-        <span class="kw">match </span><span class="self">self </span>{
-            Input::Mint(coins) =&gt; fee_consensus.mint.coin_spend_abs * (coins.tier_count() <span class="kw">as </span>u64),
-            Input::Wallet(<span class="kw">_</span>) =&gt; fee_consensus.wallet.peg_in_abs,
-            Input::LN(<span class="kw">_</span>) =&gt; fee_consensus.ln.contract_input,
-        }
-    }
-}
-
-<span class="kw">impl </span>TransactionItem <span class="kw">for </span>Output {
-    <span class="kw">fn </span>amount(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Amount {
-        <span class="kw">match </span><span class="self">self </span>{
-            Output::Mint(coins) =&gt; coins.total_amount(),
-            Output::Wallet(peg_out) =&gt; (peg_out.amount + peg_out.fees.amount()).into(),
-            Output::LN(fedimint_ln::ContractOrOfferOutput::Contract(output)) =&gt; output.amount,
-            Output::LN(fedimint_ln::ContractOrOfferOutput::Offer(<span class="kw">_</span>)) =&gt; Amount::ZERO,
-            Output::LN(fedimint_ln::ContractOrOfferOutput::CancelOutgoing { .. }) =&gt; Amount::ZERO,
-        }
-    }
-
-    <span class="kw">fn </span>fee(<span class="kw-2">&amp;</span><span class="self">self</span>, fee_consensus: <span class="kw-2">&amp;</span>FeeConsensus) -&gt; Amount {
-        <span class="kw">match </span><span class="self">self </span>{
-            Output::Mint(coins) =&gt; fee_consensus.mint.coin_spend_abs * (coins.tier_count() <span class="kw">as </span>u64),
-            Output::Wallet(<span class="kw">_</span>) =&gt; fee_consensus.wallet.peg_out_abs,
-            Output::LN(fedimint_ln::ContractOrOfferOutput::Contract(<span class="kw">_</span>)) =&gt; {
-                fee_consensus.ln.contract_output
-            }
-            <span class="comment">// TODO: maybe not hard code this? otoh non-zero fee offers make onboarding kinda impossible
-            </span>Output::LN(fedimint_ln::ContractOrOfferOutput::Offer(<span class="kw">_</span>)) =&gt; Amount::ZERO,
-            Output::LN(fedimint_ln::ContractOrOfferOutput::CancelOutgoing { .. }) =&gt; Amount::ZERO,
-        }
-    }
-}
-
 <span class="kw">impl </span>Transaction {
-    <span class="kw">pub fn </span>in_amount(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Amount {
-        <span class="self">self</span>.inputs
-            .iter()
-            .map(TransactionItem::amount)
-            .sum::&lt;Amount&gt;()
-    }
-
-    <span class="kw">pub fn </span>out_amount(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Amount {
-        <span class="self">self</span>.outputs
-            .iter()
-            .map(TransactionItem::amount)
-            .sum::&lt;Amount&gt;()
-    }
-
-    <span class="doccomment">/// The sum of fees across all inputs and outputs.
-    </span><span class="kw">pub fn </span>fee_amount(<span class="kw-2">&amp;</span><span class="self">self</span>, fee_consensus: <span class="kw-2">&amp;</span>FeeConsensus) -&gt; Amount {
-        <span class="self">self</span>.inputs
-            .iter()
-            .map(|input| input.fee(fee_consensus))
-            .sum::&lt;Amount&gt;()
-            + <span class="self">self
-                </span>.outputs
-                .iter()
-                .map(|output| output.fee(fee_consensus))
-                .sum::&lt;Amount&gt;()
-    }
-
-    <span class="doccomment">/// Validate amounts balance.
-    ///
-    /// A valid transaction maintains 1:1 ratio of assets to liabilities.
-
-    </span><span class="comment">// TODO: better named validate_amounts?
-    </span><span class="kw">pub fn </span>validate_funding(<span class="kw-2">&amp;</span><span class="self">self</span>, fee_consensus: <span class="kw-2">&amp;</span>FeeConsensus) -&gt; <span class="prelude-ty">Result</span>&lt;(), TransactionError&gt; {
-        <span class="kw">let </span>in_amount = <span class="self">self</span>.in_amount();
-        <span class="kw">let </span>out_amount = <span class="self">self</span>.out_amount();
-        <span class="kw">let </span>fee_amount = <span class="self">self</span>.fee_amount(fee_consensus);
-
-        <span class="kw">if </span>in_amount == (out_amount + fee_amount) {
-            <span class="prelude-val">Ok</span>(())
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(TransactionError::UnbalancedTransaction {
-                inputs: in_amount,
-                outputs: out_amount,
-                fee: fee_amount,
-            })
-        }
-    }
-
     <span class="doccomment">/// Hash of the transaction (excluding the signature).
     ///
     /// Transaction signature commits to this hash.
@@ -524,7 +321,10 @@
     M: Into&lt;secp256k1_zkp::Message&gt;,
 {
     <span class="kw">let </span>msg = msg.into();
-    <span class="kw">let </span>pub_keys = keys.iter().map(|key| key.public_key()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    <span class="kw">let </span>pub_keys = keys
+        .iter()
+        .map(|key| key.x_only_public_key().<span class="number">0</span>)
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
     <span class="kw">let </span>pre_session = new_pre_session(<span class="kw-2">&amp;</span>pub_keys, ctx);
 
     <span class="kw">let </span>session_id: [u8; <span class="number">32</span>] = rng.gen();
@@ -555,18 +355,18 @@
     session.partial_sig_agg(<span class="kw-2">&amp;</span>partial_sigs)
 }
 
-<span class="attribute">#[derive(Debug, Error)]
+<span class="attr">#[derive(Debug, Error)]
 </span><span class="kw">pub enum </span>TransactionError {
-    <span class="attribute">#[error(<span class="string">&quot;The transaction is unbalanced (in={inputs}, out={outputs}, fee={fee})&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;The transaction is unbalanced (in={inputs}, out={outputs}, fee={fee})&quot;</span>)]
     </span>UnbalancedTransaction {
         inputs: Amount,
         outputs: Amount,
         fee: Amount,
     },
-    <span class="attribute">#[error(<span class="string">&quot;The transaction&#39;s signature is invalid&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;The transaction&#39;s signature is invalid&quot;</span>)]
     </span>InvalidSignature,
-    <span class="attribute">#[error(<span class="string">&quot;The transaction did not have a signature although there were inputs to be signed&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;The transaction did not have a signature although there were inputs to be signed&quot;</span>)]
     </span>MissingSignature,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="fedimint_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (ce7f0f1aa 2022-09-28)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0-nightly (7eef946fc 2022-11-06)" data-search-js="search-39ee4160c7dc16c9.js" data-settings-js="settings-3a0b9947ba1bd99a.js" data-settings-css="settings-a66f7524084a489a.css" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `modules/fedimint-mint/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../fedimint_mint/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../fedimint_mint/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../fedimint_mint/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `modules/fedimint-mint/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b826345d929eb323.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-87108236bf50c158.css"><link rel="stylesheet" disabled href="../../static.files/dark-839c5fb8722cb456.css"><link rel="stylesheet" disabled href="../../static.files/ayu-d48ac194417684c8.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-74087aa2e88f4475.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0dede64717b247ca.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-201a7e04dc4c6fce.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../fedimint_mint/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -921,38 +921,59 @@
 <span id="921">921</span>
 <span id="922">922</span>
 <span id="923">923</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::config::MintConfig;
-<span class="kw">use </span><span class="kw">crate</span>::db::{
-    MintAuditItemKey, MintAuditItemKeyPrefix, NonceKey, OutputOutcomeKey,
-    ProposedPartialSignatureKey, ProposedPartialSignaturesKeyPrefix, ReceivedPartialSignatureKey,
-    ReceivedPartialSignatureKeyOutputPrefix, ReceivedPartialSignaturesKeyPrefix,
-};
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, HashMap, HashSet};
+<span class="kw">use </span>std::hash::Hash;
+<span class="kw">use </span>std::iter::FromIterator;
+<span class="kw">use </span>std::ops::Sub;
+
 <span class="kw">use </span>async_trait::async_trait;
-<span class="kw">use </span>fedimint_api::db::batch::{BatchItem, BatchTx, DbBatch};
-<span class="kw">use </span>fedimint_api::db::Database;
+<span class="kw">use </span>fedimint_api::db::{Database, DatabaseTransaction};
 <span class="kw">use </span>fedimint_api::encoding::{Decodable, Encodable};
 <span class="kw">use </span>fedimint_api::module::audit::Audit;
 <span class="kw">use </span>fedimint_api::module::interconnect::ModuleInterconect;
-<span class="kw">use </span>fedimint_api::module::ApiEndpoint;
+<span class="kw">use </span>fedimint_api::module::{ApiEndpoint, IntoModuleError, ModuleError, TransactionItemAmount};
 <span class="kw">use </span>fedimint_api::tiered::InvalidAmountTierError;
 <span class="kw">use </span>fedimint_api::{
     Amount, FederationModule, InputMeta, OutPoint, PeerId, Tiered, TieredMulti, TieredMultiZip,
 };
 <span class="kw">use </span>itertools::Itertools;
-<span class="kw">use </span>rand::{CryptoRng, RngCore};
 <span class="kw">use </span>rayon::iter::{IntoParallelIterator, ParallelBridge, ParallelIterator};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
-<span class="kw">use </span>std::collections::{BTreeMap, HashMap, HashSet};
-
-<span class="kw">use </span>std::hash::Hash;
-<span class="kw">use </span>std::iter::FromIterator;
-<span class="kw">use </span>std::ops::Sub;
 <span class="kw">use </span>tbs::{
     combine_valid_shares, sign_blinded_msg, verify_blind_share, Aggregatable, AggregatePublicKey,
     PublicKeyShare, SecretKeyShare,
 };
 <span class="kw">use </span>thiserror::Error;
 <span class="kw">use </span>tracing::{debug, error, warn};
+
+<span class="kw">use </span><span class="kw">crate</span>::config::MintConfig;
+<span class="kw">use </span><span class="kw">crate</span>::db::{
+    MintAuditItemKey, MintAuditItemKeyPrefix, NonceKey, OutputOutcomeKey,
+    ProposedPartialSignatureKey, ProposedPartialSignaturesKeyPrefix, ReceivedPartialSignatureKey,
+    ReceivedPartialSignatureKeyOutputPrefix, ReceivedPartialSignaturesKeyPrefix,
+};
 
 <span class="kw">pub mod </span>config;
 
@@ -968,23 +989,25 @@
     db: Database,
 }
 
-<span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize, Encodable, Decodable)]
+<span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>PartiallySignedRequest {
     <span class="kw">pub </span>out_point: OutPoint,
     <span class="kw">pub </span>partial_signature: PartialSigResponse,
 }
 
 <span class="doccomment">/// Request to blind sign a certain amount of coins
-</span><span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
-</span><span class="kw">pub struct </span>SignRequest(<span class="kw">pub </span>TieredMulti&lt;tbs::BlindedMessage&gt;);
+</span><span class="attr">#[derive(
+    Debug, Clone, Eq, PartialEq, Hash, Default, Deserialize, Serialize, Encodable, Decodable,
+)]
+</span><span class="kw">pub struct </span>SignRequest(<span class="kw">pub </span>TieredMulti&lt;BlindNonce&gt;);
 
 <span class="comment">// FIXME: optimize out blinded msg by making the mint remember it
 </span><span class="doccomment">/// Blind signature share for a [`SignRequest`]
-</span><span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>PartialSigResponse(<span class="kw">pub </span>TieredMulti&lt;(tbs::BlindedMessage, tbs::BlindedSignatureShare)&gt;);
 
 <span class="doccomment">/// Blind signature for a [`SignRequest`]
-</span><span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>SigResponse(<span class="kw">pub </span>TieredMulti&lt;tbs::BlindedSignature&gt;);
 
 <span class="doccomment">/// An verifiable one time use IOU from the mint.
@@ -999,7 +1022,7 @@
 ///
 /// In this form it can only be validated, not spent since for that the corresponding secret
 /// spend key is required.
-</span><span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>Note(<span class="kw">pub </span>Nonce, <span class="kw">pub </span>tbs::Signature);
 
 <span class="doccomment">/// Unique ID of a mint note.
@@ -1007,7 +1030,7 @@
 /// User-generated, random or otherwise unpredictably generated (deterministically derivated).
 ///
 /// Internally a MuSig pub key so that transactions can be signed when being spent.
-</span><span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>Nonce(<span class="kw">pub </span>secp256k1_zkp::XOnlyPublicKey);
 
 <span class="doccomment">/// [`Nonce`] but blinded by the user key
@@ -1017,34 +1040,31 @@
 ///
 /// By signing it, the mint commits to the underlying (unblinded) [`Nonce`] as valid
 /// (until eventually spent).
-</span><span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>BlindNonce(<span class="kw">pub </span>tbs::BlindedMessage);
 
-<span class="attribute">#[derive(Debug)]
+<span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>VerificationCache {
     valid_coins: HashMap&lt;Note, Amount&gt;,
 }
 
-<span class="attribute">#[async_trait(<span class="question-mark">?</span>Send)]
+<span class="attr">#[async_trait(<span class="question-mark">?</span>Send)]
 </span><span class="kw">impl </span>FederationModule <span class="kw">for </span>Mint {
-    <span class="kw">type </span>Error = MintError;
     <span class="kw">type </span>TxInput = TieredMulti&lt;Note&gt;;
     <span class="kw">type </span>TxOutput = TieredMulti&lt;BlindNonce&gt;;
     <span class="kw">type </span>TxOutputOutcome = <span class="prelude-ty">Option</span>&lt;SigResponse&gt;; <span class="comment">// TODO: make newtype
     </span><span class="kw">type </span>ConsensusItem = PartiallySignedRequest;
     <span class="kw">type </span>VerificationCache = VerificationCache;
 
-    <span class="kw">async fn </span>await_consensus_proposal&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, rng: <span class="kw">impl </span>RngCore + CryptoRng + <span class="lifetime">&#39;a</span>) {
-        <span class="kw">if </span><span class="self">self</span>.consensus_proposal(rng).<span class="kw">await</span>.is_empty() {
+    <span class="kw">async fn </span>await_consensus_proposal(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="kw">if </span><span class="self">self</span>.consensus_proposal().<span class="kw">await</span>.is_empty() {
             std::future::pending().<span class="kw">await
         </span>}
     }
 
-    <span class="kw">async fn </span>consensus_proposal&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        _rng: <span class="kw">impl </span>RngCore + CryptoRng + <span class="lifetime">&#39;a</span>,
-    ) -&gt; Vec&lt;<span class="self">Self</span>::ConsensusItem&gt; {
+    <span class="kw">async fn </span>consensus_proposal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;<span class="self">Self</span>::ConsensusItem&gt; {
         <span class="self">self</span>.db
+            .begin_transaction()
             .find_by_prefix(<span class="kw-2">&amp;</span>ProposedPartialSignaturesKeyPrefix)
             .map(|res| {
                 <span class="kw">let </span>(key, partial_signature) = res.expect(<span class="string">&quot;DB error&quot;</span>);
@@ -1058,19 +1078,17 @@
 
     <span class="kw">async fn </span>begin_consensus_epoch&lt;<span class="lifetime">&#39;a</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        <span class="kw-2">mut </span>batch: BatchTx&lt;<span class="lifetime">&#39;a</span>&gt;,
+        dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt;,
         consensus_items: Vec&lt;(PeerId, <span class="self">Self</span>::ConsensusItem)&gt;,
-        _rng: <span class="kw">impl </span>RngCore + CryptoRng + <span class="lifetime">&#39;a</span>,
     ) {
         <span class="kw">for </span>(peer, partial_sig) <span class="kw">in </span>consensus_items {
             <span class="self">self</span>.process_partial_signature(
-                batch.subtransaction(),
+                dbtx,
                 peer,
                 partial_sig.out_point,
                 partial_sig.partial_signature,
             )
         }
-        batch.commit();
     }
 
     <span class="kw">fn </span>build_verification_cache&lt;<span class="lifetime">&#39;a</span>&gt;(
@@ -1101,58 +1119,66 @@
         _interconnect: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ModuleInterconect,
         cache: <span class="kw-2">&amp;</span><span class="self">Self</span>::VerificationCache,
         input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::TxInput,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;InputMeta&lt;<span class="lifetime">&#39;a</span>&gt;, <span class="self">Self</span>::Error&gt; {
-        input.iter_items().try_for_each(|(amount, coin)| {
-            <span class="kw">let </span>coin_valid = cache
-                .valid_coins
-                .get(coin) <span class="comment">// We validated the coin
-                </span>.map(|coint_amount| <span class="kw-2">*</span>coint_amount == amount) <span class="comment">// It has the right amount tier
-                </span>.unwrap_or(<span class="bool-val">false</span>); <span class="comment">// If we didn&#39;t validate the coin return false
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;InputMeta&lt;<span class="lifetime">&#39;a</span>&gt;, ModuleError&gt; {
+        input
+            .iter_items()
+            .try_for_each(|(amount, coin)| {
+                <span class="kw">let </span>coin_valid = cache
+                    .valid_coins
+                    .get(coin) <span class="comment">// We validated the coin
+                    </span>.map(|coint_amount| <span class="kw-2">*</span>coint_amount == amount) <span class="comment">// It has the right amount tier
+                    </span>.unwrap_or(<span class="bool-val">false</span>); <span class="comment">// If we didn&#39;t validate the coin return false
 
-            </span><span class="kw">if </span>!coin_valid {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(MintError::InvalidSignature);
-            }
+                </span><span class="kw">if </span>!coin_valid {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(MintError::InvalidSignature);
+                }
 
-            <span class="kw">if </span><span class="self">self
-                </span>.db
-                .get_value(<span class="kw-2">&amp;</span>NonceKey(coin.<span class="number">0</span>.clone()))
-                .expect(<span class="string">&quot;DB error&quot;</span>)
-                .is_some()
-            {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(MintError::SpentCoin);
-            }
+                <span class="kw">if </span><span class="self">self
+                    </span>.db
+                    .begin_transaction()
+                    .get_value(<span class="kw-2">&amp;</span>NonceKey(coin.<span class="number">0</span>.clone()))
+                    .expect(<span class="string">&quot;DB error&quot;</span>)
+                    .is_some()
+                {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(MintError::SpentCoin);
+                }
 
-            <span class="prelude-val">Ok</span>(())
-        })<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(())
+            })
+            .into_module_error_other()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(InputMeta {
-            amount: input.total_amount(),
+            amount: TransactionItemAmount {
+                amount: input.total_amount(),
+                fee: <span class="self">self</span>.cfg.fee_consensus.coin_spend_abs * (input.item_count() <span class="kw">as </span>u64),
+            },
             puk_keys: Box::new(input.iter_items().map(|(<span class="kw">_</span>, coin)| <span class="kw-2">*</span>coin.spend_key())),
         })
     }
 
-    <span class="kw">fn </span>apply_input&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt;(
+    <span class="kw">fn </span>apply_input&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;c</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
         interconnect: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>ModuleInterconect,
-        <span class="kw-2">mut </span>batch: BatchTx&lt;<span class="lifetime">&#39;a</span>&gt;,
+        dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;c</span>&gt;,
         input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="self">Self</span>::TxInput,
         cache: <span class="kw-2">&amp;</span><span class="self">Self</span>::VerificationCache,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;InputMeta&lt;<span class="lifetime">&#39;b</span>&gt;, <span class="self">Self</span>::Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;InputMeta&lt;<span class="lifetime">&#39;b</span>&gt;, ModuleError&gt; {
         <span class="kw">let </span>meta = <span class="self">self</span>.validate_input(interconnect, cache, input)<span class="question-mark">?</span>;
 
-        batch.append_from_iter(input.iter_items().flat_map(|(amount, coin)| {
+        input.iter_items().for_each(|(amount, coin)| {
             <span class="kw">let </span>key = NonceKey(coin.<span class="number">0</span>.clone());
-            <span class="macro">vec!</span>[
-                BatchItem::insert_new(key.clone(), ()),
-                BatchItem::insert_new(MintAuditItemKey::Redemption(key), amount),
-            ]
-        }));
-        batch.commit();
+            dbtx.insert_new_entry(<span class="kw-2">&amp;</span>key, <span class="kw-2">&amp;</span>()).expect(<span class="string">&quot;DB Error&quot;</span>);
+            dbtx.insert_new_entry(<span class="kw-2">&amp;</span>MintAuditItemKey::Redemption(key), <span class="kw-2">&amp;</span>amount)
+                .expect(<span class="string">&quot;DB Error&quot;</span>);
+        });
 
         <span class="prelude-val">Ok</span>(meta)
     }
 
-    <span class="kw">fn </span>validate_output(<span class="kw-2">&amp;</span><span class="self">self</span>, output: <span class="kw-2">&amp;</span><span class="self">Self</span>::TxOutput) -&gt; <span class="prelude-ty">Result</span>&lt;Amount, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>validate_output(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        output: <span class="kw-2">&amp;</span><span class="self">Self</span>::TxOutput,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;TransactionItemAmount, ModuleError&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(amount) = output.iter_items().find_map(|(amount, <span class="kw">_</span>)| {
             <span class="kw">if </span><span class="self">self</span>.pub_key.get(<span class="kw-2">&amp;</span>amount).is_none() {
                 <span class="prelude-val">Some</span>(amount)
@@ -1160,42 +1186,52 @@
                 <span class="prelude-val">None
             </span>}
         }) {
-            <span class="prelude-val">Err</span>(MintError::InvalidAmountTier(amount))
+            <span class="prelude-val">Err</span>(MintError::InvalidAmountTier(amount)).into_module_error_other()
         } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(output.total_amount())
+            <span class="prelude-val">Ok</span>(TransactionItemAmount {
+                amount: output.total_amount(),
+                fee: <span class="self">self</span>.cfg.fee_consensus.coin_issuance_abs * (output.item_count() <span class="kw">as </span>u64),
+            })
         }
     }
 
-    <span class="kw">fn </span>apply_output&lt;<span class="lifetime">&#39;a</span>&gt;(
+    <span class="kw">fn </span>apply_output&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        <span class="kw-2">mut </span>batch: BatchTx&lt;<span class="lifetime">&#39;a</span>&gt;,
+        dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;b</span>&gt;,
         output: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::TxOutput,
         out_point: OutPoint,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Amount, <span class="self">Self</span>::Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;TransactionItemAmount, ModuleError&gt; {
+        <span class="kw">let </span>amount = <span class="self">self</span>.validate_output(output)<span class="question-mark">?</span>;
+
         <span class="comment">// TODO: move actual signing to worker thread
         // TODO: get rid of clone
-        </span><span class="kw">let </span>partial_sig = <span class="self">self</span>.blind_sign(output.clone())<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>partial_sig = <span class="self">self</span>.blind_sign(output.clone()).into_module_error_other()<span class="question-mark">?</span>;
 
-        batch.append_insert_new(
-            ProposedPartialSignatureKey {
+        dbtx.insert_new_entry(
+            <span class="kw-2">&amp;</span>ProposedPartialSignatureKey {
                 request_id: out_point,
             },
-            partial_sig,
-        );
-        batch.append_insert_new(MintAuditItemKey::Issuance(out_point), output.total_amount());
-        batch.commit();
-        <span class="prelude-val">Ok</span>(output.total_amount())
+            <span class="kw-2">&amp;</span>partial_sig,
+        )
+        .expect(<span class="string">&quot;DB Error&quot;</span>);
+        dbtx.insert_new_entry(
+            <span class="kw-2">&amp;</span>MintAuditItemKey::Issuance(out_point),
+            <span class="kw-2">&amp;</span>output.total_amount(),
+        )
+        .expect(<span class="string">&quot;DB Error&quot;</span>);
+
+        <span class="prelude-val">Ok</span>(amount)
     }
 
     <span class="kw">async fn </span>end_consensus_epoch&lt;<span class="lifetime">&#39;a</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
         consensus_peers: <span class="kw-2">&amp;</span>HashSet&lt;PeerId&gt;,
-        <span class="kw-2">mut </span>batch: BatchTx&lt;<span class="lifetime">&#39;a</span>&gt;,
-        _rng: <span class="kw">impl </span>RngCore + CryptoRng + <span class="lifetime">&#39;a</span>,
+        dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Vec&lt;PeerId&gt; {
         <span class="comment">// Finalize partial signatures for which we now have enough shares
         </span><span class="kw">let </span>req_psigs = <span class="self">self
             </span>.db
+            .begin_transaction()
             .find_by_prefix(<span class="kw-2">&amp;</span>ReceivedPartialSignaturesKeyPrefix)
             .map(|entry_res| {
                 <span class="kw">let </span>(key, partial_sig) = entry_res.expect(<span class="string">&quot;DB error&quot;</span>);
@@ -1208,12 +1244,15 @@
             .into_par_iter()
             .map(|(issuance_id, shares)| {
                 <span class="kw">let </span><span class="kw-2">mut </span>drop_peers = Vec::&lt;PeerId&gt;::new();
-                <span class="kw">let </span><span class="kw-2">mut </span>batch = DbBatch::new();
-                <span class="kw">let </span><span class="kw-2">mut </span>batch_tx = batch.transaction();
+                <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self</span>.db.begin_transaction();
                 <span class="kw">let </span>proposal_key = ProposedPartialSignatureKey {
                     request_id: issuance_id,
                 };
-                <span class="kw">let </span>our_contribution = <span class="self">self</span>.db.get_value(<span class="kw-2">&amp;</span>proposal_key).expect(<span class="string">&quot;DB error&quot;</span>);
+                <span class="kw">let </span>our_contribution = <span class="self">self
+                    </span>.db
+                    .begin_transaction()
+                    .get_value(<span class="kw-2">&amp;</span>proposal_key)
+                    .expect(<span class="string">&quot;DB error&quot;</span>);
                 <span class="kw">let </span>(bsig, errors) = <span class="self">self</span>.combine(our_contribution, shares.clone());
 
                 <span class="comment">// FIXME: validate shares before writing to DB to make combine infallible
@@ -1229,15 +1268,17 @@
                             <span class="string">&quot;Successfully combined signature shares&quot;</span>,
                         );
 
-                        batch_tx.append_from_iter(shares.into_iter().map(|(peer, <span class="kw">_</span>)| {
-                            BatchItem::delete(ReceivedPartialSignatureKey {
+                        shares.into_iter().for_each(|(peer, <span class="kw">_</span>)| {
+                            dbtx.remove_entry(<span class="kw-2">&amp;</span>ReceivedPartialSignatureKey {
                                 request_id: issuance_id,
                                 peer_id: peer,
                             })
-                        }));
-                        batch_tx.append_delete(proposal_key);
+                            .expect(<span class="string">&quot;DB Error&quot;</span>);
+                        });
+                        dbtx.remove_entry(<span class="kw-2">&amp;</span>proposal_key).expect(<span class="string">&quot;DB Error&quot;</span>);
 
-                        batch_tx.append_insert(OutputOutcomeKey(issuance_id), blind_signature);
+                        dbtx.insert_entry(<span class="kw-2">&amp;</span>OutputOutcomeKey(issuance_id), <span class="kw-2">&amp;</span>blind_signature)
+                            .expect(<span class="string">&quot;DB Error&quot;</span>);
                     }
                     <span class="prelude-val">Err</span>(CombineError::TooFewShares(got, <span class="kw">_</span>)) =&gt; {
                         <span class="kw">for </span>peer <span class="kw">in </span>consensus_peers.sub(<span class="kw-2">&amp;</span>HashSet::from_iter(got)) {
@@ -1249,20 +1290,17 @@
                         <span class="macro">warn!</span>(%error, <span class="string">&quot;Could not combine shares&quot;</span>);
                     }
                 }
-                batch_tx.commit();
-                (batch, drop_peers)
+                dbtx.commit_tx().expect(<span class="string">&quot;DB Error&quot;</span>);
+                drop_peers
             })
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        <span class="kw">let </span>dropped_peers = par_batches
-            .iter()
-            .flat_map(|(<span class="kw">_</span>, peers)| peers)
-            .copied()
-            .collect();
+        <span class="kw">let </span>dropped_peers = par_batches.iter().flatten().copied().collect();
 
         <span class="kw">let </span><span class="kw-2">mut </span>redemptions = Amount::from_sat(<span class="number">0</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>issuances = Amount::from_sat(<span class="number">0</span>);
         <span class="self">self</span>.db
+            .begin_transaction()
             .find_by_prefix(<span class="kw-2">&amp;</span>MintAuditItemKeyPrefix)
             .for_each(|res| {
                 <span class="kw">let </span>(key, amount) = res.expect(<span class="string">&quot;DB error&quot;</span>);
@@ -1272,13 +1310,12 @@
                     MintAuditItemKey::Redemption(<span class="kw">_</span>) =&gt; redemptions += amount,
                     MintAuditItemKey::RedemptionTotal =&gt; redemptions += amount,
                 }
-                batch.append_delete(key);
+                dbtx.remove_entry(<span class="kw-2">&amp;</span>key).expect(<span class="string">&quot;DB Error&quot;</span>);
             });
-        batch.append_insert(MintAuditItemKey::IssuanceTotal, issuances);
-        batch.append_insert(MintAuditItemKey::RedemptionTotal, redemptions);
-
-        batch.append_from_accumulators(par_batches.into_iter().map(|(batch, <span class="kw">_</span>)| batch));
-        batch.commit();
+        dbtx.insert_entry(<span class="kw-2">&amp;</span>MintAuditItemKey::IssuanceTotal, <span class="kw-2">&amp;</span>issuances)
+            .expect(<span class="string">&quot;DB Error&quot;</span>);
+        dbtx.insert_entry(<span class="kw-2">&amp;</span>MintAuditItemKey::RedemptionTotal, <span class="kw-2">&amp;</span>redemptions)
+            .expect(<span class="string">&quot;DB Error&quot;</span>);
 
         dropped_peers
     }
@@ -1286,6 +1323,7 @@
     <span class="kw">fn </span>output_status(<span class="kw-2">&amp;</span><span class="self">self</span>, out_point: OutPoint) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::TxOutputOutcome&gt; {
         <span class="kw">let </span>we_proposed = <span class="self">self
             </span>.db
+            .begin_transaction()
             .get_value(<span class="kw-2">&amp;</span>ProposedPartialSignatureKey {
                 request_id: out_point,
             })
@@ -1293,6 +1331,7 @@
             .is_some();
         <span class="kw">let </span>was_consensus_outcome = <span class="self">self
             </span>.db
+            .begin_transaction()
             .find_by_prefix(<span class="kw-2">&amp;</span>ReceivedPartialSignatureKeyOutputPrefix {
                 request_id: out_point,
             })
@@ -1300,6 +1339,7 @@
 
         <span class="kw">let </span>final_sig = <span class="self">self
             </span>.db
+            .begin_transaction()
             .get_value(<span class="kw-2">&amp;</span>OutputOutcomeKey(out_point))
             .expect(<span class="string">&quot;DB error&quot;</span>);
 
@@ -1530,15 +1570,16 @@
         (<span class="prelude-val">Ok</span>(SigResponse(bsigs)), MintShareErrors(peer_errors))
     }
 
-    <span class="kw">fn </span>process_partial_signature(
+    <span class="kw">fn </span>process_partial_signature&lt;<span class="lifetime">&#39;a</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="kw-2">mut </span>batch: BatchTx,
+        dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt;,
         peer: PeerId,
         output_id: OutPoint,
         partial_sig: PartialSigResponse,
     ) {
         <span class="kw">if </span><span class="self">self
             </span>.db
+            .begin_transaction()
             .get_value(<span class="kw-2">&amp;</span>OutputOutcomeKey(output_id))
             .expect(<span class="string">&quot;DB error&quot;</span>)
             .is_some()
@@ -1555,15 +1596,14 @@
             issuance = %output_id,
             <span class="string">&quot;Received sig share&quot;
         </span>);
-        batch.append_insert_new(
-            ReceivedPartialSignatureKey {
+        dbtx.insert_new_entry(
+            <span class="kw-2">&amp;</span>ReceivedPartialSignatureKey {
                 request_id: output_id,
                 peer_id: peer,
             },
-            partial_sig,
-        );
-
-        batch.commit();
+            <span class="kw-2">&amp;</span>partial_sig,
+        )
+        .expect(<span class="string">&quot;DB Error&quot;</span>);
     }
 }
 
@@ -1598,19 +1638,21 @@
 
 <span class="kw">impl </span>From&lt;SignRequest&gt; <span class="kw">for </span>TieredMulti&lt;BlindNonce&gt; {
     <span class="kw">fn </span>from(sig_req: SignRequest) -&gt; <span class="self">Self </span>{
-        sig_req
-            .<span class="number">0
-            </span>.into_iter()
-            .map(|(amt, token)| (amt, <span class="kw">crate</span>::BlindNonce(token)))
-            .collect()
+        sig_req.<span class="number">0
+    </span>}
+}
+
+<span class="kw">impl </span>Extend&lt;(Amount, BlindNonce)&gt; <span class="kw">for </span>SignRequest {
+    <span class="kw">fn </span>extend&lt;T: IntoIterator&lt;Item = (Amount, BlindNonce)&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, iter: T) {
+        <span class="self">self</span>.<span class="number">0</span>.extend(iter)
     }
 }
 
 <span class="doccomment">/// Represents an array of mint indexes that delivered faulty shares
-</span><span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 </span><span class="kw">pub struct </span>MintShareErrors(<span class="kw">pub </span>Vec&lt;(PeerId, PeerErrorType)&gt;);
 
-<span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+<span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 </span><span class="kw">pub enum </span>PeerErrorType {
     InvalidSignature,
     DifferentStructureSigShare,
@@ -1618,31 +1660,31 @@
     InvalidAmountTier,
 }
 
-<span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash, Error)]
+<span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Error)]
 </span><span class="kw">pub enum </span>CombineError {
-    <span class="attribute">#[error(<span class="string">&quot;Too few shares to begin the combination: got {0:?} need {1}&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;Too few shares to begin the combination: got {0:?} need {1}&quot;</span>)]
     </span>TooFewShares(Vec&lt;PeerId&gt;, usize),
-    <span class="attribute">#[error(
+    <span class="attr">#[error(
         <span class="string">&quot;Too few valid shares, only {0} of {1} (required minimum {2}) provided shares were valid&quot;
     </span>)]
     </span>TooFewValidShares(usize, usize, usize),
-    <span class="attribute">#[error(<span class="string">&quot;We could not find our own contribution in the provided shares, so we have no validation reference&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;We could not find our own contribution in the provided shares, so we have no validation reference&quot;</span>)]
     </span>NoOwnContribution,
-    <span class="attribute">#[error(<span class="string">&quot;Peer {0} contributed {1} shares, 1 expected&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;Peer {0} contributed {1} shares, 1 expected&quot;</span>)]
     </span>MultiplePeerContributions(PeerId, usize),
 }
 
-<span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash, Error)]
+<span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Error)]
 </span><span class="kw">pub enum </span>MintError {
-    <span class="attribute">#[error(<span class="string">&quot;One of the supplied coins had an invalid mint signature&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;One of the supplied coins had an invalid mint signature&quot;</span>)]
     </span>InvalidCoin,
-    <span class="attribute">#[error(<span class="string">&quot;Insufficient coin value: reissuing {0} but only got {1} in coins&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;Insufficient coin value: reissuing {0} but only got {1} in coins&quot;</span>)]
     </span>TooFewCoins(Amount, Amount),
-    <span class="attribute">#[error(<span class="string">&quot;One of the supplied coins was already spent previously&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;One of the supplied coins was already spent previously&quot;</span>)]
     </span>SpentCoin,
-    <span class="attribute">#[error(<span class="string">&quot;One of the coins had an invalid amount not issued by the mint: {0:?}&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;One of the coins had an invalid amount not issued by the mint: {0:?}&quot;</span>)]
     </span>InvalidAmountTier(Amount),
-    <span class="attribute">#[error(<span class="string">&quot;One of the coins had an invalid signature&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;One of the coins had an invalid signature&quot;</span>)]
     </span>InvalidSignature,
 }
 
@@ -1652,15 +1694,16 @@
     }
 }
 
-<span class="attribute">#[cfg(test)]
+<span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
-    <span class="kw">use </span><span class="kw">crate</span>::config::{FeeConsensus, MintClientConfig};
-    <span class="kw">use crate</span>::{BlindNonce, CombineError, Mint, MintConfig, PeerErrorType};
     <span class="kw">use </span>fedimint_api::config::GenerateConfig;
     <span class="kw">use </span>fedimint_api::db::mem_impl::MemDatabase;
     <span class="kw">use </span>fedimint_api::{Amount, PeerId, TieredMulti};
     <span class="kw">use </span>rand::rngs::OsRng;
-    <span class="kw">use </span>tbs::{blind_message, unblind_signature, verify, AggregatePublicKey, Message};
+    <span class="kw">use </span>tbs::{blind_message, unblind_signature, verify, AggregatePublicKey, BlindingKey, Message};
+
+    <span class="kw">use </span><span class="kw">crate</span>::config::{FeeConsensus, MintClientConfig};
+    <span class="kw">use crate</span>::{BlindNonce, CombineError, Mint, MintConfig, PeerErrorType};
 
     <span class="kw">const </span>THRESHOLD: usize = <span class="number">1</span>;
     <span class="kw">const </span>MINTS: usize = <span class="number">5</span>;
@@ -1668,7 +1711,7 @@
     <span class="kw">fn </span>build_configs() -&gt; (Vec&lt;MintConfig&gt;, MintClientConfig) {
         <span class="kw">let </span>peers = (<span class="number">0</span>..MINTS <span class="kw">as </span>u16).map(PeerId::from).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="kw">let </span>(mint_cfg, client_cfg) =
-            MintConfig::trusted_dealer_gen(<span class="kw-2">&amp;</span>peers, <span class="kw-2">&amp;</span>[Amount::from_sat(<span class="number">1</span>)], OsRng::new().unwrap());
+            MintConfig::trusted_dealer_gen(<span class="kw-2">&amp;</span>peers, <span class="kw-2">&amp;</span>[Amount::from_sat(<span class="number">1</span>)], OsRng);
 
         (mint_cfg.into_iter().map(|(<span class="kw">_</span>, c)| c).collect(), client_cfg)
     }
@@ -1685,12 +1728,13 @@
         (agg_pk, mints)
     }
 
-    <span class="attribute">#[test_log::test]
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_issuance() {
         <span class="kw">let </span>(pk, <span class="kw-2">mut </span>mints) = build_mints();
 
         <span class="kw">let </span>nonce = Message::from_bytes(<span class="kw-2">&amp;</span><span class="string">b&quot;test coin&quot;</span>[..]);
-        <span class="kw">let </span>(bkey, bmsg) = blind_message(nonce);
+        <span class="kw">let </span>bkey = BlindingKey::random();
+        <span class="kw">let </span>bmsg = blind_message(nonce, bkey);
         <span class="kw">let </span>blind_tokens = TieredMulti::new(
             <span class="macro">vec!</span>[(
                 Amount::from_sat(<span class="number">1</span>),
@@ -1807,7 +1851,7 @@
             .<span class="number">0
             </span>.contains(<span class="kw-2">&amp;</span>(PeerId::from(<span class="number">2</span>), PeerErrorType::InvalidSignature)));
 
-        <span class="kw">let </span>(_bk, bmsg) = blind_message(Message::from_bytes(<span class="string">b&quot;test&quot;</span>));
+        <span class="kw">let </span>bmsg = blind_message(Message::from_bytes(<span class="string">b&quot;test&quot;</span>), BlindingKey::random());
         <span class="kw">let </span>(bsig_res, errors) = mint.combine(
             <span class="prelude-val">Some</span>(our_sig),
             psigs
@@ -1827,7 +1871,7 @@
             </span>.contains(<span class="kw-2">&amp;</span>(PeerId::from(<span class="number">3</span>), PeerErrorType::DifferentNonce)));
     }
 
-    <span class="attribute">#[test_log::test]
+    <span class="attr">#[test_log::test]
     #[should_panic(expected = <span class="string">&quot;Own key not found among pub keys.&quot;</span>)]
     </span><span class="kw">fn </span>test_new_panic_without_own_pub_key() {
         <span class="kw">let </span>(mint_server_cfg1, <span class="kw">_</span>) = build_configs();
@@ -1845,4 +1889,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="fedimint_mint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (ce7f0f1aa 2022-09-28)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_mint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0-nightly (7eef946fc 2022-11-06)" data-search-js="search-39ee4160c7dc16c9.js" data-settings-js="settings-3a0b9947ba1bd99a.js" data-settings-css="settings-a66f7524084a489a.css" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `modules/fedimint-wallet/src/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../fedimint_wallet/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../fedimint_wallet/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../fedimint_wallet/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `modules/fedimint-wallet/src/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b826345d929eb323.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-87108236bf50c158.css"><link rel="stylesheet" disabled href="../../static.files/dark-839c5fb8722cb456.css"><link rel="stylesheet" disabled href="../../static.files/ayu-d48ac194417684c8.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-74087aa2e88f4475.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0dede64717b247ca.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-201a7e04dc4c6fce.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../fedimint_wallet/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -130,19 +130,83 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::keys::CompressedPublicKey;
-<span class="kw">use crate</span>::{Feerate, PegInDescriptor};
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
+
+<span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>bitcoin::secp256k1::rand::{CryptoRng, RngCore};
 <span class="kw">use </span>bitcoin::Network;
+<span class="kw">use </span>fedimint_api::cancellable::{Cancellable, Cancelled};
 <span class="kw">use </span>fedimint_api::config::{BitcoindRpcCfg, GenerateConfig};
-<span class="kw">use </span>fedimint_api::{NumPeers, PeerId};
+<span class="kw">use </span>fedimint_api::net::peers::AnyPeerConnections;
+<span class="kw">use </span>fedimint_api::task::TaskGroup;
+<span class="kw">use </span>fedimint_api::{Feerate, NumPeers, PeerId};
 <span class="kw">use </span>miniscript::descriptor::Wsh;
+<span class="kw">use </span>secp256k1::SecretKey;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
-<span class="kw">use </span>std::collections::BTreeMap;
+
+<span class="kw">use </span><span class="kw">crate</span>::keys::CompressedPublicKey;
+<span class="kw">use </span><span class="kw">crate</span>::PegInDescriptor;
 
 <span class="kw">const </span>FINALITY_DELAY: u32 = <span class="number">10</span>;
 
-<span class="attribute">#[derive(Clone, Debug, Serialize, Deserialize)]
+<span class="attr">#[derive(Clone, Debug, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>WalletConfig {
     <span class="kw">pub </span>network: Network,
     <span class="kw">pub </span>peg_in_descriptor: PegInDescriptor,
@@ -151,11 +215,11 @@
     <span class="kw">pub </span>finality_delay: u32,
     <span class="kw">pub </span>default_fee: Feerate,
     <span class="kw">pub </span>fee_consensus: FeeConsensus,
-    <span class="attribute">#[serde(flatten)]
+    <span class="attr">#[serde(flatten)]
     </span><span class="kw">pub </span>btc_rpc: BitcoindRpcCfg,
 }
 
-<span class="attribute">#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+<span class="attr">#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>WalletClientConfig {
     <span class="doccomment">/// The federations public peg-in-descriptor
     </span><span class="kw">pub </span>peg_in_descriptor: PegInDescriptor,
@@ -166,7 +230,7 @@
     <span class="kw">pub </span>fee_consensus: FeeConsensus,
 }
 
-<span class="attribute">#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+<span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>FeeConsensus {
     <span class="kw">pub </span>peg_in_abs: fedimint_api::Amount,
     <span class="kw">pub </span>peg_out_abs: fedimint_api::Amount,
@@ -181,13 +245,16 @@
     }
 }
 
-<span class="kw">impl </span>GenerateConfig <span class="kw">for </span>WalletConfig {
-    <span class="kw">type </span>Params = ();
+<span class="attr">#[async_trait(<span class="question-mark">?</span>Send)]
+</span><span class="kw">impl </span>GenerateConfig <span class="kw">for </span>WalletConfig {
+    <span class="kw">type </span>Params = BitcoindRpcCfg;
     <span class="kw">type </span>ClientConfig = WalletClientConfig;
+    <span class="kw">type </span>ConfigMessage = CompressedPublicKey;
+    <span class="kw">type </span>ConfigError = ();
 
     <span class="kw">fn </span>trusted_dealer_gen(
         peers: <span class="kw-2">&amp;</span>[PeerId],
-        _params: <span class="kw-2">&amp;</span><span class="self">Self</span>::Params,
+        params: <span class="kw-2">&amp;</span><span class="self">Self</span>::Params,
         <span class="kw-2">mut </span>rng: <span class="kw">impl </span>RngCore + CryptoRng,
     ) -&gt; (BTreeMap&lt;PeerId, <span class="self">Self</span>&gt;, <span class="self">Self</span>::ClientConfig) {
         <span class="kw">let </span>secp = secp256k1::Secp256k1::new();
@@ -197,48 +264,24 @@
             .map(|<span class="kw-2">&amp;</span>id| (id, secp.generate_keypair(<span class="kw-2">&amp;mut </span>rng)))
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        <span class="kw">let </span>peg_in_descriptor = PegInDescriptor::Wsh(
-            Wsh::new_sortedmulti(
-                peers.threshold(),
-                btc_pegin_keys
-                    .iter()
-                    .map(|(<span class="kw">_</span>, (<span class="kw">_</span>, pk))| CompressedPublicKey { key: <span class="kw-2">*</span>pk })
-                    .collect(),
-            )
-            .unwrap(),
-        );
-
-        <span class="kw">let </span>wallet_cfg = btc_pegin_keys
+        <span class="kw">let </span>wallet_cfg: BTreeMap&lt;PeerId, WalletConfig&gt; = btc_pegin_keys
             .iter()
             .map(|(id, (sk, <span class="kw">_</span>))| {
-                <span class="kw">let </span>cfg = WalletConfig {
-                    network: Network::Regtest,
-                    peg_in_descriptor: peg_in_descriptor.clone(), <span class="comment">// TODO: remove redundancy?
-                    </span>peer_peg_in_keys: btc_pegin_keys
+                <span class="kw">let </span>cfg = WalletConfig::new(
+                    btc_pegin_keys
                         .iter()
                         .map(|(peer_id, (<span class="kw">_</span>, pk))| (<span class="kw-2">*</span>peer_id, CompressedPublicKey { key: <span class="kw-2">*</span>pk }))
                         .collect(),
-                    peg_in_key: <span class="kw-2">*</span>sk,
-                    finality_delay: FINALITY_DELAY,
-                    default_fee: Feerate { sats_per_kvb: <span class="number">1000 </span>},
-                    btc_rpc: BitcoindRpcCfg {
-                        btc_rpc_address: <span class="string">&quot;127.0.0.1:18443&quot;</span>.to_string(),
-                        btc_rpc_user: <span class="string">&quot;bitcoin&quot;</span>.to_string(),
-                        btc_rpc_pass: <span class="string">&quot;bitcoin&quot;</span>.to_string(),
-                    },
-                    fee_consensus: FeeConsensus::default(),
-                };
-
+                    <span class="kw-2">*</span>sk,
+                    peers.threshold(),
+                    params.clone(),
+                );
                 (<span class="kw-2">*</span>id, cfg)
             })
             .collect();
 
-        <span class="kw">let </span>client_cfg = WalletClientConfig {
-            peg_in_descriptor,
-            network: Network::Regtest,
-            finality_delay: FINALITY_DELAY,
-            fee_consensus: FeeConsensus::default(),
-        };
+        <span class="kw">let </span>descriptor = wallet_cfg[<span class="kw-2">&amp;</span>PeerId::from(<span class="number">0</span>)].peg_in_descriptor.clone();
+        <span class="kw">let </span>client_cfg = WalletClientConfig::new(descriptor);
 
         (wallet_cfg, client_cfg)
     }
@@ -261,6 +304,77 @@
             <span class="string">&quot;Bitcoin wallet private key doesn&#39;t match multisig pubkey&quot;
         </span>);
     }
+
+    <span class="kw">async fn </span>distributed_gen(
+        connections: <span class="kw-2">&amp;mut </span>AnyPeerConnections&lt;<span class="self">Self</span>::ConfigMessage&gt;,
+        our_id: <span class="kw-2">&amp;</span>PeerId,
+        peers: <span class="kw-2">&amp;</span>[PeerId],
+        params: <span class="kw-2">&amp;</span><span class="self">Self</span>::Params,
+        <span class="kw-2">mut </span>rng: <span class="kw">impl </span>RngCore + CryptoRng,
+        _task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Cancellable&lt;(<span class="self">Self</span>, <span class="self">Self</span>::ClientConfig)&gt;, <span class="self">Self</span>::ConfigError&gt; {
+        <span class="kw">let </span>secp = secp256k1::Secp256k1::new();
+        <span class="kw">let </span>(sk, pk) = secp.generate_keypair(<span class="kw-2">&amp;mut </span>rng);
+        <span class="kw">let </span>our_key = CompressedPublicKey { key: pk };
+        <span class="kw">let </span><span class="kw-2">mut </span>peer_peg_in_keys: BTreeMap&lt;PeerId, CompressedPublicKey&gt; = BTreeMap::new();
+
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(Cancelled) = connections.send(peers, our_key.clone()).<span class="kw">await </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(Cancelled));
+        }
+
+        peer_peg_in_keys.insert(<span class="kw-2">*</span>our_id, our_key);
+        <span class="kw">while </span>peer_peg_in_keys.len() &lt; peers.len() {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>((peer, msg)) = connections.receive().<span class="kw">await </span>{
+                peer_peg_in_keys.insert(peer, msg);
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(Cancelled));
+            }
+        }
+
+        <span class="kw">let </span>wallet_cfg = WalletConfig::new(peer_peg_in_keys, sk, peers.threshold(), params.clone());
+        <span class="kw">let </span>client_cfg = WalletClientConfig::new(wallet_cfg.peg_in_descriptor.clone());
+
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>((wallet_cfg, client_cfg)))
+    }
+}
+
+<span class="kw">impl </span>WalletConfig {
+    <span class="kw">pub fn </span>new(
+        pubkeys: BTreeMap&lt;PeerId, CompressedPublicKey&gt;,
+        sk: SecretKey,
+        threshold: usize,
+        btc_rpc: BitcoindRpcCfg,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>peg_in_descriptor = PegInDescriptor::Wsh(
+            Wsh::new_sortedmulti(
+                threshold,
+                pubkeys.iter().map(|(<span class="kw">_</span>, pk)| pk.clone()).collect(),
+            )
+            .unwrap(),
+        );
+
+        <span class="self">Self </span>{
+            network: Network::Regtest,
+            peg_in_descriptor,
+            peer_peg_in_keys: pubkeys,
+            peg_in_key: sk,
+            default_fee: Feerate { sats_per_kvb: <span class="number">1000 </span>},
+            finality_delay: FINALITY_DELAY,
+            fee_consensus: FeeConsensus::default(),
+            btc_rpc,
+        }
+    }
+}
+
+<span class="kw">impl </span>WalletClientConfig {
+    <span class="kw">pub fn </span>new(peg_in_descriptor: PegInDescriptor) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            peg_in_descriptor,
+            network: Network::Regtest,
+            finality_delay: FINALITY_DELAY,
+            fee_consensus: Default::default(),
+        }
+    }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="fedimint_wallet" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (ce7f0f1aa 2022-09-28)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_wallet" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0-nightly (7eef946fc 2022-11-06)" data-search-js="search-39ee4160c7dc16c9.js" data-settings-js="settings-3a0b9947ba1bd99a.js" data-settings-css="settings-a66f7524084a489a.css" ></div></body></html>

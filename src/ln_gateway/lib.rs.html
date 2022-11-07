@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `ln-gateway/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ln_gateway/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ln_gateway/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ln_gateway/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `gateway/ln-gateway/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b826345d929eb323.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-87108236bf50c158.css"><link rel="stylesheet" disabled href="../../static.files/dark-839c5fb8722cb456.css"><link rel="stylesheet" disabled href="../../static.files/ayu-d48ac194417684c8.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-74087aa2e88f4475.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0dede64717b247ca.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-201a7e04dc4c6fce.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../ln_gateway/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -393,106 +393,103 @@
 <span id="393">393</span>
 <span id="394">394</span>
 <span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-</pre><pre class="rust"><code><span class="kw">pub mod </span>cln;
+</pre><pre class="rust"><code><span class="kw">pub mod </span>actor;
+<span class="kw">pub mod </span>cln;
+<span class="kw">pub mod </span>config;
 <span class="kw">pub mod </span>ln;
+<span class="kw">pub mod </span>rpc;
+<span class="kw">pub mod </span>utils;
 <span class="kw">pub mod </span>webserver;
 
-<span class="kw">use </span><span class="kw">crate</span>::ln::{LightningError, LnRpc};
-<span class="kw">use </span>axum::http::StatusCode;
-<span class="kw">use </span>axum::response::{IntoResponse, Response};
-<span class="kw">use </span>bitcoin::{Address, Transaction};
-<span class="kw">use </span>bitcoin_hashes::sha256;
-<span class="kw">use </span>cln::HtlcAccepted;
-<span class="kw">use </span>fedimint_api::{Amount, OutPoint, TransactionId};
-<span class="kw">use </span>fedimint_server::modules::ln::contracts::{ContractId, Preimage};
-<span class="kw">use </span>fedimint_server::modules::wallet::txoproof::TxOutProof;
-<span class="kw">use </span>futures::Future;
-<span class="kw">use </span>mint_client::mint::MintClientError;
-<span class="kw">use </span>mint_client::{ClientError, GatewayClient, PaymentParameters};
-<span class="kw">use </span>rand::{CryptoRng, RngCore};
-<span class="kw">use </span>serde::{Deserialize, Deserializer};
 <span class="kw">use </span>std::borrow::Cow;
+<span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::net::SocketAddr;
 <span class="kw">use </span>std::{
     io::Cursor,
     sync::Arc,
     time::{Duration, Instant},
 };
+
+<span class="kw">use </span>actor::GatewayActor;
+<span class="kw">use </span>axum::http::StatusCode;
+<span class="kw">use </span>axum::response::{IntoResponse, Response};
+<span class="kw">use </span>bitcoin::{Address, Transaction};
+<span class="kw">use </span>cln::HtlcAccepted;
+<span class="kw">use </span>config::GatewayConfig;
+<span class="kw">use </span>fedimint_api::{Amount, TransactionId};
+<span class="kw">use </span>fedimint_server::modules::ln::contracts::Preimage;
+<span class="kw">use </span>fedimint_server::modules::wallet::txoproof::TxOutProof;
+<span class="kw">use </span>futures::Future;
+<span class="kw">use </span>mint_client::{
+    ln::PayInvoicePayload, mint::MintClientError, ClientError, FederationId, GatewayClient,
+};
+<span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
 <span class="kw">use </span>thiserror::Error;
 <span class="kw">use </span>tokio::sync::{mpsc, oneshot};
-<span class="kw">use </span>tracing::{debug, error, instrument, warn};
+<span class="kw">use </span>tracing::{debug, error};
 <span class="kw">use </span>webserver::run_webserver;
+
+<span class="kw">use </span><span class="kw">crate</span>::ln::{LightningError, LnRpc};
 
 <span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = std::result::Result&lt;T, LnGatewayError&gt;;
 
-<span class="attribute">#[derive(Debug)]
-</span><span class="kw">pub struct </span>BalancePayload;
+<span class="attr">#[derive(Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>ReceivePaymentPayload {
+    <span class="comment">// NOTE: On ReceivePayment signal from ln_rpc,
+    // we extract the relevant federation id from the accepted htlc
+    </span><span class="kw">pub </span>htlc_accepted: HtlcAccepted,
+}
 
-<span class="attribute">#[derive(Debug)]
-</span><span class="kw">pub struct </span>DepositAddressPayload;
+<span class="attr">#[derive(Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>InfoPayload;
 
-<span class="attribute">#[derive(Debug, Deserialize)]
-</span><span class="kw">pub struct </span>DepositPayload(
-    TxOutProof,
-    <span class="attribute">#[serde(deserialize_with = <span class="string">&quot;serde_hex_deserialize&quot;</span>)] </span>Transaction,
-);
+<span class="attr">#[derive(Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>BalancePayload {
+    <span class="kw">pub </span>federation_id: FederationId,
+}
 
-<span class="attribute">#[derive(Debug, Deserialize)]
-</span><span class="kw">pub struct </span>WithdrawPayload(
-    Address,
-    <span class="attribute">#[serde(with = <span class="string">&quot;bitcoin::util::amount::serde::as_sat&quot;</span>)] </span>bitcoin::Amount,
-);
+<span class="attr">#[derive(Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>DepositAddressPayload {
+    <span class="kw">pub </span>federation_id: FederationId,
+}
 
-<span class="attribute">#[derive(Debug)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>DepositPayload {
+    <span class="kw">pub </span>federation_id: FederationId,
+    <span class="kw">pub </span>txout_proof: TxOutProof,
+    <span class="attr">#[serde(
+        deserialize_with = <span class="string">&quot;serde_hex_deserialize&quot;</span>,
+        serialize_with = <span class="string">&quot;serde_hex_serialize&quot;
+    </span>)]
+    </span><span class="kw">pub </span>transaction: Transaction,
+}
+
+<span class="attr">#[derive(Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>WithdrawPayload {
+    <span class="kw">pub </span>federation_id: FederationId,
+    <span class="attr">#[serde(with = <span class="string">&quot;bitcoin::util::amount::serde::as_sat&quot;</span>)]
+    </span><span class="kw">pub </span>amount: bitcoin::Amount,
+    <span class="kw">pub </span>address: Address,
+}
+
+<span class="attr">#[derive(Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>GatewayInfo {
+    <span class="kw">pub </span>version_hash: String,
+    <span class="kw">pub </span>federations: Vec&lt;FederationId&gt;,
+}
+
+<span class="attr">#[derive(Debug)]
 </span><span class="kw">pub enum </span>GatewayRequest {
-    HtlcAccepted(GatewayRequestInner&lt;HtlcAccepted&gt;),
-    PayInvoice(GatewayRequestInner&lt;ContractId&gt;),
+    Info(GatewayRequestInner&lt;InfoPayload&gt;),
+    ReceiveInvoice(GatewayRequestInner&lt;ReceivePaymentPayload&gt;),
+    PayInvoice(GatewayRequestInner&lt;PayInvoicePayload&gt;),
     Balance(GatewayRequestInner&lt;BalancePayload&gt;),
     DepositAddress(GatewayRequestInner&lt;DepositAddressPayload&gt;),
     Deposit(GatewayRequestInner&lt;DepositPayload&gt;),
     Withdraw(GatewayRequestInner&lt;WithdrawPayload&gt;),
 }
 
-<span class="attribute">#[derive(Debug)]
+<span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>GatewayRequestInner&lt;R: GatewayRequestTrait&gt; {
     request: R,
     sender: oneshot::Sender&lt;<span class="prelude-ty">Result</span>&lt;R::Response&gt;&gt;,
@@ -517,8 +514,14 @@
         }
     };
 }
-<span class="macro">impl_gateway_request_trait!</span>(HtlcAccepted, Preimage, GatewayRequest::HtlcAccepted);
-<span class="macro">impl_gateway_request_trait!</span>(ContractId, (), GatewayRequest::PayInvoice);
+
+<span class="macro">impl_gateway_request_trait!</span>(InfoPayload, GatewayInfo, GatewayRequest::Info);
+<span class="macro">impl_gateway_request_trait!</span>(
+    ReceivePaymentPayload,
+    Preimage,
+    GatewayRequest::ReceiveInvoice
+);
+<span class="macro">impl_gateway_request_trait!</span>(PayInvoicePayload, (), GatewayRequest::PayInvoice);
 <span class="macro">impl_gateway_request_trait!</span>(BalancePayload, Amount, GatewayRequest::Balance);
 <span class="macro">impl_gateway_request_trait!</span>(
     DepositAddressPayload,
@@ -535,14 +538,16 @@
 {
     <span class="kw">async fn </span>handle&lt;F: Fn(T) -&gt; FF, FF: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;T::Response&gt;&gt;&gt;(<span class="self">self</span>, handler: F) {
         <span class="kw">let </span>result = handler(<span class="self">self</span>.request).<span class="kw">await</span>;
-        <span class="self">self</span>.sender
-            .send(result)
-            .expect(<span class="string">&quot;couldn&#39;t send over channel&quot;</span>);
+        <span class="kw">if </span><span class="self">self</span>.sender.send(result).is_err() {
+            <span class="comment">// TODO: figure out how to log the result
+            </span><span class="macro">tracing::error!</span>(<span class="string">&quot;Plugin hung up&quot;</span>);
+        }
     }
 }
 
 <span class="kw">pub struct </span>LnGateway {
-    federation_client: Arc&lt;GatewayClient&gt;,
+    config: GatewayConfig,
+    actors: HashMap&lt;FederationId, Arc&lt;GatewayActor&gt;&gt;,
     ln_client: Arc&lt;<span class="kw">dyn </span>LnRpc&gt;,
     webserver: tokio::task::JoinHandle&lt;axum::response::Result&lt;()&gt;&gt;,
     receiver: mpsc::Receiver&lt;GatewayRequest&gt;,
@@ -550,273 +555,172 @@
 
 <span class="kw">impl </span>LnGateway {
     <span class="kw">pub fn </span>new(
-        federation_client: Arc&lt;GatewayClient&gt;,
+        config: GatewayConfig,
         ln_client: Arc&lt;<span class="kw">dyn </span>LnRpc&gt;,
         sender: mpsc::Sender&lt;GatewayRequest&gt;,
         receiver: mpsc::Receiver&lt;GatewayRequest&gt;,
         bind_addr: SocketAddr,
     ) -&gt; <span class="self">Self </span>{
         <span class="comment">// Run webserver asynchronously in tokio
-        </span><span class="kw">let </span>webserver = tokio::spawn(run_webserver(bind_addr, sender));
+        </span><span class="kw">let </span>webserver = tokio::spawn(run_webserver(config.password.clone(), bind_addr, sender));
 
         <span class="self">Self </span>{
-            federation_client,
+            config,
+            actors: HashMap::new(),
             ln_client,
             webserver,
             receiver,
         }
     }
 
-    <span class="kw">pub async fn </span>buy_preimage_offer(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        payment_hash: <span class="kw-2">&amp;</span>sha256::Hash,
-        amount: <span class="kw-2">&amp;</span>Amount,
-        rng: <span class="kw">impl </span>RngCore + CryptoRng,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(OutPoint, ContractId)&gt; {
-        <span class="kw">let </span>(outpoint, contract_id) = <span class="self">self
-            </span>.federation_client
-            .buy_preimage_offer(payment_hash, amount, rng)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>((outpoint, contract_id))
-    }
-
-    <span class="kw">pub async fn </span>await_preimage_decryption(<span class="kw-2">&amp;</span><span class="self">self</span>, outpoint: OutPoint) -&gt; <span class="prelude-ty">Result</span>&lt;Preimage&gt; {
-        <span class="kw">let </span>preimage = <span class="self">self
-            </span>.federation_client
-            .await_preimage_decryption(outpoint)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(preimage)
-    }
-
-    <span class="attribute">#[instrument(skip_all, fields(%contract_id))]
-    </span><span class="kw">pub async fn </span>pay_invoice(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        contract_id: ContractId,
-        <span class="kw-2">mut </span>rng: <span class="kw">impl </span>RngCore + CryptoRng,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;OutPoint&gt; {
-        <span class="macro">debug!</span>(<span class="string">&quot;Fetching contract&quot;</span>);
-        <span class="kw">let </span>contract_account = <span class="self">self
-            </span>.federation_client
-            .fetch_outgoing_contract(contract_id)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-
-        <span class="kw">let </span>payment_params = <span class="self">self
-            </span>.federation_client
-            .validate_outgoing_account(<span class="kw-2">&amp;</span>contract_account)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-
-        <span class="macro">debug!</span>(
-            account = <span class="question-mark">?</span>contract_account,
-            <span class="string">&quot;Fetched and validated contract account&quot;
-        </span>);
-
-        <span class="self">self</span>.federation_client
-            .save_outgoing_payment(contract_account.clone());
-
-        <span class="kw">let </span>is_internal_payment = payment_params.maybe_internal
-            &amp;&amp; <span class="self">self
-                </span>.federation_client
-                .ln_client()
-                .offer_exists(payment_params.payment_hash)
+    <span class="doccomment">/// Register a federation to the gateway.
+    ///
+    /// # Returns
+    ///
+    /// A `GatewayActor` that can be used to execute gateway functions for the federation
+    </span><span class="kw">pub async fn </span>register_federation(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        client: Arc&lt;GatewayClient&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Arc&lt;GatewayActor&gt;&gt; {
+        <span class="kw">let </span>actor = Arc::new(
+            GatewayActor::new(client.clone())
                 .<span class="kw">await
-                </span>.unwrap_or(<span class="bool-val">false</span>);
+                </span>.expect(<span class="string">&quot;Failed to create actor&quot;</span>),
+        );
 
-        <span class="kw">let </span>preimage_res = <span class="kw">if </span>is_internal_payment {
-            <span class="self">self</span>.buy_preimage_internal(
-                <span class="kw-2">&amp;</span>payment_params.payment_hash,
-                <span class="kw-2">&amp;</span>payment_params.invoice_amount,
-                <span class="kw-2">&amp;mut </span>rng,
-            )
-            .<span class="kw">await
-        </span>} <span class="kw">else </span>{
-            <span class="self">self</span>.buy_preimage_external(<span class="kw-2">&amp;</span>contract_account.contract.invoice, <span class="kw-2">&amp;</span>payment_params)
-                .<span class="kw">await
-        </span>};
-
-        <span class="kw">match </span>preimage_res {
-            <span class="prelude-val">Ok</span>(preimage) =&gt; {
-                <span class="kw">let </span>outpoint = <span class="self">self
-                    </span>.federation_client
-                    .claim_outgoing_contract(contract_id, preimage, rng)
-                    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-                <span class="prelude-val">Ok</span>(outpoint)
-            }
-            <span class="prelude-val">Err</span>(e) =&gt; {
-                <span class="macro">warn!</span>(<span class="string">&quot;Invoice payment failed: {}. Aborting&quot;</span>, e);
-                <span class="comment">// FIXME: combine both errors?
-                </span><span class="self">self</span>.federation_client
-                    .abort_outgoing_payment(contract_id)
-                    .<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="prelude-val">Err</span>(e)
-            }
-        }
+        <span class="kw">let </span>federation_id = FederationId(client.config().client_config.federation_name);
+        <span class="self">self</span>.actors.insert(federation_id, actor.clone());
+        <span class="prelude-val">Ok</span>(actor)
     }
 
-    <span class="kw">async fn </span>buy_preimage_internal(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        payment_hash: <span class="kw-2">&amp;</span>sha256::Hash,
-        invoice_amount: <span class="kw-2">&amp;</span>Amount,
-        <span class="kw-2">mut </span>rng: <span class="kw">impl </span>RngCore + CryptoRng,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Preimage&gt; {
-        <span class="kw">let </span>(out_point, contract_id) = <span class="self">self
-            </span>.federation_client
-            .buy_preimage_offer(payment_hash, invoice_amount, <span class="kw-2">&amp;mut </span>rng)
+    <span class="kw">fn </span>select_actor(<span class="kw-2">&amp;</span><span class="self">self</span>, federation_id: FederationId) -&gt; <span class="prelude-ty">Result</span>&lt;Arc&lt;GatewayActor&gt;&gt; {
+        <span class="self">self</span>.actors
+            .get(<span class="kw-2">&amp;</span>federation_id)
+            .cloned()
+            .ok_or(LnGatewayError::UnknownFederation)
+    }
+
+    <span class="kw">async fn </span>handle_get_info(<span class="kw-2">&amp;</span><span class="self">self</span>, _payload: InfoPayload) -&gt; <span class="prelude-ty">Result</span>&lt;GatewayInfo&gt; {
+        <span class="prelude-val">Ok</span>(GatewayInfo {
+            version_hash: <span class="macro">env!</span>(<span class="string">&quot;GIT_HASH&quot;</span>).to_string(),
+            federations: <span class="self">self</span>.actors.keys().cloned().collect(),
+        })
+    }
+
+    <span class="kw">async fn </span>handle_receive_invoice_msg(<span class="kw-2">&amp;</span><span class="self">self</span>, payload: ReceivePaymentPayload) -&gt; <span class="prelude-ty">Result</span>&lt;Preimage&gt; {
+        <span class="kw">let </span>ReceivePaymentPayload { htlc_accepted } = payload;
+
+        <span class="kw">let </span>invoice_amount = htlc_accepted.htlc.amount;
+        <span class="kw">let </span>payment_hash = htlc_accepted.htlc.payment_hash;
+        <span class="macro">debug!</span>(<span class="string">&quot;Incoming htlc for payment hash {}&quot;</span>, payment_hash);
+
+        <span class="comment">// FIXME: Issue 664: We should avoid having a special reference to a federation
+        // all requests, including `ReceivePaymentPayload`, should contain the federation id
+        // TODO: Parse federation id from routing hint in htlc_accepted message
+        </span><span class="self">self</span>.select_actor(<span class="self">self</span>.config.default_federation.clone())<span class="question-mark">?
+            </span>.buy_preimage_internal(<span class="kw-2">&amp;</span>payment_hash, <span class="kw-2">&amp;</span>invoice_amount)
+            .<span class="kw">await
+    </span>}
+
+    <span class="kw">async fn </span>handle_pay_invoice_msg(<span class="kw-2">&amp;</span><span class="self">self</span>, payload: PayInvoicePayload) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>PayInvoicePayload {
+            federation_id,
+            contract_id,
+        } = payload;
+
+        <span class="kw">let </span>actor = <span class="self">self</span>.select_actor(federation_id)<span class="question-mark">?</span>;
+        <span class="kw">let </span>outpoint = actor
+            .pay_invoice(<span class="self">self</span>.ln_client.clone(), contract_id)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-
-        <span class="macro">debug!</span>(<span class="string">&quot;Awaiting decryption of preimage of hash {}&quot;</span>, payment_hash);
-        <span class="kw">match </span><span class="self">self
-            </span>.federation_client
-            .await_preimage_decryption(out_point)
-            .<span class="kw">await
-        </span>{
-            <span class="prelude-val">Ok</span>(preimage) =&gt; {
-                <span class="macro">debug!</span>(<span class="string">&quot;Decrypted preimage {:?}&quot;</span>, preimage);
-                <span class="prelude-val">Ok</span>(preimage)
-            }
-            <span class="prelude-val">Err</span>(e) =&gt; {
-                <span class="macro">warn!</span>(<span class="string">&quot;Failed to decrypt preimage. Now requesting a refund: {}&quot;</span>, e);
-                <span class="self">self</span>.federation_client
-                    .refund_incoming_contract(contract_id, rng)
-                    .<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="prelude-val">Err</span>(LnGatewayError::ClientError(e))
-            }
-        }
-    }
-
-    <span class="kw">async fn </span>buy_preimage_external(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        invoice: <span class="kw-2">&amp;</span>str,
-        payment_params: <span class="kw-2">&amp;</span>PaymentParameters,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Preimage&gt; {
-        <span class="kw">match </span><span class="self">self
-            </span>.ln_client
-            .pay(
-                invoice,
-                payment_params.max_delay,
-                payment_params.max_fee_percent(),
-            )
-            .<span class="kw">await
-        </span>{
-            <span class="prelude-val">Ok</span>(preimage) =&gt; {
-                <span class="macro">debug!</span>(<span class="question-mark">?</span>preimage, <span class="string">&quot;Successfully paid LN invoice&quot;</span>);
-                <span class="prelude-val">Ok</span>(preimage)
-            }
-            <span class="prelude-val">Err</span>(e) =&gt; {
-                <span class="macro">warn!</span>(<span class="string">&quot;LN payment failed, aborting&quot;</span>);
-                <span class="prelude-val">Err</span>(LnGatewayError::CouldNotRoute(e))
-            }
-        }
-    }
-
-    <span class="kw">pub async fn </span>await_outgoing_contract_claimed(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        contract_id: ContractId,
-        outpoint: OutPoint,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self
-            </span>.federation_client
+        actor
             .await_outgoing_contract_claimed(contract_id, outpoint)
-            .<span class="kw">await</span><span class="question-mark">?</span>)
-    }
-
-    <span class="kw">async fn </span>handle_pay_invoice_msg(<span class="kw-2">&amp;</span><span class="self">self</span>, contract_id: ContractId) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>rng = rand::rngs::OsRng::new().unwrap();
-        <span class="kw">let </span>outpoint = <span class="self">self</span>.pay_invoice(contract_id, rng).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="self">self</span>.await_outgoing_contract_claimed(contract_id, outpoint)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">async fn </span>handle_htlc_incoming_msg(<span class="kw-2">&amp;</span><span class="self">self</span>, htlc_accepted: HtlcAccepted) -&gt; <span class="prelude-ty">Result</span>&lt;Preimage&gt; {
-        <span class="kw">let </span>invoice_amount = htlc_accepted.htlc.amount;
-        <span class="kw">let </span>payment_hash = htlc_accepted.htlc.payment_hash;
-        <span class="kw">let </span><span class="kw-2">mut </span>rng =
-            rand::rngs::OsRng::new().expect(<span class="string">&quot;only systems with a randomness source are supported&quot;</span>);
-
-        <span class="macro">debug!</span>(<span class="string">&quot;Incoming htlc for payment hash {}&quot;</span>, payment_hash);
-        <span class="self">self</span>.buy_preimage_internal(<span class="kw-2">&amp;</span>payment_hash, <span class="kw-2">&amp;</span>invoice_amount, <span class="kw-2">&amp;mut </span>rng)
+    <span class="kw">async fn </span>handle_balance_msg(<span class="kw-2">&amp;</span><span class="self">self</span>, payload: BalancePayload) -&gt; <span class="prelude-ty">Result</span>&lt;Amount&gt; {
+        <span class="self">self</span>.select_actor(payload.federation_id)<span class="question-mark">?
+            </span>.get_balance()
             .<span class="kw">await
     </span>}
 
-    <span class="kw">async fn </span>handle_balance_msg(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Amount&gt; {
-        <span class="kw">let </span>fetch_results = <span class="self">self</span>.federation_client.fetch_all_coins().<span class="kw">await</span>;
-        fetch_results
-            .into_iter()
-            .collect::&lt;std::result::Result&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.federation_client.coins().total_amount())
-    }
-    <span class="kw">async fn </span>handle_address_msg(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Address&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>rng = rand::rngs::OsRng::new().unwrap();
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.federation_client.get_new_pegin_address(<span class="kw-2">&amp;mut </span>rng))
+    <span class="kw">async fn </span>handle_address_msg(<span class="kw-2">&amp;</span><span class="self">self</span>, payload: DepositAddressPayload) -&gt; <span class="prelude-ty">Result</span>&lt;Address&gt; {
+        <span class="self">self</span>.select_actor(payload.federation_id)<span class="question-mark">?
+            </span>.get_deposit_address()
     }
 
-    <span class="kw">async fn </span>handle_deposit_msg(<span class="kw-2">&amp;</span><span class="self">self</span>, deposit: DepositPayload) -&gt; <span class="prelude-ty">Result</span>&lt;TransactionId&gt; {
-        <span class="kw">let </span>rng = rand::rngs::OsRng::new().unwrap();
-        <span class="self">self</span>.federation_client
-            .peg_in(deposit.<span class="number">0</span>, deposit.<span class="number">1</span>, rng)
-            .<span class="kw">await
-            </span>.map_err(LnGatewayError::ClientError)
-    }
+    <span class="kw">async fn </span>handle_deposit_msg(<span class="kw-2">&amp;</span><span class="self">self</span>, payload: DepositPayload) -&gt; <span class="prelude-ty">Result</span>&lt;TransactionId&gt; {
+        <span class="kw">let </span>DepositPayload {
+            txout_proof,
+            transaction,
+            federation_id,
+        } = payload;
 
-    <span class="kw">async fn </span>handle_withdraw_msg(<span class="kw-2">&amp;</span><span class="self">self</span>, withdraw: WithdrawPayload) -&gt; <span class="prelude-ty">Result</span>&lt;TransactionId&gt; {
-        <span class="kw">let </span>rng = rand::rngs::OsRng::new().unwrap();
-        <span class="kw">let </span>peg_out = <span class="self">self
-            </span>.federation_client
-            .new_peg_out_with_fees(withdraw.<span class="number">1</span>, withdraw.<span class="number">0</span>)
+        <span class="self">self</span>.select_actor(federation_id)<span class="question-mark">?
+            </span>.deposit(txout_proof, transaction)
             .<span class="kw">await
-            </span>.unwrap();
-        <span class="self">self</span>.federation_client
-            .peg_out(peg_out, rng)
+    </span>}
+
+    <span class="kw">async fn </span>handle_withdraw_msg(<span class="kw-2">&amp;</span><span class="self">self</span>, payload: WithdrawPayload) -&gt; <span class="prelude-ty">Result</span>&lt;TransactionId&gt; {
+        <span class="kw">let </span>WithdrawPayload {
+            amount,
+            address,
+            federation_id,
+        } = payload;
+
+        <span class="self">self</span>.select_actor(federation_id)<span class="question-mark">?
+            </span>.withdraw(amount, address)
             .<span class="kw">await
-            </span>.map_err(LnGatewayError::ClientError)
-            .map(|out_point| out_point.txid)
-    }
+    </span>}
 
     <span class="kw">pub async fn </span>run(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="comment">// Regster gateway with federation
-        </span><span class="self">self</span>.federation_client
-            .register_with_federation(<span class="self">self</span>.federation_client.config().into())
-            .<span class="kw">await
-            </span>.expect(<span class="string">&quot;Failed to register with federation&quot;</span>);
-
         <span class="comment">// TODO: try to drive forward outgoing and incoming payments that were interrupted
         </span><span class="kw">loop </span>{
             <span class="kw">let </span>least_wait_until = Instant::now() + Duration::from_millis(<span class="number">100</span>);
-            <span class="kw">for </span>fetch_result <span class="kw">in </span><span class="self">self</span>.federation_client.fetch_all_coins().<span class="kw">await </span>{
-                <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = fetch_result {
-                    <span class="macro">debug!</span>(error = %e, <span class="string">&quot;Fetching coins failed&quot;</span>)
-                };
-            }
+
+            <span class="comment">// Sync wallet for the default federation
+            // TODO: We should sync wallets for all the federation clients
+            </span><span class="self">self</span>.select_actor(<span class="self">self</span>.config.default_federation.clone())<span class="question-mark">?
+                </span>.fetch_all_coins()
+                .<span class="kw">await</span>;
 
             <span class="comment">// Handle messages from webserver and plugin
             </span><span class="kw">while let </span><span class="prelude-val">Ok</span>(msg) = <span class="self">self</span>.receiver.try_recv() {
                 <span class="macro">tracing::trace!</span>(<span class="string">&quot;Gateway received message {:?}&quot;</span>, msg);
                 <span class="kw">match </span>msg {
-                    GatewayRequest::HtlcAccepted(inner) =&gt; {
+                    GatewayRequest::Info(payload) =&gt; {
+                        payload
+                            .handle(|payload| <span class="self">self</span>.handle_get_info(payload))
+                            .<span class="kw">await</span>;
+                    }
+                    GatewayRequest::ReceiveInvoice(inner) =&gt; {
                         inner
-                            .handle(|htlc_accepted| <span class="self">self</span>.handle_htlc_incoming_msg(htlc_accepted))
+                            .handle(|payload| <span class="self">self</span>.handle_receive_invoice_msg(payload))
                             .<span class="kw">await</span>;
                     }
                     GatewayRequest::PayInvoice(inner) =&gt; {
                         inner
-                            .handle(|contract_id| <span class="self">self</span>.handle_pay_invoice_msg(contract_id))
+                            .handle(|payload| <span class="self">self</span>.handle_pay_invoice_msg(payload))
                             .<span class="kw">await</span>;
                     }
                     GatewayRequest::Balance(inner) =&gt; {
-                        inner.handle(|<span class="kw">_</span>| <span class="self">self</span>.handle_balance_msg()).<span class="kw">await</span>;
+                        inner
+                            .handle(|payload| <span class="self">self</span>.handle_balance_msg(payload))
+                            .<span class="kw">await</span>;
                     }
                     GatewayRequest::DepositAddress(inner) =&gt; {
-                        inner.handle(|<span class="kw">_</span>| <span class="self">self</span>.handle_address_msg()).<span class="kw">await</span>;
+                        inner
+                            .handle(|payload| <span class="self">self</span>.handle_address_msg(payload))
+                            .<span class="kw">await</span>;
                     }
                     GatewayRequest::Deposit(inner) =&gt; {
                         inner
-                            .handle(|deposit| <span class="self">self</span>.handle_deposit_msg(deposit))
+                            .handle(|payload| <span class="self">self</span>.handle_deposit_msg(payload))
                             .<span class="kw">await</span>;
                     }
                     GatewayRequest::Withdraw(inner) =&gt; {
                         inner
-                            .handle(|withdraw| <span class="self">self</span>.handle_withdraw_msg(withdraw))
+                            .handle(|payload| <span class="self">self</span>.handle_withdraw_msg(payload))
                             .<span class="kw">await</span>;
                     }
                 }
@@ -834,14 +738,18 @@
     }
 }
 
-<span class="attribute">#[derive(Debug, Error)]
+<span class="attr">#[derive(Debug, Error)]
 </span><span class="kw">pub enum </span>LnGatewayError {
-    <span class="attribute">#[error(<span class="string">&quot;Federation client operation error: {0:?}&quot;</span>)]
-    </span>ClientError(<span class="attribute">#[from] </span>ClientError),
-    <span class="attribute">#[error(<span class="string">&quot;Our LN node could not route the payment: {0:?}&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;Federation client operation error: {0:?}&quot;</span>)]
+    </span>ClientError(<span class="attr">#[from] </span>ClientError),
+    <span class="attr">#[error(<span class="string">&quot;Our LN node could not route the payment: {0:?}&quot;</span>)]
     </span>CouldNotRoute(LightningError),
-    <span class="attribute">#[error(<span class="string">&quot;Mint client error: {0:?}&quot;</span>)]
-    </span>MintClientE(<span class="attribute">#[from] </span>MintClientError),
+    <span class="attr">#[error(<span class="string">&quot;Mint client error: {0:?}&quot;</span>)]
+    </span>MintClientE(<span class="attr">#[from] </span>MintClientError),
+    <span class="attr">#[error(<span class="string">&quot;Actor not found&quot;</span>)]
+    </span>UnknownFederation,
+    <span class="attr">#[error(<span class="string">&quot;Other: {0:?}&quot;</span>)]
+    </span>Other(<span class="attr">#[from] </span>anyhow::Error),
 }
 
 <span class="kw">pub fn </span>serde_hex_deserialize&lt;<span class="lifetime">&#39;d</span>, T: bitcoin::consensus::Decodable, D: Deserializer&lt;<span class="lifetime">&#39;d</span>&gt;&gt;(
@@ -850,12 +758,26 @@
     <span class="kw">if </span>d.is_human_readable() {
         <span class="kw">let </span>bytes = hex::decode::&lt;String&gt;(Deserialize::deserialize(d)<span class="question-mark">?</span>)
             .map_err(serde::de::Error::custom)<span class="question-mark">?</span>;
-        T::consensus_decode(Cursor::new(<span class="kw-2">&amp;</span>bytes))
+        T::consensus_decode(<span class="kw-2">&amp;mut </span>Cursor::new(<span class="kw-2">&amp;</span>bytes))
             .map_err(|e| serde::de::Error::custom(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, e)))
     } <span class="kw">else </span>{
         <span class="kw">let </span>bytes: Vec&lt;u8&gt; = Deserialize::deserialize(d)<span class="question-mark">?</span>;
-        T::consensus_decode(Cursor::new(<span class="kw-2">&amp;</span>bytes))
+        T::consensus_decode(<span class="kw-2">&amp;mut </span>Cursor::new(<span class="kw-2">&amp;</span>bytes))
             .map_err(|e| serde::de::Error::custom(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, e)))
+    }
+}
+
+<span class="kw">pub fn </span>serde_hex_serialize&lt;T: bitcoin::consensus::Encodable, S: Serializer&gt;(
+    t: <span class="kw-2">&amp;</span>T,
+    s: S,
+) -&gt; std::result::Result&lt;S::Ok, S::Error&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>bytes = <span class="macro">vec!</span>[];
+    T::consensus_encode(t, <span class="kw-2">&amp;mut </span>bytes).map_err(serde::ser::Error::custom)<span class="question-mark">?</span>;
+
+    <span class="kw">if </span>s.is_human_readable() {
+        s.serialize_str(<span class="kw-2">&amp;</span>hex::encode(bytes))
+    } <span class="kw">else </span>{
+        s.serialize_bytes(<span class="kw-2">&amp;</span>bytes)
     }
 }
 
@@ -867,4 +789,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ln_gateway" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (ce7f0f1aa 2022-09-28)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ln_gateway" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0-nightly (7eef946fc 2022-11-06)" data-search-js="search-39ee4160c7dc16c9.js" data-settings-js="settings-3a0b9947ba1bd99a.js" data-settings-css="settings-a66f7524084a489a.css" ></div></body></html>

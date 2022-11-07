@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `modules/fedimint-wallet/src/txoproof.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>txoproof.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../fedimint_wallet/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../fedimint_wallet/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../fedimint_wallet/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `modules/fedimint-wallet/src/txoproof.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>txoproof.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b826345d929eb323.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-87108236bf50c158.css"><link rel="stylesheet" disabled href="../../static.files/dark-839c5fb8722cb456.css"><link rel="stylesheet" disabled href="../../static.files/ayu-d48ac194417684c8.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-74087aa2e88f4475.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0dede64717b247ca.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-201a7e04dc4c6fce.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../fedimint_wallet/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -320,23 +320,78 @@
 <span id="320">320</span>
 <span id="321">321</span>
 <span id="322">322</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::keys::CompressedPublicKey;
-<span class="kw">use </span><span class="kw">crate</span>::tweakable::{Contract, Tweakable};
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
+<span class="kw">use </span>std::collections::BTreeMap;
+<span class="kw">use </span>std::convert::Infallible;
+<span class="kw">use </span>std::hash::Hash;
+<span class="kw">use </span>std::io::Cursor;
+
 <span class="kw">use </span>bitcoin::util::merkleblock::PartialMerkleTree;
 <span class="kw">use </span>bitcoin::{BlockHash, BlockHeader, OutPoint, Transaction, Txid};
-<span class="kw">use </span>fedimint_api::encoding::{Decodable, DecodeError, Encodable};
-<span class="kw">use </span>miniscript::{Descriptor, DescriptorTrait, TranslatePk2};
+<span class="kw">use </span>fedimint_api::core::ModuleDecode;
+<span class="kw">use </span>fedimint_api::encoding::{Decodable, DecodeError, Encodable, ModuleRegistry};
+<span class="kw">use </span>miniscript::{Descriptor, TranslatePk};
 <span class="kw">use </span>secp256k1::{Secp256k1, Verification};
 <span class="kw">use </span>serde::de::Error;
 <span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
-<span class="kw">use </span>std::borrow::Cow;
-<span class="kw">use </span>std::hash::Hash;
-<span class="kw">use </span>std::io::Cursor;
 <span class="kw">use </span>thiserror::Error;
 <span class="kw">use </span>validator::{Validate, ValidationError};
 
+<span class="kw">use </span><span class="kw">crate</span>::keys::CompressedPublicKey;
+<span class="kw">use </span><span class="kw">crate</span>::tweakable::{Contract, Tweakable};
+
 <span class="doccomment">/// A proof about a script owning a certain output. Verifyable using headers only.
-</span><span class="attribute">#[derive(Clone, Debug, PartialEq, Serialize, Eq, Hash, Deserialize, Validate, Encodable)]
+</span><span class="attr">#[derive(Clone, Debug, PartialEq, Serialize, Eq, Hash, Deserialize, Validate, Encodable)]
 #[validate(schema(function = <span class="string">&quot;validate_peg_in_proof&quot;</span>))]
 </span><span class="kw">pub struct </span>PegInProof {
     txout_proof: TxOutProof,
@@ -349,7 +404,7 @@
     tweak_contract_key: secp256k1::XOnlyPublicKey,
 }
 
-<span class="attribute">#[derive(Clone, Debug)]
+<span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>TxOutProof {
     <span class="kw">pub </span>block_header: BlockHeader,
     <span class="kw">pub </span>merkle_proof: PartialMerkleTree,
@@ -375,9 +430,15 @@
 }
 
 <span class="kw">impl </span>Decodable <span class="kw">for </span>TxOutProof {
-    <span class="kw">fn </span>consensus_decode&lt;D: std::io::Read&gt;(<span class="kw-2">mut </span>d: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DecodeError&gt; {
-        <span class="kw">let </span>block_header = BlockHeader::consensus_decode(<span class="kw-2">&amp;mut </span>d)<span class="question-mark">?</span>;
-        <span class="kw">let </span>merkle_proof = PartialMerkleTree::consensus_decode(<span class="kw-2">&amp;mut </span>d)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>consensus_decode&lt;M, D: std::io::Read&gt;(
+        d: <span class="kw-2">&amp;mut </span>D,
+        modules: <span class="kw-2">&amp;</span>ModuleRegistry&lt;M&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DecodeError&gt;
+    <span class="kw">where
+        </span>M: ModuleDecode,
+    {
+        <span class="kw">let </span>block_header = BlockHeader::consensus_decode(d, modules)<span class="question-mark">?</span>;
+        <span class="kw">let </span>merkle_proof = PartialMerkleTree::consensus_decode(d, modules)<span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>transactions = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>indices = Vec::new();
@@ -399,11 +460,11 @@
 }
 
 <span class="kw">impl </span>Encodable <span class="kw">for </span>TxOutProof {
-    <span class="kw">fn </span>consensus_encode&lt;W: std::io::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>writer: W) -&gt; <span class="prelude-ty">Result</span>&lt;usize, std::io::Error&gt; {
+    <span class="kw">fn </span>consensus_encode&lt;W: std::io::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W) -&gt; <span class="prelude-ty">Result</span>&lt;usize, std::io::Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>written = <span class="number">0</span>;
 
-        written += <span class="self">self</span>.block_header.consensus_encode(<span class="kw-2">&amp;mut </span>writer)<span class="question-mark">?</span>;
-        written += <span class="self">self</span>.merkle_proof.consensus_encode(<span class="kw-2">&amp;mut </span>writer)<span class="question-mark">?</span>;
+        written += <span class="self">self</span>.block_header.consensus_encode(writer)<span class="question-mark">?</span>;
+        written += <span class="self">self</span>.merkle_proof.consensus_encode(writer)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(written)
     }
@@ -491,9 +552,32 @@
 
 <span class="kw">impl </span>Tweakable <span class="kw">for </span>Descriptor&lt;CompressedPublicKey&gt; {
     <span class="kw">fn </span>tweak&lt;Ctx: Verification, Ctr: Contract&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, tweak: <span class="kw-2">&amp;</span>Ctr, secp: <span class="kw-2">&amp;</span>Secp256k1&lt;Ctx&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.translate_pk2_infallible(|pk| CompressedPublicKey {
-            key: pk.key.tweak(tweak, secp),
-        })
+        <span class="kw">struct </span>CompressedPublicKeyTranslator&lt;<span class="lifetime">&#39;t</span>, <span class="lifetime">&#39;s</span>, Ctx: Verification, Ctr: Contract&gt; {
+            tweak: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span>Ctr,
+            secp: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>Secp256k1&lt;Ctx&gt;,
+        }
+
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;t</span>, <span class="lifetime">&#39;s</span>, Ctx: Verification, Ctr: Contract&gt;
+            miniscript::PkTranslator&lt;CompressedPublicKey, CompressedPublicKey, Infallible&gt;
+            <span class="kw">for </span>CompressedPublicKeyTranslator&lt;<span class="lifetime">&#39;t</span>, <span class="lifetime">&#39;s</span>, Ctx, Ctr&gt;
+        {
+            <span class="kw">fn </span>pk(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pk: <span class="kw-2">&amp;</span>CompressedPublicKey) -&gt; <span class="prelude-ty">Result</span>&lt;CompressedPublicKey, Infallible&gt; {
+                <span class="prelude-val">Ok</span>(CompressedPublicKey::new(
+                    pk.key.tweak(<span class="self">self</span>.tweak, <span class="self">self</span>.secp),
+                ))
+            }
+
+            <span class="kw">fn </span>pkh(
+                <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+                pkh: <span class="kw-2">&amp;</span>CompressedPublicKey,
+            ) -&gt; <span class="prelude-ty">Result</span>&lt;CompressedPublicKey, Infallible&gt; {
+                <span class="prelude-val">Ok</span>(CompressedPublicKey::new(
+                    pkh.key.tweak(<span class="self">self</span>.tweak, <span class="self">self</span>.secp),
+                ))
+            }
+        }
+        <span class="self">self</span>.translate_pk(<span class="kw-2">&amp;mut </span>CompressedPublicKeyTranslator { tweak, secp })
+            .expect(<span class="string">&quot;can&#39;t fail&quot;</span>)
     }
 }
 
@@ -518,17 +602,22 @@
     <span class="kw">where
         </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
+        <span class="kw">let </span>empty_module_registry = BTreeMap::&lt;<span class="kw">_</span>, ()&gt;::new();
         <span class="kw">if </span>deserializer.is_human_readable() {
             <span class="comment">// TODO: Try Cow
             </span><span class="kw">let </span>hex_str: Cow&lt;str&gt; = Deserialize::deserialize(deserializer)<span class="question-mark">?</span>;
             <span class="kw">let </span>bytes =
                 hex::decode(hex_str.as_ref()).map_err(&lt;D <span class="kw">as </span>Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;&gt;::Error::custom)<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(TxOutProof::consensus_decode(Cursor::new(bytes))
-                .map_err(&lt;D <span class="kw">as </span>Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;&gt;::Error::custom)<span class="question-mark">?</span>)
+            <span class="prelude-val">Ok</span>(
+                TxOutProof::consensus_decode(<span class="kw-2">&amp;mut </span>Cursor::new(bytes), <span class="kw-2">&amp;</span>empty_module_registry)
+                    .map_err(&lt;D <span class="kw">as </span>Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;&gt;::Error::custom)<span class="question-mark">?</span>,
+            )
         } <span class="kw">else </span>{
             <span class="kw">let </span>bytes: <span class="kw-2">&amp;</span>[u8] = Deserialize::deserialize(deserializer)<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(TxOutProof::consensus_decode(Cursor::new(bytes))
-                .map_err(&lt;D <span class="kw">as </span>Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;&gt;::Error::custom)<span class="question-mark">?</span>)
+            <span class="prelude-val">Ok</span>(
+                TxOutProof::consensus_decode(<span class="kw-2">&amp;mut </span>Cursor::new(bytes), <span class="kw-2">&amp;</span>empty_module_registry)
+                    .map_err(&lt;D <span class="kw">as </span>Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;&gt;::Error::custom)<span class="question-mark">?</span>,
+            )
         }
     }
 }
@@ -578,12 +667,18 @@
 <span class="kw">impl </span>Eq <span class="kw">for </span>TxOutProof {}
 
 <span class="kw">impl </span>Decodable <span class="kw">for </span>PegInProof {
-    <span class="kw">fn </span>consensus_decode&lt;D: std::io::Read&gt;(<span class="kw-2">mut </span>d: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DecodeError&gt; {
+    <span class="kw">fn </span>consensus_decode&lt;M, D: std::io::Read&gt;(
+        d: <span class="kw-2">&amp;mut </span>D,
+        modules: <span class="kw-2">&amp;</span>ModuleRegistry&lt;M&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DecodeError&gt;
+    <span class="kw">where
+        </span>M: ModuleDecode,
+    {
         <span class="kw">let </span>slf = PegInProof {
-            txout_proof: TxOutProof::consensus_decode(<span class="kw-2">&amp;mut </span>d)<span class="question-mark">?</span>,
-            transaction: Transaction::consensus_decode(<span class="kw-2">&amp;mut </span>d)<span class="question-mark">?</span>,
-            output_idx: u32::consensus_decode(<span class="kw-2">&amp;mut </span>d)<span class="question-mark">?</span>,
-            tweak_contract_key: secp256k1::XOnlyPublicKey::consensus_decode(<span class="kw-2">&amp;mut </span>d)<span class="question-mark">?</span>,
+            txout_proof: TxOutProof::consensus_decode(d, modules)<span class="question-mark">?</span>,
+            transaction: Transaction::consensus_decode(d, modules)<span class="question-mark">?</span>,
+            output_idx: u32::consensus_decode(d, modules)<span class="question-mark">?</span>,
+            tweak_contract_key: secp256k1::XOnlyPublicKey::consensus_decode(d, modules)<span class="question-mark">?</span>,
         };
 
         validate_peg_in_proof(<span class="kw-2">&amp;</span>slf).map_err(DecodeError::from_err)<span class="question-mark">?</span>;
@@ -591,25 +686,27 @@
     }
 }
 
-<span class="attribute">#[derive(Debug, Error)]
+<span class="attr">#[derive(Debug, Error)]
 </span><span class="kw">pub enum </span>PegInProofError {
-    <span class="attribute">#[error(<span class="string">&quot;Supplied transaction is not included in proof&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;Supplied transaction is not included in proof&quot;</span>)]
     </span>TransactionNotInProof,
-    <span class="attribute">#[error(<span class="string">&quot;Supplied transaction has too many outputs&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;Supplied transaction has too many outputs&quot;</span>)]
     </span>TooManyTransactionOutputs,
-    <span class="attribute">#[error(<span class="string">&quot;The output with index {0} referred to does not exist (tx has {1} outputs)&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;The output with index {0} referred to does not exist (tx has {1} outputs)&quot;</span>)]
     </span>OutputIndexOutOfRange(usize, usize),
-    <span class="attribute">#[error(<span class="string">&quot;The expected script given the tweak did not match the actual script&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;The expected script given the tweak did not match the actual script&quot;</span>)]
     </span>ScriptDoesNotMatch,
 }
 
-<span class="attribute">#[cfg(test)]
+<span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use </span><span class="kw">super</span>::TxOutProof;
-    <span class="kw">use </span>fedimint_api::encoding::Decodable;
-    <span class="kw">use </span>std::io::Cursor;
+    <span class="kw">use </span>std::{collections::BTreeMap, io::Cursor};
 
-    <span class="attribute">#[test_log::test]
+    <span class="kw">use </span>fedimint_api::encoding::Decodable;
+
+    <span class="kw">use </span><span class="kw">super</span>::TxOutProof;
+
+    <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_txoutproof_happy_path() {
         <span class="kw">let </span>txoutproof_hex = <span class="string">&quot;0000a020c7f74cb7d4cbf90a40f38b8194d17996d29ad8cb8d42030000000000000\
         0000045e274cbfff8fe34e6df61079ae8c8cf5af6d53ff158488e26df5a072363693be15a6760482a0c1731b169\
@@ -624,9 +721,12 @@
         9602cb7c776730435c1713a1ca57c0c6761576fbfb17da642aae2a4ce874e32b5c0cba450163b14b6b94bc479cb\
         58a30f7ae5b909ffdd020073f04ff370000&quot;</span>;
 
-        <span class="kw">let </span>txoutproof =
-            TxOutProof::consensus_decode(Cursor::new(hex::decode(txoutproof_hex).unwrap()))
-                .unwrap();
+        <span class="kw">let </span>empty_module_registry = BTreeMap::&lt;<span class="kw">_</span>, ()&gt;::new();
+        <span class="kw">let </span>txoutproof = TxOutProof::consensus_decode(
+            <span class="kw-2">&amp;mut </span>Cursor::new(hex::decode(txoutproof_hex).unwrap()),
+            <span class="kw-2">&amp;</span>empty_module_registry,
+        )
+        .unwrap();
 
         <span class="macro">assert_eq!</span>(
             txoutproof.block(),
@@ -643,4 +743,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="fedimint_wallet" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (ce7f0f1aa 2022-09-28)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_wallet" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0-nightly (7eef946fc 2022-11-06)" data-search-js="search-39ee4160c7dc16c9.js" data-settings-js="settings-3a0b9947ba1bd99a.js" data-settings-css="settings-a66f7524084a489a.css" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-server/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../fedimint_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../fedimint_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../fedimint_server/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-server/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b826345d929eb323.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-87108236bf50c158.css"><link rel="stylesheet" disabled href="../../static.files/dark-839c5fb8722cb456.css"><link rel="stylesheet" disabled href="../../static.files/ayu-d48ac194417684c8.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-74087aa2e88f4475.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0dede64717b247ca.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-201a7e04dc4c6fce.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../fedimint_server/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -450,6 +450,44 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
 </pre><pre class="rust"><code><span class="kw">extern crate </span>fedimint_api;
 
 <span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
@@ -457,37 +495,30 @@
 <span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use </span>fedimint_api::rand::Rand07Compat;
-<span class="kw">use </span>hbbft::honey_badger::{HoneyBadger, Message};
-<span class="kw">use </span>hbbft::{Epoched, NetworkInfo, Target};
-
-<span class="kw">use </span>rand::rngs::OsRng;
-<span class="kw">use </span>rand::{CryptoRng, RngCore};
-<span class="kw">use </span>tokio::sync::Notify;
-<span class="kw">use </span>tokio::task::spawn;
-<span class="kw">use </span>tracing::{info, warn};
-
 <span class="kw">use </span>config::ServerConfig;
-<span class="kw">use </span>fedimint_api::db::Database;
-<span class="kw">use </span>fedimint_api::{NumPeers, PeerId};
-<span class="kw">use </span>fedimint_core::modules::ln::LightningModule;
-<span class="kw">use </span>fedimint_core::modules::wallet::bitcoind::BitcoindRpc;
-<span class="kw">use </span>fedimint_core::modules::wallet::Wallet;
-
+<span class="kw">use </span>fedimint_api::cancellable::{Cancellable, Cancelled};
 <span class="kw">use </span>fedimint_api::config::GenerateConfig;
+<span class="kw">use </span>fedimint_api::net::peers::AnyPeerConnections;
+<span class="kw">use </span>fedimint_api::task::{TaskGroup, TaskHandle};
+<span class="kw">use </span>fedimint_api::{NumPeers, PeerId};
 <span class="kw">use </span>fedimint_core::epoch::{ConsensusItem, EpochHistory, EpochVerifyError};
 <span class="kw">pub use </span>fedimint_core::<span class="kw-2">*</span>;
+<span class="kw">use </span>hbbft::honey_badger::{HoneyBadger, Message};
+<span class="kw">use </span>hbbft::{Epoched, NetworkInfo, Target};
 <span class="kw">use </span>mint_client::api::{IFederationApi, WsFederationApi};
+<span class="kw">use </span>rand::rngs::OsRng;
+<span class="kw">use </span>rand::{CryptoRng, RngCore};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>tracing::{info, warn};
 
 <span class="kw">use </span><span class="kw">crate</span>::consensus::{
     ConsensusOutcome, ConsensusOutcomeConversion, ConsensusProposal, FedimintConsensus,
 };
 <span class="kw">use </span><span class="kw">crate</span>::db::{EpochHistoryKey, LastEpochKey};
+<span class="kw">use </span><span class="kw">crate</span>::fedimint_api::net::peers::PeerConnections;
 <span class="kw">use </span><span class="kw">crate</span>::net::connect::{Connector, TlsTcpConnector};
-<span class="kw">use </span><span class="kw">crate</span>::net::peers::{
-    AnyPeerConnections, PeerConnections, PeerConnector, ReconnectPeerConnections,
-};
+<span class="kw">use </span><span class="kw">crate</span>::net::peers::PeerSlice;
+<span class="kw">use </span><span class="kw">crate</span>::net::peers::{PeerConnector, ReconnectPeerConnections};
 <span class="kw">use </span><span class="kw">crate</span>::rng::RngGenerator;
 
 <span class="doccomment">/// The actual implementation of the federated mint
@@ -507,7 +538,7 @@
 
 <span class="kw">type </span>PeerMessage = (PeerId, EpochMessage);
 
-<span class="attribute">#[derive(Clone, Debug, Deserialize, Serialize)]
+<span class="attr">#[derive(Clone, Debug, Deserialize, Serialize)]
 #[allow(clippy::large_enum_variant)]
 </span><span class="kw">pub enum </span>EpochMessage {
     Continue(Message&lt;PeerId&gt;),
@@ -516,56 +547,57 @@
 }
 
 <span class="kw">pub struct </span>FedimintServer {
-    <span class="kw">pub </span>consensus: Arc&lt;FedimintConsensus&lt;OsRng&gt;&gt;,
+    <span class="kw">pub </span>consensus: Arc&lt;FedimintConsensus&gt;,
     <span class="kw">pub </span>connections: AnyPeerConnections&lt;EpochMessage&gt;,
     <span class="kw">pub </span>cfg: ServerConfig,
     <span class="kw">pub </span>hbbft: HoneyBadger&lt;Vec&lt;ConsensusItem&gt;, PeerId&gt;,
     <span class="kw">pub </span>api: Arc&lt;<span class="kw">dyn </span>IFederationApi&gt;,
+    <span class="kw">pub </span>peers: BTreeSet&lt;PeerId&gt;,
 }
 
 <span class="kw">impl </span>FedimintServer {
     <span class="doccomment">/// Start all the components of the mint and plug them together
-    </span><span class="kw">pub async fn </span>run(cfg: ServerConfig, db: Database, bitcoincore_rpc: BitcoindRpc) {
-        <span class="kw">let </span>server = FedimintServer::new(cfg.clone(), db, bitcoincore_rpc).<span class="kw">await</span>;
-        spawn(net::api::run_server(cfg, server.consensus.clone()));
-        server.run_consensus().<span class="kw">await</span>;
+    </span><span class="kw">pub async fn </span>run(
+        cfg: ServerConfig,
+        consensus: FedimintConsensus,
+        task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
+    ) -&gt; anyhow::Result&lt;()&gt; {
+        <span class="kw">let </span>server = FedimintServer::new(cfg.clone(), consensus, task_group).<span class="kw">await</span>;
+        <span class="kw">let </span>server_consensus = server.consensus.clone();
+        task_group
+            .spawn(<span class="string">&quot;api-server&quot;</span>, |handle| {
+                net::api::run_server(cfg, server_consensus, handle)
+            })
+            .<span class="kw">await</span>;
+        task_group
+            .spawn_local(<span class="string">&quot;consensus&quot;</span>, <span class="kw">move </span>|handle| server.run_consensus(handle))
+            .<span class="kw">await</span>;
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class="kw">pub async fn </span>new(cfg: ServerConfig, db: Database, bitcoincore_rpc: BitcoindRpc) -&gt; <span class="self">Self </span>{
+
+    <span class="kw">pub async fn </span>new(
+        cfg: ServerConfig,
+        consensus: FedimintConsensus,
+        task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
+    ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>connector: PeerConnector&lt;EpochMessage&gt; =
             TlsTcpConnector::new(cfg.tls_config()).into_dyn();
 
-        <span class="self">Self</span>::new_with(cfg.clone(), db, bitcoincore_rpc, connector).<span class="kw">await
+        <span class="self">Self</span>::new_with(cfg.clone(), consensus, connector, task_group).<span class="kw">await
     </span>}
 
     <span class="kw">pub async fn </span>new_with(
         cfg: ServerConfig,
-        database: Database,
-        bitcoind: BitcoindRpc,
+        consensus: FedimintConsensus,
         connector: PeerConnector&lt;EpochMessage&gt;,
+        task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
     ) -&gt; <span class="self">Self </span>{
         cfg.validate_config(<span class="kw-2">&amp;</span>cfg.identity);
 
-        <span class="kw">let </span>mint = fedimint_core::modules::mint::Mint::new(cfg.mint.clone(), database.clone());
-
-        <span class="kw">let </span>wallet = Wallet::new_with_bitcoind(cfg.wallet.clone(), database.clone(), bitcoind)
-            .<span class="kw">await
-            </span>.expect(<span class="string">&quot;Couldn&#39;t create wallet&quot;</span>);
-
-        <span class="kw">let </span>ln = LightningModule::new(cfg.ln.clone(), database.clone());
-
-        <span class="kw">let </span>consensus = Arc::new(FedimintConsensus {
-            rng_gen: Box::new(OsRngGen),
-            cfg: cfg.clone(),
-            mint,
-            wallet,
-            ln,
-            db: database,
-            transaction_notify: Arc::new(Notify::new()),
-        });
-
-        <span class="kw">let </span>connections = ReconnectPeerConnections::new(cfg.network_config(), connector)
-            .<span class="kw">await
-            </span>.into_dyn();
+        <span class="kw">let </span>connections =
+            ReconnectPeerConnections::new(cfg.network_config(), connector, task_group)
+                .<span class="kw">await
+                </span>.into_dyn();
 
         <span class="kw">let </span>net_info = NetworkInfo::new(
             cfg.identity,
@@ -581,38 +613,52 @@
             .peers
             .clone()
             .into_iter()
-            .map(|(id, peer)| (id, peer.connection.api_addr));
+            .map(|(id, peer)| (id, peer.api_addr));
         <span class="kw">let </span>api = Arc::new(WsFederationApi::new(api_endpoints.collect()));
 
         FedimintServer {
             connections,
             hbbft,
-            consensus,
+            consensus: Arc::new(consensus),
             cfg: cfg.clone(),
             api,
+            peers: cfg.peers.keys().cloned().collect(),
         }
     }
 
-    <span class="doccomment">/// Loop `run_conensus_epoch` forever
-    </span><span class="kw">async fn </span>run_consensus(<span class="kw-2">mut </span><span class="self">self</span>) {
+    <span class="doccomment">/// Loop `run_conensus_epoch` until shut down
+    </span><span class="kw">async fn </span>run_consensus(<span class="kw-2">mut </span><span class="self">self</span>, task_handle: TaskHandle) {
         <span class="comment">// FIXME: reusing the wallet CI leads to duplicate randomness beacons, not a problem for change, but maybe later for other use cases
-        </span><span class="kw">let </span><span class="kw-2">mut </span>rng = OsRng::new().unwrap();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>rng = OsRng;
         <span class="kw">let </span>consensus = <span class="self">self</span>.consensus.clone();
 
         <span class="comment">// Rejoin consensus and catch up to the most recent epoch
         </span><span class="macro">tracing::info!</span>(<span class="string">&quot;Rejoining consensus&quot;</span>);
-        <span class="self">self</span>.rejoin_consensus(Duration::from_secs(<span class="number">60</span>), <span class="kw-2">&amp;mut </span>rng)
-            .<span class="kw">await</span>;
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(Cancelled) = <span class="self">self
+            </span>.rejoin_consensus(Duration::from_secs(<span class="number">60</span>), <span class="kw-2">&amp;mut </span>rng)
+            .<span class="kw">await
+        </span>{
+            <span class="macro">info!</span>(<span class="string">&quot;Consensus task shut down while rejoining&quot;</span>);
+        }
 
-        <span class="kw">loop </span>{
-            <span class="kw">let </span>outcomes = <span class="self">self
+        <span class="kw">while </span>!task_handle.is_shutting_down() {
+            <span class="kw">let </span>outcomes = <span class="kw">if let </span><span class="prelude-val">Ok</span>(v) = <span class="self">self
                 </span>.run_consensus_epoch(consensus.get_consensus_proposal(), <span class="kw-2">&amp;mut </span>rng)
-                .<span class="kw">await</span>;
+                .<span class="kw">await
+            </span>{
+                v
+            } <span class="kw">else </span>{
+                <span class="comment">// `None` is supposed to mean the proccess is shutting down
+                </span><span class="macro">debug_assert!</span>(task_handle.is_shutting_down());
+                <span class="kw">break</span>;
+            };
 
             <span class="kw">for </span>outcome <span class="kw">in </span>outcomes {
                 <span class="self">self</span>.consensus.process_consensus_outcome(outcome).<span class="kw">await</span>;
             }
         }
+
+        <span class="macro">info!</span>(<span class="string">&quot;Consensus task shut down&quot;</span>);
     }
 
     <span class="doccomment">/// Builds a `ConsensusOutcome` then use the API to validate and process missed epochs
@@ -624,14 +670,16 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         timeout: Duration,
         rng: <span class="kw-2">&amp;mut </span>(<span class="kw">impl </span>RngCore + CryptoRng + Clone + <span class="lifetime">&#39;static</span>),
-    ) {
-        <span class="kw">let </span>(msg_buffer, next_epoch_num) = <span class="self">self</span>.determine_rejoin_epoch(timeout).<span class="kw">await</span>;
+    ) -&gt; Cancellable&lt;()&gt; {
+        <span class="kw">let </span>(msg_buffer, next_epoch_num) = <span class="self">self</span>.determine_rejoin_epoch(timeout).<span class="kw">await</span><span class="question-mark">?</span>;
+
         <span class="macro">info!</span>(<span class="string">&quot;Rejoining consensus: at epoch {}&quot;</span>, next_epoch_num);
         <span class="self">self</span>.hbbft.skip_to_epoch(next_epoch_num);
 
         <span class="kw">let </span>last_saved_response = <span class="self">self
             </span>.consensus
             .db
+            .begin_transaction()
             .get_value(<span class="kw-2">&amp;</span>LastEpochKey)
             .expect(<span class="string">&quot;DB error&quot;</span>);
         <span class="kw">let </span>last_saved_epoch = last_saved_response.map(|e| e.<span class="number">0</span>);
@@ -640,21 +688,23 @@
         <span class="kw">if </span>next_epoch_num == <span class="number">0 </span>|| last_saved_epoch == <span class="prelude-val">Some</span>(next_epoch_num - <span class="number">1</span>) {
             <span class="macro">info!</span>(<span class="string">&quot;Rejoining consensus: proposing epoch {}&quot;</span>, next_epoch_num);
             <span class="kw">let </span>proposal = <span class="self">self</span>.consensus.get_consensus_proposal().<span class="kw">await</span>;
-            outcomes = <span class="self">self</span>.propose_epoch(proposal, rng).<span class="kw">await
-        </span>}
+            outcomes = <span class="self">self</span>.propose_epoch(proposal, rng).<span class="kw">await</span><span class="question-mark">?</span>;
+        }
 
         <span class="kw">for </span>msg <span class="kw">in </span>msg_buffer {
-            outcomes.append(<span class="kw-2">&amp;mut </span><span class="self">self</span>.handle_message(msg).<span class="kw">await</span>);
+            outcomes.append(<span class="kw-2">&amp;mut </span><span class="self">self</span>.handle_message(msg).<span class="kw">await</span><span class="question-mark">?</span>);
         }
         <span class="kw">while </span>outcomes.is_empty() {
-            <span class="kw">let </span>msg = <span class="self">self</span>.connections.receive().<span class="kw">await</span>;
-            outcomes = <span class="self">self</span>.handle_message(msg).<span class="kw">await</span>;
+            <span class="kw">let </span>msg = <span class="self">self</span>.connections.receive().<span class="kw">await</span><span class="question-mark">?</span>;
+            outcomes = <span class="self">self</span>.handle_message(msg).<span class="kw">await</span><span class="question-mark">?</span>;
         }
         <span class="macro">info!</span>(<span class="string">&quot;Rejoining consensus: created outcome&quot;</span>);
 
         <span class="self">self</span>.download_history(outcomes[<span class="number">0</span>].clone())
             .<span class="kw">await
             </span>.expect(<span class="string">&quot;Download error&quot;</span>);
+
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Requests, verifies and processes history from peers
@@ -663,10 +713,16 @@
         last_outcome: ConsensusOutcome,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), EpochVerifyError&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>epochs: Vec&lt;EpochHistory&gt; = <span class="macro">vec!</span>[];
-        <span class="kw">let </span>saved_epoch_key = <span class="self">self</span>.consensus.db.get_value(<span class="kw-2">&amp;</span>LastEpochKey).unwrap();
+        <span class="kw">let </span>saved_epoch_key = <span class="self">self
+            </span>.consensus
+            .db
+            .begin_transaction()
+            .get_value(<span class="kw-2">&amp;</span>LastEpochKey)
+            .unwrap();
 
         <span class="kw">let </span>download_epoch_num = saved_epoch_key.map(|e| e.<span class="number">0 </span>+ <span class="number">1</span>).unwrap_or(<span class="number">0</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>prev_epoch = saved_epoch_key.and_then(|e| <span class="self">self</span>.consensus.db.get_value(<span class="kw-2">&amp;</span>e).unwrap());
+        <span class="kw">let </span><span class="kw-2">mut </span>prev_epoch = saved_epoch_key
+            .and_then(|e| <span class="self">self</span>.consensus.db.begin_transaction().get_value(<span class="kw-2">&amp;</span>e).unwrap());
 
         <span class="kw">for </span>epoch_num <span class="kw">in </span>download_epoch_num..=last_outcome.epoch {
             <span class="kw">let </span>current_epoch = <span class="kw">if </span>epoch_num == last_outcome.epoch {
@@ -699,15 +755,20 @@
 
     <span class="doccomment">/// Sends a rejoin request and returns the max(valid_epoch) received from a threshold of peers
     /// Also returns any messages that need to be processed by hbbft
-    </span><span class="kw">async fn </span>determine_rejoin_epoch(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timeout: Duration) -&gt; (Vec&lt;PeerMessage&gt;, u64) {
+    ///
+    /// Returns `None` if process is shutting down.
+    </span><span class="kw">async fn </span>determine_rejoin_epoch(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        timeout: Duration,
+    ) -&gt; Cancellable&lt;(Vec&lt;PeerMessage&gt;, u64)&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>msg_buffer: Vec&lt;PeerMessage&gt; = <span class="macro">vec!</span>[];
 
         <span class="self">self</span>.connections
             .send(
-                Target::AllExcept(BTreeSet::new()),
+                <span class="kw-2">&amp;</span>Target::AllExcept(BTreeSet::new()).peers(<span class="kw-2">&amp;</span><span class="self">self</span>.peers),
                 EpochMessage::RejoinRequest,
             )
-            .<span class="kw">await</span>;
+            .<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>consensus_peers = BTreeMap::&lt;PeerId, u64&gt;::new();
         <span class="kw">let </span>pks = <span class="self">self</span>.cfg.epoch_pk_set.public_key();
@@ -717,7 +778,11 @@
         <span class="kw">let </span>threshold = <span class="self">self</span>.cfg.peers.threshold();
 
         <span class="comment">// include our expected next_epoch as well in case we can contribute to the next consensus
-        </span><span class="kw">let </span>last_saved = <span class="self">self</span>.consensus.db.get_value(<span class="kw-2">&amp;</span>LastEpochKey);
+        </span><span class="kw">let </span>last_saved = <span class="self">self
+            </span>.consensus
+            .db
+            .begin_transaction()
+            .get_value(<span class="kw-2">&amp;</span>LastEpochKey);
         <span class="kw">let </span>next_epoch = last_saved.expect(<span class="string">&quot;DB error&quot;</span>).map(|e| e.<span class="number">0 </span>+ <span class="number">1</span>).unwrap_or(<span class="number">0</span>);
         consensus_peers.insert(<span class="self">self</span>.cfg.identity, next_epoch);
 
@@ -725,7 +790,7 @@
             <span class="comment">// if a threshold of peers agree on an epoch, go with that
             </span><span class="kw">for </span>epoch <span class="kw">in </span>consensus_peers.values() {
                 <span class="kw">if </span>consensus_peers.values().filter(|e| <span class="kw-2">*</span>e == epoch).count() &gt;= threshold {
-                    <span class="kw">return </span>(msg_buffer, <span class="kw-2">*</span>epoch);
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>((msg_buffer, <span class="kw-2">*</span>epoch));
                 }
             }
 
@@ -733,33 +798,35 @@
             </span><span class="kw">if </span>consensus_peers.len() == <span class="self">self</span>.cfg.peers.len() {
                 <span class="macro">info!</span>(<span class="string">&quot;All peers responded with no consensus epoch&quot;</span>);
                 <span class="kw">let </span>epoch = <span class="kw-2">*</span>consensus_peers.values().max().expect(<span class="string">&quot;len &gt; 0&quot;</span>);
-                <span class="kw">return </span>(msg_buffer, epoch);
+                <span class="kw">return </span><span class="prelude-val">Ok</span>((msg_buffer, epoch));
             }
 
             <span class="kw">match </span>tokio::time::timeout(timeout, <span class="self">self</span>.connections.receive()).<span class="kw">await </span>{
-                <span class="prelude-val">Ok</span>((peer, EpochMessage::Rejoin(<span class="prelude-val">Some</span>(history), epoch))) =&gt; {
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(Cancelled)) =&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(Cancelled);
+                }
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>((peer, EpochMessage::Rejoin(<span class="prelude-val">Some</span>(history), epoch)))) =&gt; {
                     <span class="kw">let </span>is_recent = epoch &lt;= history.outcome.epoch + max_age;
                     <span class="kw">if </span>history.verify_sig(<span class="kw-2">&amp;</span>pks).is_ok() &amp;&amp; is_recent {
                         consensus_peers.insert(peer, epoch);
                     }
                 }
-                <span class="prelude-val">Ok</span>((peer, EpochMessage::Rejoin(<span class="prelude-val">None</span>, epoch))) =&gt; {
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>((peer, EpochMessage::Rejoin(<span class="prelude-val">None</span>, epoch)))) =&gt; {
                     <span class="kw">if </span>epoch &lt;= max_age {
                         consensus_peers.insert(peer, epoch);
                     }
                 }
-                <span class="prelude-val">Ok</span>((peer, EpochMessage::RejoinRequest)) =&gt; {
-                    <span class="kw">let </span>target = Target::Nodes(BTreeSet::from([peer]));
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>((peer, EpochMessage::RejoinRequest))) =&gt; {
                     <span class="kw">let </span>msg = EpochMessage::Rejoin(<span class="self">self</span>.last_signed_epoch(next_epoch), next_epoch);
-                    <span class="self">self</span>.connections.send(target, msg).<span class="kw">await</span>;
+                    <span class="self">self</span>.connections.send(<span class="kw-2">&amp;</span>[peer], msg).<span class="kw">await</span><span class="question-mark">?</span>;
                 }
-                <span class="prelude-val">Ok</span>(msg) =&gt; msg_buffer.push(msg),
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(msg)) =&gt; msg_buffer.push(msg),
                 <span class="comment">// if peers had an opportunity to reply take max(next_epoch) from a peer threshold
                 </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                     <span class="kw">if </span>consensus_peers.len() &gt;= threshold {
                         <span class="macro">warn!</span>(<span class="string">&quot;Timed-out waiting for all peers, going with max threshold&quot;</span>);
                         <span class="kw">let </span>epoch = <span class="kw-2">*</span>consensus_peers.values().max().expect(<span class="string">&quot;len &gt; 0&quot;</span>);
-                        <span class="kw">return </span>(msg_buffer, epoch);
+                        <span class="kw">return </span><span class="prelude-val">Ok</span>((msg_buffer, epoch));
                     }
                 }
             };
@@ -774,7 +841,7 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         proposal: <span class="kw">impl </span>Future&lt;Output = ConsensusProposal&gt;,
         rng: <span class="kw-2">&amp;mut </span>(<span class="kw">impl </span>RngCore + CryptoRng + Clone + <span class="lifetime">&#39;static</span>),
-    ) -&gt; Vec&lt;ConsensusOutcome&gt; {
+    ) -&gt; Cancellable&lt;Vec&lt;ConsensusOutcome&gt;&gt; {
         <span class="comment">// for testing federations with one peer
         </span><span class="kw">if </span><span class="self">self</span>.cfg.peers.len() == <span class="number">1 </span>{
             <span class="macro">tokio::select! </span>{
@@ -784,17 +851,17 @@
             <span class="kw">let </span>proposal = proposal.<span class="kw">await</span>;
             <span class="kw">let </span>epoch = <span class="self">self</span>.hbbft.next_epoch() + <span class="number">1</span>;
             <span class="self">self</span>.hbbft.skip_to_epoch(epoch);
-            <span class="kw">return </span><span class="macro">vec!</span>[ConsensusOutcome {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[ConsensusOutcome {
                 epoch,
                 contributions: BTreeMap::from([(<span class="self">self</span>.cfg.identity, proposal.items)]),
-            }];
+            }]);
         }
 
         <span class="comment">// process messages until new epoch or we have a proposal
         </span><span class="kw">let </span><span class="kw-2">mut </span>outcomes: Vec&lt;ConsensusOutcome&gt; = <span class="kw">loop </span>{
-            <span class="kw">match </span><span class="self">self</span>.await_proposal_or_peer_message().<span class="kw">await </span>{
-                <span class="prelude-val">Some</span>(msg) <span class="kw">if </span><span class="self">self</span>.start_next_epoch(<span class="kw-2">&amp;</span>msg) =&gt; <span class="kw">break </span><span class="self">self</span>.handle_message(msg).<span class="kw">await</span>,
-                <span class="prelude-val">Some</span>(msg) =&gt; <span class="self">self</span>.handle_message(msg).<span class="kw">await</span>,
+            <span class="kw">match </span><span class="self">self</span>.await_proposal_or_peer_message().<span class="kw">await</span><span class="question-mark">? </span>{
+                <span class="prelude-val">Some</span>(msg) <span class="kw">if </span><span class="self">self</span>.start_next_epoch(<span class="kw-2">&amp;</span>msg) =&gt; <span class="kw">break </span><span class="self">self</span>.handle_message(msg).<span class="kw">await</span><span class="question-mark">?</span>,
+                <span class="prelude-val">Some</span>(msg) =&gt; <span class="self">self</span>.handle_message(msg).<span class="kw">await</span><span class="question-mark">?</span>,
                 <span class="prelude-val">None </span>=&gt; <span class="kw">break </span><span class="macro">vec!</span>[],
             };
         };
@@ -803,39 +870,42 @@
         <span class="kw">for </span>peer <span class="kw">in </span>proposal.drop_peers.iter() {
             <span class="self">self</span>.connections.ban_peer(<span class="kw-2">*</span>peer).<span class="kw">await</span>;
         }
-        outcomes.append(<span class="kw-2">&amp;mut </span><span class="self">self</span>.propose_epoch(proposal, rng).<span class="kw">await</span>);
+        outcomes.append(<span class="kw-2">&amp;mut </span><span class="self">self</span>.propose_epoch(proposal, rng).<span class="kw">await</span><span class="question-mark">?</span>);
 
         <span class="kw">while </span>outcomes.is_empty() {
-            <span class="kw">let </span>msg = <span class="self">self</span>.connections.receive().<span class="kw">await</span>;
-            outcomes = <span class="self">self</span>.handle_message(msg).<span class="kw">await</span>;
+            <span class="kw">let </span>msg = <span class="self">self</span>.connections.receive().<span class="kw">await</span><span class="question-mark">?</span>;
+            outcomes = <span class="self">self</span>.handle_message(msg).<span class="kw">await</span><span class="question-mark">?</span>;
         }
-        outcomes
+        <span class="prelude-val">Ok</span>(outcomes)
     }
 
     <span class="kw">async fn </span>propose_epoch(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         proposal: ConsensusProposal,
         rng: <span class="kw-2">&amp;mut </span>(<span class="kw">impl </span>RngCore + CryptoRng + Clone + <span class="lifetime">&#39;static</span>),
-    ) -&gt; Vec&lt;ConsensusOutcome&gt; {
+    ) -&gt; Cancellable&lt;Vec&lt;ConsensusOutcome&gt;&gt; {
         <span class="kw">let </span>step = <span class="self">self
             </span>.hbbft
-            .propose(<span class="kw-2">&amp;</span>proposal.items, <span class="kw-2">&amp;mut </span>Rand07Compat(rng))
+            .propose(<span class="kw-2">&amp;</span>proposal.items, rng)
             .expect(<span class="string">&quot;HBBFT propose failed&quot;</span>);
 
         <span class="kw">for </span>msg <span class="kw">in </span>step.messages {
             <span class="self">self</span>.connections
-                .send(msg.target, EpochMessage::Continue(msg.message))
-                .<span class="kw">await</span>;
+                .send(
+                    <span class="kw-2">&amp;</span>msg.target.peers(<span class="kw-2">&amp;</span><span class="self">self</span>.peers),
+                    EpochMessage::Continue(msg.message),
+                )
+                .<span class="kw">await</span><span class="question-mark">?</span>;
         }
 
-        step.output
+        <span class="prelude-val">Ok</span>(step.output)
     }
 
-    <span class="kw">async fn </span>await_proposal_or_peer_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PeerMessage&gt; {
+    <span class="kw">async fn </span>await_proposal_or_peer_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Cancellable&lt;<span class="prelude-ty">Option</span>&lt;PeerMessage&gt;&gt; {
         <span class="macro">tokio::select! </span>{
-            () = <span class="self">self</span>.consensus.transaction_notify.notified() =&gt; <span class="prelude-val">None</span>,
-            () = <span class="self">self</span>.consensus.await_consensus_proposal() =&gt; <span class="prelude-val">None</span>,
-            msg = <span class="self">self</span>.connections.receive() =&gt; <span class="prelude-val">Some</span>(msg)
+            () = <span class="self">self</span>.consensus.transaction_notify.notified() =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            () = <span class="self">self</span>.consensus.await_consensus_proposal() =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            msg = <span class="self">self</span>.connections.receive() =&gt; msg.map(<span class="prelude-val">Some</span>)
         }
     }
 
@@ -848,16 +918,15 @@
     }
 
     <span class="doccomment">/// Runs a single HBBFT consensus step
-    </span><span class="kw">async fn </span>handle_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: PeerMessage) -&gt; Vec&lt;ConsensusOutcome&gt; {
+    </span><span class="kw">async fn </span>handle_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: PeerMessage) -&gt; Cancellable&lt;Vec&lt;ConsensusOutcome&gt;&gt; {
         <span class="kw">match </span>msg {
-            (<span class="kw">_</span>, EpochMessage::Rejoin(<span class="kw">_</span>, <span class="kw">_</span>)) =&gt; <span class="macro">vec!</span>[],
+            (<span class="kw">_</span>, EpochMessage::Rejoin(<span class="kw">_</span>, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[]),
             (peer, EpochMessage::RejoinRequest) =&gt; {
-                <span class="kw">let </span>target = Target::Nodes(BTreeSet::from([peer]));
                 <span class="kw">let </span>last_signed = <span class="self">self</span>.last_signed_epoch(<span class="self">self</span>.hbbft.epoch());
 
                 <span class="kw">let </span>msg = EpochMessage::Rejoin(last_signed, <span class="self">self</span>.hbbft.next_epoch());
-                <span class="self">self</span>.connections.send(target, msg).<span class="kw">await</span>;
-                <span class="macro">vec!</span>[]
+                <span class="self">self</span>.connections.send(<span class="kw-2">&amp;</span>[peer], msg).<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[])
             }
             (peer, EpochMessage::Continue(peer_msg)) =&gt; {
                 <span class="kw">let </span>step = <span class="self">self
@@ -871,11 +940,14 @@
 
                 <span class="kw">for </span>msg <span class="kw">in </span>step.messages {
                     <span class="self">self</span>.connections
-                        .send(msg.target, EpochMessage::Continue(msg.message))
-                        .<span class="kw">await</span>;
+                        .send(
+                            <span class="kw-2">&amp;</span>msg.target.peers(<span class="kw-2">&amp;</span><span class="self">self</span>.peers),
+                            EpochMessage::Continue(msg.message),
+                        )
+                        .<span class="kw">await</span><span class="question-mark">?</span>;
                 }
 
-                step.output
+                <span class="prelude-val">Ok</span>(step.output)
             }
         }
     }
@@ -883,7 +955,11 @@
     <span class="doccomment">/// Searches back in saved epoch history for the last signed epoch
     </span><span class="kw">fn </span>last_signed_epoch(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>epoch: u64) -&gt; <span class="prelude-ty">Option</span>&lt;EpochHistory&gt; {
         <span class="kw">loop </span>{
-            <span class="kw">let </span>query = <span class="self">self</span>.consensus.db.get_value(<span class="kw-2">&amp;</span>EpochHistoryKey(epoch));
+            <span class="kw">let </span>query = <span class="self">self
+                </span>.consensus
+                .db
+                .begin_transaction()
+                .get_value(<span class="kw-2">&amp;</span>EpochHistoryKey(epoch));
             <span class="kw">match </span>query.expect(<span class="string">&quot;DB error&quot;</span>) {
                 <span class="prelude-val">Some</span>(result) <span class="kw">if </span>result.signature.is_some() =&gt; <span class="kw">break </span><span class="prelude-val">Some</span>(result),
                 <span class="kw">_ if </span>epoch == <span class="number">0 </span>=&gt; <span class="kw">break </span><span class="prelude-val">None</span>,
@@ -894,13 +970,13 @@
     }
 }
 
-<span class="kw">struct </span>OsRngGen;
+<span class="kw">pub struct </span>OsRngGen;
 <span class="kw">impl </span>RngGenerator <span class="kw">for </span>OsRngGen {
     <span class="kw">type </span>Rng = OsRng;
 
     <span class="kw">fn </span>get_rng(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Rng {
-        OsRng::new().unwrap()
+        OsRng
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="fedimint_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (ce7f0f1aa 2022-09-28)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0-nightly (7eef946fc 2022-11-06)" data-search-js="search-39ee4160c7dc16c9.js" data-settings-js="settings-3a0b9947ba1bd99a.js" data-settings-css="settings-a66f7524084a489a.css" ></div></body></html>

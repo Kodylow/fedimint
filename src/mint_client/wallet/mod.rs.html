@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `client/client-lib/src/wallet/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../mint_client/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../mint_client/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../mint_client/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `client/client-lib/src/wallet/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-b826345d929eb323.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-87108236bf50c158.css"><link rel="stylesheet" disabled href="../../../static.files/dark-839c5fb8722cb456.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-d48ac194417684c8.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-74087aa2e88f4475.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-0dede64717b247ca.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-201a7e04dc4c6fce.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../mint_client/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -371,22 +371,65 @@
 <span id="371">371</span>
 <span id="372">372</span>
 <span id="373">373</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::utils::ClientContext;
-<span class="kw">use </span>bitcoin::Address;
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+</pre><pre class="rust"><code><span class="kw">use </span>bitcoin::Address;
 <span class="kw">use </span>bitcoin::KeyPair;
 <span class="kw">use </span>db::PegInKey;
-<span class="kw">use </span>fedimint_api::db::batch::BatchTx;
-<span class="kw">use </span>fedimint_api::Amount;
+<span class="kw">use </span>fedimint_api::db::DatabaseTransaction;
+<span class="kw">use </span>fedimint_api::module::TransactionItemAmount;
+<span class="kw">use </span>fedimint_api::{Amount, FederationModule};
 <span class="kw">use </span>fedimint_core::modules::wallet::config::WalletClientConfig;
 <span class="kw">use </span>fedimint_core::modules::wallet::tweakable::Tweakable;
 <span class="kw">use </span>fedimint_core::modules::wallet::txoproof::{PegInProof, PegInProofError, TxOutProof};
-
-<span class="kw">use </span><span class="kw">crate</span>::ApiError;
-<span class="kw">use </span>fedimint_core::modules::wallet::PegOutOutcome;
-<span class="kw">use </span>miniscript::descriptor::DescriptorTrait;
+<span class="kw">use </span>fedimint_core::modules::wallet::{PegOutOutcome, Wallet};
 <span class="kw">use </span>rand::{CryptoRng, RngCore};
 <span class="kw">use </span>thiserror::Error;
 <span class="kw">use </span>tracing::debug;
+
+<span class="kw">use </span><span class="kw">crate</span>::utils::ClientContext;
+<span class="kw">use crate</span>::{ApiError, ModuleClient};
 
 <span class="kw">mod </span>db;
 
@@ -395,6 +438,30 @@
 </span><span class="kw">pub struct </span>WalletClient&lt;<span class="lifetime">&#39;c</span>&gt; {
     <span class="kw">pub </span>config: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span>WalletClientConfig,
     <span class="kw">pub </span>context: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span>ClientContext,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ModuleClient <span class="kw">for </span>WalletClient&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Module = Wallet;
+
+    <span class="kw">fn </span>input_amount(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        input: <span class="kw-2">&amp;</span>&lt;<span class="self">Self</span>::Module <span class="kw">as </span>FederationModule&gt;::TxInput,
+    ) -&gt; TransactionItemAmount {
+        TransactionItemAmount {
+            amount: Amount::from_sat(input.tx_output().value),
+            fee: <span class="self">self</span>.config.fee_consensus.peg_in_abs,
+        }
+    }
+
+    <span class="kw">fn </span>output_amount(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        output: <span class="kw-2">&amp;</span>&lt;<span class="self">Self</span>::Module <span class="kw">as </span>FederationModule&gt;::TxOutput,
+    ) -&gt; TransactionItemAmount {
+        TransactionItemAmount {
+            amount: (output.amount + output.fees.amount()).into(),
+            fee: <span class="self">self</span>.config.fee_consensus.peg_out_abs,
+        }
+    }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;c</span>&gt; WalletClient&lt;<span class="lifetime">&#39;c</span>&gt; {
@@ -407,13 +474,13 @@
     /// prevent front-running by a malicious  federation member
     /// The returned bitcoin-address is derived from the script. Thus sending bitcoin to that address will result in a
     /// transaction containing the scripts public-key in at least one of it&#39;s outpoints.
-    </span><span class="kw">pub fn </span>get_new_pegin_address&lt;R: RngCore + CryptoRng&gt;(
+    </span><span class="kw">pub fn </span>get_new_pegin_address&lt;<span class="lifetime">&#39;a</span>, R: RngCore + CryptoRng&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="kw-2">mut </span>batch: BatchTx&lt;<span class="lifetime">&#39;_</span>&gt;,
+        dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt;,
         <span class="kw-2">mut </span>rng: R,
     ) -&gt; Address {
         <span class="kw">let </span>peg_in_keypair = bitcoin::KeyPair::new(<span class="kw-2">&amp;</span><span class="self">self</span>.context.secp, <span class="kw-2">&amp;mut </span>rng);
-        <span class="kw">let </span>peg_in_pub_key = secp256k1_zkp::XOnlyPublicKey::from_keypair(<span class="kw-2">&amp;</span>peg_in_keypair);
+        <span class="kw">let </span>peg_in_pub_key = secp256k1_zkp::XOnlyPublicKey::from_keypair(<span class="kw-2">&amp;</span>peg_in_keypair).<span class="number">0</span>;
 
         <span class="comment">// TODO: check at startup that no bare descriptor is used in config
         // TODO: check if there are other failure cases
@@ -426,14 +493,14 @@
         <span class="kw">let </span>address = Address::from_script(<span class="kw-2">&amp;</span>script, <span class="self">self</span>.config.network)
             .expect(<span class="string">&quot;Script from descriptor should have an address&quot;</span>);
 
-        batch.append_insert_new(
-            PegInKey {
+        dbtx.insert_new_entry(
+            <span class="kw-2">&amp;</span>PegInKey {
                 peg_in_script: script,
             },
-            peg_in_keypair.secret_bytes(),
-        );
+            <span class="kw-2">&amp;</span>peg_in_keypair.secret_bytes(),
+        )
+        .expect(<span class="string">&quot;DB Error&quot;</span>);
 
-        batch.commit();
         address
     }
 
@@ -450,6 +517,7 @@
                 <span class="macro">debug!</span>(output_script = <span class="question-mark">?</span>out.script_pubkey);
                 <span class="self">self</span>.context
                     .db
+                    .begin_transaction()
                     .get_value(<span class="kw-2">&amp;</span>PegInKey {
                         peg_in_script: out.script_pubkey.clone(),
                     })
@@ -465,7 +533,7 @@
             txout_proof,
             btc_transaction,
             output_idx <span class="kw">as </span>u32,
-            secret_tweak_key.public_key(),
+            secret_tweak_key.x_only_public_key().<span class="number">0</span>,
         )
         .map_err(WalletClientError::PegInProofError)<span class="question-mark">?</span>;
 
@@ -501,49 +569,50 @@
 
 <span class="kw">type </span><span class="prelude-ty">Result</span>&lt;T&gt; = std::result::Result&lt;T, WalletClientError&gt;;
 
-<span class="attribute">#[derive(Error, Debug)]
+<span class="attr">#[derive(Error, Debug)]
 </span><span class="kw">pub enum </span>WalletClientError {
-    <span class="attribute">#[error(<span class="string">&quot;Could not find an ongoing matching peg-in&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;Could not find an ongoing matching peg-in&quot;</span>)]
     </span>NoMatchingPegInFound,
-    <span class="attribute">#[error(<span class="string">&quot;Peg-in amount must be greater than peg-in fee&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;Peg-in amount must be greater than peg-in fee&quot;</span>)]
     </span>PegInAmountTooSmall,
-    <span class="attribute">#[error(<span class="string">&quot;Inconsistent peg-in proof: {0}&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;Inconsistent peg-in proof: {0}&quot;</span>)]
     </span>PegInProofError(PegInProofError),
-    <span class="attribute">#[error(<span class="string">&quot;Mint API error: {0}&quot;</span>)]
-    </span>ApiError(<span class="attribute">#[from] </span>ApiError),
+    <span class="attr">#[error(<span class="string">&quot;Mint API error: {0}&quot;</span>)]
+    </span>ApiError(<span class="attr">#[from] </span>ApiError),
 }
 
-<span class="attribute">#[cfg(test)]
+<span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use </span><span class="kw">crate</span>::api::IFederationApi;
-    <span class="kw">use </span><span class="kw">crate</span>::wallet::WalletClient;
-    <span class="kw">use </span><span class="kw">crate</span>::ClientContext;
+    <span class="kw">use </span>std::str::FromStr;
+    <span class="kw">use </span>std::sync::Arc;
+    <span class="kw">use </span>std::time::Duration;
+
     <span class="kw">use </span>async_trait::async_trait;
+    <span class="kw">use </span>bitcoin::hashes::sha256;
     <span class="kw">use </span>bitcoin::{Address, Txid};
-
-    <span class="kw">use </span>fedimint_api::db::mem_impl::MemDatabase;
-    <span class="kw">use </span>fedimint_api::module::testing::FakeFed;
-    <span class="kw">use </span>fedimint_api::{OutPoint, TransactionId};
-
     <span class="kw">use </span>bitcoin_hashes::Hash;
+    <span class="kw">use </span>fedimint_api::config::BitcoindRpcCfg;
+    <span class="kw">use </span>fedimint_api::db::mem_impl::MemDatabase;
+    <span class="kw">use </span>fedimint_api::task::TaskGroup;
+    <span class="kw">use </span>fedimint_api::{Feerate, OutPoint, TransactionId};
     <span class="kw">use </span>fedimint_core::epoch::EpochHistory;
     <span class="kw">use </span>fedimint_core::modules::ln::contracts::incoming::IncomingContractOffer;
     <span class="kw">use </span>fedimint_core::modules::ln::contracts::ContractId;
     <span class="kw">use </span>fedimint_core::modules::ln::{ContractAccount, LightningGateway};
-    <span class="kw">use </span>fedimint_core::modules::wallet::bitcoind::test::{
-        FakeBitcoindRpc, FakeBitcoindRpcController,
-    };
     <span class="kw">use </span>fedimint_core::modules::wallet::config::WalletClientConfig;
     <span class="kw">use </span>fedimint_core::modules::wallet::db::{RoundConsensusKey, UTXOKey};
     <span class="kw">use </span>fedimint_core::modules::wallet::{
-        Feerate, PegOut, PegOutFees, PegOutOutcome, RoundConsensus, SpendableUTXO, Wallet,
+        PegOut, PegOutFees, PegOutOutcome, RoundConsensus, SpendableUTXO, Wallet,
     };
     <span class="kw">use </span>fedimint_core::outcome::{OutputOutcome, TransactionStatus};
     <span class="kw">use </span>fedimint_core::transaction::Transaction;
-    <span class="kw">use </span>std::str::FromStr;
-    <span class="kw">use </span>std::sync::Arc;
-    <span class="kw">use </span>std::time::Duration;
+    <span class="kw">use </span>fedimint_testing::bitcoind::{FakeBitcoindRpc, FakeBitcoindRpcController};
+    <span class="kw">use </span>fedimint_testing::FakeFed;
     <span class="kw">use </span>threshold_crypto::PublicKey;
+
+    <span class="kw">use </span><span class="kw">crate</span>::api::IFederationApi;
+    <span class="kw">use </span><span class="kw">crate</span>::wallet::WalletClient;
+    <span class="kw">use </span><span class="kw">crate</span>::ClientContext;
 
     <span class="kw">type </span>Fed = FakeFed&lt;Wallet, WalletClientConfig&gt;;
     <span class="kw">type </span>SharedFed = Arc&lt;tokio::sync::Mutex&lt;Fed&gt;&gt;;
@@ -553,7 +622,7 @@
         </span>_mint: SharedFed,
     }
 
-    <span class="attribute">#[async_trait]
+    <span class="attr">#[async_trait]
     </span><span class="kw">impl </span>IFederationApi <span class="kw">for </span>FakeApi {
         <span class="kw">async fn </span>fetch_tx_outcome(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -621,7 +690,9 @@
         }
     }
 
-    <span class="kw">async fn </span>new_mint_and_client() -&gt; (
+    <span class="kw">async fn </span>new_mint_and_client(
+        task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
+    ) -&gt; (
         Arc&lt;tokio::sync::Mutex&lt;Fed&gt;&gt;,
         WalletClientConfig,
         ClientContext,
@@ -634,14 +705,24 @@
             FakeFed::&lt;Wallet, WalletClientConfig&gt;::new(
                 <span class="number">4</span>,
                 <span class="kw">move </span>|cfg, db| {
+                    <span class="kw">let </span><span class="kw-2">mut </span>task_group = task_group.clone();
                     <span class="kw">let </span>btc_rpc_clone = btc_rpc.clone();
                     <span class="kw">async move </span>{
-                        Wallet::new_with_bitcoind(cfg, db, btc_rpc_clone.clone().into())
-                            .<span class="kw">await
-                            </span>.unwrap()
+                        Wallet::new_with_bitcoind(
+                            cfg,
+                            db,
+                            btc_rpc_clone.clone().into(),
+                            <span class="kw-2">&amp;mut </span>task_group,
+                        )
+                        .<span class="kw">await
+                        </span>.unwrap()
                     }
                 },
-                <span class="kw-2">&amp;</span>(),
+                <span class="kw-2">&amp;</span>BitcoindRpcCfg {
+                    btc_rpc_address: <span class="string">&quot;127.0.0.1&quot;</span>.into(),
+                    btc_rpc_user: <span class="string">&quot;bitcoin&quot;</span>.into(),
+                    btc_rpc_pass: <span class="string">&quot;bitcoin&quot;</span>.into(),
+                },
             )
             .<span class="kw">await</span>,
         ));
@@ -658,9 +739,11 @@
         (fed, client_config, client, btc_rpc_controller)
     }
 
-    <span class="attribute">#[test_log::test(tokio::test)]
+    <span class="attr">#[test_log::test(tokio::test)]
     </span><span class="kw">async fn </span>create_output() {
-        <span class="kw">let </span>(fed, client_config, client_context, btc_rpc) = new_mint_and_client().<span class="kw">await</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>task_group = TaskGroup::new();
+        <span class="kw">let </span>(fed, client_config, client_context, btc_rpc) =
+            new_mint_and_client(<span class="kw-2">&amp;mut </span>task_group).<span class="kw">await</span>;
         <span class="kw">let </span>_client = WalletClient {
             config: <span class="kw-2">&amp;</span>client_config,
             context: <span class="kw-2">&amp;</span>client_context,
@@ -675,9 +758,10 @@
                 amount: bitcoin::Amount::from_sat(<span class="number">48000</span>),
             };
 
-            db.insert_entry(<span class="kw-2">&amp;</span>UTXOKey(out_point), <span class="kw-2">&amp;</span>utxo).unwrap();
+            <span class="kw">let </span><span class="kw-2">mut </span>dbtx = db.begin_transaction();
+            dbtx.insert_entry(<span class="kw-2">&amp;</span>UTXOKey(out_point), <span class="kw-2">&amp;</span>utxo).unwrap();
 
-            db.insert_entry(
+            dbtx.insert_entry(
                 <span class="kw-2">&amp;</span>RoundConsensusKey,
                 <span class="kw-2">&amp;</span>RoundConsensus {
                     block_height: <span class="number">0</span>,
@@ -686,13 +770,15 @@
                 },
             )
             .unwrap();
+
+            dbtx.commit_tx().expect(<span class="string">&quot;DB Error&quot;</span>);
         });
 
         <span class="kw">let </span>addr = Address::from_str(<span class="string">&quot;msFGPqHVk8rbARMd69FfGYxwcboZLemdBi&quot;</span>).unwrap();
         <span class="kw">let </span>amount = bitcoin::Amount::from_sat(<span class="number">42000</span>);
 
         <span class="kw">let </span>out_point = OutPoint {
-            txid: Default::default(),
+            txid: sha256::Hash::hash(<span class="string">b&quot;txid&quot;</span>).into(),
             out_idx: <span class="number">0</span>,
         };
         <span class="kw">let </span>output = PegOut {
@@ -745,4 +831,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="mint_client" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (ce7f0f1aa 2022-09-28)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="mint_client" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0-nightly (7eef946fc 2022-11-06)" data-search-js="search-39ee4160c7dc16c9.js" data-settings-js="settings-3a0b9947ba1bd99a.js" data-settings-css="settings-a66f7524084a489a.css" ></div></body></html>
