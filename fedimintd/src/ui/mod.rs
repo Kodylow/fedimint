@@ -1,5 +1,3 @@
-mod configgen;
-
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock, RwLockWriteGuard};
@@ -13,6 +11,7 @@ use axum::{
 };
 use fedimint_api::config::BitcoindRpcCfg;
 use fedimint_core::config::ClientConfig;
+use fedimint_server::config::ServerConfig;
 use http::StatusCode;
 use mint_client::api::WsFederationConnect;
 use qrcode_generator::QrCodeEcc;
@@ -20,8 +19,7 @@ use rand::rngs::OsRng;
 use serde::Deserialize;
 use tokio::sync::mpsc::Sender;
 
-use crate::ui::configgen::configgen;
-use crate::ServerConfig;
+use crate::ui::distributedgen;
 
 fn run_fedimint(state: &mut RwLockWriteGuard<State>) {
     let sender = state.sender.clone();
@@ -158,8 +156,10 @@ async fn set_url_connection(
 ) -> Result<Redirect, (StatusCode, String)> {
     let mut state = state.write().unwrap();
 
+    let tls_string = distributed_gen::gen_tls(&state.cfg_path, &form.ipaddr, 4000, &form.name);
+
     // update state
-    state.connection_string = state.connection_string.clone() + "@" + &form.ipaddr;
+    state.connection_string = tls_string;
     state.count_guardians = (0..form.count_guardians).collect();
     state.guardians[0].name = form.name;
     state.guardians[0].connection_string = state.connection_string.clone();

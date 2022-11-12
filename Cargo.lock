@@ -398,9 +398,9 @@ checksum = "c1ad822118d20d2c234f427000d5acc36eabe1e29a348c89b63dd60b13f28e5d"
 
 [[package]]
 name = "bytemuck"
-version = "1.12.1"
+version = "1.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f5715e491b5a1598fc2bef5a606847b5dc1d48ea625bd3c02c00de8285591da"
+checksum = "aaa3a8d9a1ca92e282c96a32d6511b695d7d994d1d102ba85d279f9b2756947f"
 
 [[package]]
 name = "byteorder"
@@ -1024,11 +1024,7 @@ name = "fedimint-server"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "askama",
- "askama_axum",
  "async-trait",
- "axum 0.4.8",
- "axum-core 0.2.8",
  "bincode",
  "bitcoin",
  "bytes",
@@ -1041,13 +1037,9 @@ dependencies = [
  "futures",
  "hbbft",
  "hex",
- "http",
- "http-body",
- "hyper",
  "itertools",
  "jsonrpsee",
  "mint-client",
- "qrcode-generator",
  "rand",
  "rayon",
  "rcgen",
@@ -1061,7 +1053,6 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "tokio-util 0.7.4",
- "tower",
  "tracing",
  "tracing-subscriber",
  "url",
@@ -1140,7 +1131,11 @@ name = "fedimintd"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "askama",
+ "askama_axum",
  "async-trait",
+ "axum 0.4.8",
+ "axum-core 0.2.8",
  "bincode",
  "bitcoin",
  "bytes",
@@ -1156,14 +1151,20 @@ dependencies = [
  "futures",
  "hbbft",
  "hex",
+ "http",
+ "http-body",
+ "hyper",
  "itertools",
  "jsonrpsee",
  "mint-client",
  "opentelemetry",
  "opentelemetry-jaeger",
+ "qrcode-generator",
  "rand",
  "rayon",
  "rcgen",
+ "ring",
+ "rpassword",
  "secp256k1-zkp",
  "serde",
  "serde_json",
@@ -1174,6 +1175,7 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "tokio-util 0.7.4",
+ "tower",
  "tracing",
  "tracing-opentelemetry",
  "tracing-subscriber",
@@ -1546,9 +1548,9 @@ checksum = "b07f60793ff0a4d9cef0f18e63b5357e06209987153a64648c972c1e5aff336f"
 
 [[package]]
 name = "html-escape"
-version = "0.2.11"
+version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8e7479fa1ef38eb49fb6a42c426be515df2d063f06cb8efd3e50af073dbc26c"
+checksum = "15315cfa9503e9aa85a477138eff76a1b203a430703548052c330b69d8d8c205"
 dependencies = [
  "utf8-width",
 ]
@@ -2495,14 +2497,14 @@ checksum = "1df8c4ec4b0627e53bdf214615ad287367e482558cf84b109250b37464dc03ae"
 
 [[package]]
 name = "png"
-version = "0.17.6"
+version = "0.17.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f0e7f4c94ec26ff209cee506314212639d6c91b80afb82984819fafce9df01c"
+checksum = "5d708eaf860a19b19ce538740d2b4bdeeb8337fa53f7738455e706623ad5c638"
 dependencies = [
  "bitflags",
  "crc32fast",
  "flate2",
- "miniz_oxide 0.5.4",
+ "miniz_oxide 0.6.2",
 ]
 
 [[package]]
@@ -2776,6 +2778,16 @@ checksum = "7e9562ea1d70c0cc63a34a22d977753b50cca91cc6b6527750463bd5dd8697bc"
 dependencies = [
  "libc",
  "librocksdb-sys",
+]
+
+[[package]]
+name = "rpassword"
+version = "7.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "20c9f5d2a0c3e2ea729ab3706d22217177770654c3ef5056b68b69d07332d3f5"
+dependencies = [
+ "libc",
+ "winapi",
 ]
 
 [[package]]
@@ -3265,9 +3277,9 @@ dependencies = [
 
 [[package]]
 name = "tiff"
-version = "0.7.3"
+version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7259662e32d1e219321eb309d5f9d898b779769d81b76e762c07c8e5d38fcb65"
+checksum = "9f71e422515e83e3ab8a03d4781d05ebf864fc61f4546e6ecffa58cbd34181a0"
 dependencies = [
  "flate2",
  "jpeg-decoder",
