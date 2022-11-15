@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %} Fedimint {% endblock %}
+
+{% block content %}
+<div>
+  <div class="container text-center mt-5">
+
+    <!-- Show Your Federation Name -->
+    <h1>Confirm Configs for the {{federation_name}} Federation</h1>
+    <!-- show your connection string-->
+    {% for guardian in guardians %}
+    <p>{{guardian.name}}</p>
+    <p>TLS: {{guardian.config_string}}</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
