@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-server/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d32a9866c4c3e823.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-046227e470cd3629.css"><link rel="stylesheet" disabled href="../../static.files/dark-800f2ee593c8e6f7.css"><link rel="stylesheet" disabled href="../../static.files/ayu-9edae3c387f5a5b3.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-287cecec4dbb45b0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../fedimint_server/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-server/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-1e2b7c35f427742c.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-bb5b51a242922cfa.css"><link rel="stylesheet" disabled href="../../static.files/dark-4f2b7151e76e78d6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-07d82ab1a93c2170.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-4a084badb5778746.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../fedimint_server/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -456,6 +456,37 @@
 <a href="#456" id="456">456</a>
 <a href="#457" id="457">457</a>
 <a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
 </pre><pre class="rust"><code><span class="kw">extern crate </span>fedimint_api;
 
 <span class="kw">use </span>std::cmp::min;
@@ -470,10 +501,13 @@
 <span class="kw">use </span>fedimint_api::net::peers::PeerConnections;
 <span class="kw">use </span>fedimint_api::task::{TaskGroup, TaskHandle};
 <span class="kw">use </span>fedimint_api::{NumPeers, PeerId};
-<span class="kw">use </span>fedimint_core::epoch::{ConsensusItem, EpochHistory, EpochVerifyError, SerdeConsensusItem};
+<span class="kw">use </span>fedimint_core::epoch::{
+    ConsensusItem, EpochVerifyError, SerdeConsensusItem, SignedEpochOutcome,
+};
 <span class="kw">pub use </span>fedimint_core::<span class="kw-2">*</span>;
-<span class="kw">use </span>hbbft::honey_badger::{Batch, HoneyBadger, Message};
+<span class="kw">use </span>hbbft::honey_badger::{Batch, HoneyBadger, Message, Step};
 <span class="kw">use </span>hbbft::{Epoched, NetworkInfo, Target};
+<span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>mint_client::api::{IFederationApi, WsFederationApi};
 <span class="kw">use </span>rand::rngs::OsRng;
 <span class="kw">use </span>rand::{CryptoRng, RngCore};
@@ -481,8 +515,7 @@
 <span class="kw">use </span>tracing::{info, warn};
 
 <span class="kw">use </span><span class="kw">crate</span>::consensus::{
-    ConsensusOutcome, ConsensusOutcomeConversion, ConsensusProposal, FedimintConsensus,
-    SerdeConsensusOutcome,
+    ConsensusProposal, FedimintConsensus, HbbftConsensusOutcome, HbbftSerdeConsensusOutcome,
 };
 <span class="kw">use </span><span class="kw">crate</span>::db::LastEpochKey;
 <span class="kw">use </span><span class="kw">crate</span>::fedimint_api::net::peers::IPeerConnections;
@@ -521,6 +554,8 @@
     RejoinRequest(u64),
 }
 
+<span class="kw">type </span>EpochStep = Step&lt;Vec&lt;SerdeConsensusItem&gt;, PeerId&gt;;
+
 <span class="kw">pub struct </span>FedimintServer {
     <span class="kw">pub </span>consensus: Arc&lt;FedimintConsensus&gt;,
     <span class="kw">pub </span>connections: PeerConnections&lt;EpochMessage&gt;,
@@ -530,7 +565,7 @@
     <span class="kw">pub </span>peers: BTreeSet&lt;PeerId&gt;,
     <span class="kw">pub </span>rejoin_at_epoch: <span class="prelude-ty">Option</span>&lt;HashMap&lt;u64, HashSet&lt;PeerId&gt;&gt;&gt;,
     <span class="kw">pub </span>run_empty_epochs: u64,
-    <span class="kw">pub </span>last_processed_epoch: <span class="prelude-ty">Option</span>&lt;EpochHistory&gt;,
+    <span class="kw">pub </span>last_processed_epoch: <span class="prelude-ty">Option</span>&lt;SignedEpochOutcome&gt;,
 }
 
 <span class="kw">impl </span>FedimintServer {
@@ -570,7 +605,8 @@
         connector: PeerConnector&lt;EpochMessage&gt;,
         task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
     ) -&gt; <span class="self">Self </span>{
-        cfg.validate_config(<span class="kw-2">&amp;</span>cfg.identity).expect(<span class="string">&quot;invalid config&quot;</span>);
+        cfg.validate_config(<span class="kw-2">&amp;</span>cfg.local.identity)
+            .expect(<span class="string">&quot;invalid config&quot;</span>);
 
         <span class="kw">let </span>connections =
             ReconnectPeerConnections::new(cfg.network_config(), connector, task_group)
@@ -578,16 +614,17 @@
                 </span>.into_dyn();
 
         <span class="kw">let </span>net_info = NetworkInfo::new(
-            cfg.identity,
-            cfg.hbbft_sks.inner().clone(),
-            cfg.hbbft_pk_set.clone(),
-            cfg.peers.iter().map(|(id, <span class="kw">_</span>)| <span class="kw-2">*</span>id),
+            cfg.local.identity,
+            cfg.private.hbbft_sks.inner().clone(),
+            cfg.consensus.hbbft_pk_set.clone(),
+            cfg.consensus.peers.keys().copied(),
         );
 
         <span class="kw">let </span>hbbft: HoneyBadger&lt;Vec&lt;SerdeConsensusItem&gt;, <span class="kw">_</span>&gt; =
             HoneyBadger::builder(Arc::new(net_info)).build();
 
         <span class="kw">let </span>api_endpoints = cfg
+            .consensus
             .peers
             .clone()
             .into_iter()
@@ -600,7 +637,7 @@
             consensus: Arc::new(consensus),
             cfg: cfg.clone(),
             api,
-            peers: cfg.peers.keys().cloned().collect(),
+            peers: cfg.consensus.peers.keys().cloned().collect(),
             rejoin_at_epoch: <span class="prelude-val">None</span>,
             run_empty_epochs: <span class="number">0</span>,
             last_processed_epoch: <span class="prelude-val">None</span>,
@@ -662,38 +699,72 @@
     }
 
     <span class="doccomment">/// Requests, verifies and processes history from peers
+    ///
+    /// `last_outcome` - The consensus outcome (unprocessed), we&#39;re trying to process.
     </span><span class="kw">pub async fn </span>process_outcome(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        last_outcome: ConsensusOutcome,
+        last_outcome: HbbftConsensusOutcome,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), EpochVerifyError&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>epochs: Vec&lt;EpochHistory&gt; = <span class="macro">vec!</span>[];
-        <span class="self">self</span>.rejoin_at_epoch = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>epochs: Vec&lt;<span class="kw">_</span>&gt; = <span class="macro">vec!</span>[];
+        <span class="comment">// for checking the hashes of the epoch history
+        </span><span class="kw">let </span><span class="kw-2">mut </span>prev_epoch: <span class="prelude-ty">Option</span>&lt;SignedEpochOutcome&gt; = <span class="self">self</span>.last_processed_epoch.clone();
+        <span class="comment">// once we produce an outcome we no longer need to rejoin
+        </span><span class="self">self</span>.rejoin_at_epoch = <span class="prelude-val">None</span>;
 
         <span class="kw">for </span>epoch_num <span class="kw">in </span><span class="self">self</span>.next_epoch_to_process()..=last_outcome.epoch {
-            <span class="kw">let </span>current_epoch = <span class="kw">if </span>epoch_num == last_outcome.epoch {
-                <span class="kw">let </span>contributions = last_outcome.contributions.clone();
-                EpochHistory::new(
-                    last_outcome.epoch,
-                    contributions,
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.last_processed_epoch,
-                )
-            } <span class="kw">else </span>{
-                <span class="macro">info!</span>(<span class="string">&quot;Downloading missing epoch {}&quot;</span>, epoch_num);
-                <span class="kw">let </span>epoch_pk = <span class="self">self</span>.cfg.epoch_pk_set.public_key();
-                <span class="self">self</span>.api
-                    .fetch_epoch_history(epoch_num, epoch_pk)
-                    .<span class="kw">await
-                    </span>.expect(<span class="string">&quot;fetches history&quot;</span>)
-            };
+            <span class="kw">let </span>(items, epoch, prev_epoch_hash, rejected_txs, at_know_trusted_checkpoint) =
+                <span class="kw">if </span>epoch_num == last_outcome.epoch {
+                    (
+                        last_outcome
+                            .contributions
+                            .iter()
+                            .sorted_by_key(|(peer, <span class="kw">_</span>)| <span class="kw-2">*</span>peer)
+                            .map(|(peer, items)| (<span class="kw-2">*</span>peer, items.clone()))
+                            .collect(),
+                        last_outcome.epoch,
+                        <span class="self">self</span>.last_processed_epoch
+                            .as_ref()
+                            .map(|epoch| epoch.outcome.hash()),
+                        <span class="prelude-val">None</span>,
+                        <span class="bool-val">true</span>,
+                    )
+                } <span class="kw">else </span>{
+                    <span class="macro">info!</span>(<span class="string">&quot;Downloading missing epoch {}&quot;</span>, epoch_num);
+                    <span class="kw">let </span>epoch_pk = <span class="self">self</span>.cfg.consensus.epoch_pk_set.public_key();
+                    <span class="kw">let </span>epoch = <span class="self">self
+                        </span>.api
+                        .fetch_epoch_history(epoch_num, epoch_pk)
+                        .<span class="kw">await
+                        </span>.expect(<span class="string">&quot;fetches history&quot;</span>);
 
-            current_epoch.verify_hash(<span class="kw-2">&amp;</span><span class="self">self</span>.last_processed_epoch)<span class="question-mark">?</span>;
-            epochs.push(current_epoch.clone());
+                    epoch.verify_hash(<span class="kw-2">&amp;</span>prev_epoch)<span class="question-mark">?</span>;
+                    prev_epoch = <span class="prelude-val">Some</span>(epoch.clone());
 
-            <span class="kw">let </span>pk = <span class="self">self</span>.cfg.epoch_pk_set.public_key();
-            <span class="kw">if </span>epoch_num == last_outcome.epoch || current_epoch.verify_sig(<span class="kw-2">&amp;</span>pk).is_ok() {
-                <span class="kw">for </span>epoch <span class="kw">in </span>epochs.drain(..) {
-                    <span class="kw">let </span>outcome = ConsensusOutcomeConversion::from(epoch.outcome.clone()).<span class="number">0</span>;
-                    <span class="self">self</span>.consensus.process_consensus_outcome(outcome).<span class="kw">await</span>;
+                    <span class="kw">let </span>pk = <span class="self">self</span>.cfg.consensus.epoch_pk_set.public_key();
+                    <span class="kw">let </span>sig_valid = epoch.verify_sig(<span class="kw-2">&amp;</span>pk).is_ok();
+                    (
+                        epoch.outcome.items,
+                        epoch.outcome.epoch,
+                        epoch.outcome.last_hash,
+                        <span class="prelude-val">Some</span>(epoch.outcome.rejected_txs),
+                        sig_valid,
+                    )
+                };
+
+            epochs.push((items, epoch, prev_epoch_hash, rejected_txs));
+
+            <span class="kw">if </span>at_know_trusted_checkpoint {
+                <span class="kw">for </span>(items, epoch, _prev_epoch_hash, rejected_txs) <span class="kw">in </span>epochs.drain(..) {
+                    <span class="kw">let </span>epoch = <span class="self">self
+                        </span>.consensus
+                        .process_consensus_outcome(
+                            Batch {
+                                epoch,
+                                contributions: BTreeMap::from_iter(items.into_iter()),
+                            },
+                            <span class="kw-2">&amp;</span>rejected_txs,
+                        )
+                        .<span class="kw">await</span>;
                     <span class="self">self</span>.last_processed_epoch = <span class="prelude-val">Some</span>(epoch);
                 }
             }
@@ -710,9 +781,9 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         proposal: <span class="kw">impl </span>Future&lt;Output = ConsensusProposal&gt;,
         rng: <span class="kw-2">&amp;mut </span>(<span class="kw">impl </span>RngCore + CryptoRng + Clone + <span class="lifetime">&#39;static</span>),
-    ) -&gt; Cancellable&lt;Vec&lt;ConsensusOutcome&gt;&gt; {
+    ) -&gt; Cancellable&lt;Vec&lt;HbbftConsensusOutcome&gt;&gt; {
         <span class="comment">// for testing federations with one peer
-        </span><span class="kw">if </span><span class="self">self</span>.cfg.peers.len() == <span class="number">1 </span>{
+        </span><span class="kw">if </span><span class="self">self</span>.cfg.consensus.peers.len() == <span class="number">1 </span>{
             <span class="macro">tokio::select! </span>{
               () = <span class="self">self</span>.consensus.transaction_notify.notified() =&gt; (),
               () = <span class="self">self</span>.consensus.await_consensus_proposal() =&gt; (),
@@ -720,14 +791,14 @@
             <span class="kw">let </span>proposal = proposal.<span class="kw">await</span>;
             <span class="kw">let </span>epoch = <span class="self">self</span>.hbbft.epoch();
             <span class="self">self</span>.hbbft.skip_to_epoch(epoch + <span class="number">1</span>);
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[ConsensusOutcome {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[HbbftConsensusOutcome {
                 epoch,
-                contributions: BTreeMap::from([(<span class="self">self</span>.cfg.identity, proposal.items)]),
+                contributions: BTreeMap::from([(<span class="self">self</span>.cfg.local.identity, proposal.items)]),
             }]);
         }
 
         <span class="comment">// process messages until new epoch or we have a proposal
-        </span><span class="kw">let </span><span class="kw-2">mut </span>outcomes: Vec&lt;ConsensusOutcome&gt; = <span class="kw">loop </span>{
+        </span><span class="kw">let </span><span class="kw-2">mut </span>outcomes: Vec&lt;HbbftConsensusOutcome&gt; = <span class="kw">loop </span>{
             <span class="kw">match </span><span class="self">self</span>.await_next_epoch().<span class="kw">await</span><span class="question-mark">? </span>{
                 <span class="prelude-val">Some</span>(msg) <span class="kw">if </span><span class="self">self</span>.start_next_epoch(<span class="kw-2">&amp;</span>msg) =&gt; <span class="kw">break </span><span class="self">self</span>.handle_message(msg).<span class="kw">await</span><span class="question-mark">?</span>,
                 <span class="prelude-val">Some</span>(msg) =&gt; <span class="self">self</span>.handle_message(msg).<span class="kw">await</span><span class="question-mark">?</span>,
@@ -739,7 +810,8 @@
         <span class="kw">for </span>peer <span class="kw">in </span>proposal.drop_peers.iter() {
             <span class="self">self</span>.connections.ban_peer(<span class="kw-2">*</span>peer).<span class="kw">await</span>;
         }
-        outcomes.append(<span class="kw-2">&amp;mut </span><span class="self">self</span>.propose_epoch(proposal, rng).<span class="kw">await</span><span class="question-mark">?</span>);
+        <span class="kw">let </span>step = <span class="self">self</span>.propose_epoch(proposal, rng).<span class="kw">await</span><span class="question-mark">?</span>;
+        outcomes.append(<span class="kw-2">&amp;mut </span><span class="self">self</span>.handle_step(step).<span class="kw">await</span><span class="question-mark">?</span>);
 
         <span class="kw">while </span>outcomes.is_empty() {
             <span class="kw">let </span>msg = <span class="self">self</span>.connections.receive().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -748,19 +820,9 @@
         <span class="prelude-val">Ok</span>(outcomes)
     }
 
-    <span class="kw">async fn </span>propose_epoch(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        proposal: ConsensusProposal,
-        rng: <span class="kw-2">&amp;mut </span>(<span class="kw">impl </span>RngCore + CryptoRng + Clone + <span class="lifetime">&#39;static</span>),
-    ) -&gt; Cancellable&lt;Vec&lt;ConsensusOutcome&gt;&gt; {
-        <span class="kw">let </span>step = <span class="self">self
-            </span>.hbbft
-            .propose(
-                <span class="kw-2">&amp;</span>proposal.items.into_iter().map(|ci| (<span class="kw-2">&amp;</span>ci).into()).collect(),
-                rng,
-            )
-            .expect(<span class="string">&quot;HBBFT propose failed&quot;</span>);
-
+    <span class="doccomment">/// Handles one step of the HBBFT algorithm, sending messages to peers and parsing any
+    /// outcomes contained in the step
+    </span><span class="kw">async fn </span>handle_step(<span class="kw-2">&amp;mut </span><span class="self">self</span>, step: EpochStep) -&gt; Cancellable&lt;Vec&lt;HbbftConsensusOutcome&gt;&gt; {
         <span class="kw">for </span>msg <span class="kw">in </span>step.messages {
             <span class="self">self</span>.connections
                 .send(
@@ -770,16 +832,35 @@
                 .<span class="kw">await</span><span class="question-mark">?</span>;
         }
 
-        <span class="prelude-val">Ok</span>(step
-            .output
-            .into_iter()
-            .map(|outcome| {
-                <span class="comment">// FIXME: deal with faulty messages
-                </span><span class="kw">let </span>(outcome, _ban_peers) =
-                    module_parse_outcome(outcome, <span class="kw-2">&amp;</span><span class="self">self</span>.consensus.modules.decoders());
-                outcome
-            })
-            .collect())
+        <span class="kw">if </span>!step.fault_log.is_empty() {
+            <span class="macro">warn!</span>(<span class="question-mark">?</span>step.fault_log);
+        }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>outcomes: Vec&lt;HbbftConsensusOutcome&gt; = <span class="macro">vec!</span>[];
+        <span class="kw">for </span>outcome <span class="kw">in </span>step.output {
+            <span class="kw">let </span>(outcome, ban_peers) =
+                module_parse_outcome(outcome, <span class="kw-2">&amp;</span><span class="self">self</span>.consensus.modules.decoders());
+            <span class="kw">for </span>peer <span class="kw">in </span>ban_peers {
+                <span class="self">self</span>.connections.ban_peer(peer).<span class="kw">await</span>;
+            }
+            outcomes.push(outcome);
+        }
+
+        <span class="prelude-val">Ok</span>(outcomes)
+    }
+
+    <span class="kw">async fn </span>propose_epoch(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        proposal: ConsensusProposal,
+        rng: <span class="kw-2">&amp;mut </span>(<span class="kw">impl </span>RngCore + CryptoRng + Clone + <span class="lifetime">&#39;static</span>),
+    ) -&gt; Cancellable&lt;EpochStep&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self
+            </span>.hbbft
+            .propose(
+                <span class="kw-2">&amp;</span>proposal.items.into_iter().map(|ci| (<span class="kw-2">&amp;</span>ci).into()).collect(),
+                rng,
+            )
+            .expect(<span class="string">&quot;HBBFT propose failed&quot;</span>))
     }
 
     <span class="kw">async fn </span>await_next_epoch(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Cancellable&lt;<span class="prelude-ty">Option</span>&lt;PeerMessage&gt;&gt; {
@@ -803,7 +884,10 @@
     }
 
     <span class="doccomment">/// Runs a single HBBFT consensus step
-    </span><span class="kw">async fn </span>handle_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: PeerMessage) -&gt; Cancellable&lt;Vec&lt;ConsensusOutcome&gt;&gt; {
+    </span><span class="kw">async fn </span>handle_message(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        msg: PeerMessage,
+    ) -&gt; Cancellable&lt;Vec&lt;HbbftConsensusOutcome&gt;&gt; {
         <span class="kw">match </span>msg {
             (peer, EpochMessage::Continue(peer_msg)) =&gt; {
                 <span class="self">self</span>.rejoin_at_epoch(peer_msg.epoch(), peer).<span class="kw">await</span>;
@@ -813,29 +897,7 @@
                     .handle_message(<span class="kw-2">&amp;</span>peer, peer_msg)
                     .expect(<span class="string">&quot;HBBFT handle message failed&quot;</span>);
 
-                <span class="kw">if </span>!step.fault_log.is_empty() {
-                    <span class="macro">warn!</span>(<span class="question-mark">?</span>step.fault_log);
-                }
-
-                <span class="kw">for </span>msg <span class="kw">in </span>step.messages {
-                    <span class="self">self</span>.connections
-                        .send(
-                            <span class="kw-2">&amp;</span>msg.target.peers(<span class="kw-2">&amp;</span><span class="self">self</span>.peers),
-                            EpochMessage::Continue(msg.message),
-                        )
-                        .<span class="kw">await</span><span class="question-mark">?</span>;
-                }
-
-                <span class="prelude-val">Ok</span>(step
-                    .output
-                    .into_iter()
-                    .map(|outcome| {
-                        <span class="comment">// FIXME: deal with faulty messages
-                        </span><span class="kw">let </span>(outcome, _ban_peers) =
-                            module_parse_outcome(outcome, <span class="kw-2">&amp;</span><span class="self">self</span>.consensus.modules.decoders());
-                        outcome
-                    })
-                    .collect())
+                <span class="prelude-val">Ok</span>(<span class="self">self</span>.handle_step(step).<span class="kw">await</span><span class="question-mark">?</span>)
             }
             (<span class="kw">_</span>, EpochMessage::RejoinRequest(epoch)) =&gt; {
                 <span class="macro">info!</span>(<span class="string">&quot;Requested to run {} epochs&quot;</span>, epoch);
@@ -883,9 +945,9 @@
 }
 
 <span class="kw">fn </span>module_parse_outcome(
-    outcome: SerdeConsensusOutcome,
+    outcome: HbbftSerdeConsensusOutcome,
     module_registry: <span class="kw-2">&amp;</span>ModuleDecoderRegistry,
-) -&gt; (ConsensusOutcome, Vec&lt;PeerId&gt;) {
+) -&gt; (HbbftConsensusOutcome, Vec&lt;PeerId&gt;) {
     <span class="kw">let </span><span class="kw-2">mut </span>ban_peers = <span class="macro">vec!</span>[];
     <span class="kw">let </span>contributions = outcome
         .contributions
@@ -915,4 +977,4 @@
     (outcome, ban_peers)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0-nightly (7632db0e8 2022-12-08)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (ad8ae0504 2022-12-29)" data-search-js="search-181581080540673f.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-58836c674e2f7bd2.css" ></div></body></html>

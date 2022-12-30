@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `client/client-lib/src/mint/backup.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>backup.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-d32a9866c4c3e823.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-046227e470cd3629.css"><link rel="stylesheet" disabled href="../../../static.files/dark-800f2ee593c8e6f7.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-9edae3c387f5a5b3.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-287cecec4dbb45b0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../mint_client/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `client/client-lib/src/mint/backup.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>backup.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1e2b7c35f427742c.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-bb5b51a242922cfa.css"><link rel="stylesheet" disabled href="../../../static.files/dark-4f2b7151e76e78d6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-07d82ab1a93c2170.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-4a084badb5778746.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../mint_client/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -719,6 +719,163 @@
 <a href="#719" id="719">719</a>
 <a href="#720" id="720">720</a>
 <a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Backup and recovery of ecash notes
 //!
 //! Ecash backup is implemented by periodically taking a snapshot,
@@ -729,8 +886,8 @@
 //! to avoid having to scan the whole history.
 
 </span><span class="kw">use </span>std::{
-    cmp::max,
-    collections::{BTreeMap, HashMap},
+    cmp::{max, Reverse},
+    collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     ops::RangeInclusive,
 };
 
@@ -742,67 +899,15 @@
     NumPeers, PeerId,
 };
 <span class="kw">use </span>fedimint_core::{
-    epoch::{ConsensusItem, EpochHistory},
+    epoch::{ConsensusItem, SignedEpochOutcome},
     modules::mint::{MintInput, MintOutput, MintOutputConfirmation},
 };
 <span class="kw">use </span>tbs::{combine_valid_shares, verify_blind_share, BlindedMessage, PublicKeyShare};
 <span class="kw">use </span>tokio::sync::mpsc;
-<span class="kw">use </span>tracing::error;
+<span class="kw">use </span>tracing::{error, info};
 
-<span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use super</span>::{db::NextECashNoteIndexKeyPrefix, <span class="kw-2">*</span>};
 <span class="kw">use </span><span class="kw">crate</span>::api;
-
-<span class="kw">const </span>BACKUP_CHILD_ID: u64 = <span class="number">0</span>;
-
-<span class="doccomment">/// Some helpers to make `ring::aead` usable
-</span><span class="kw">mod </span>aead {
-    <span class="kw">use </span>anyhow::{bail, <span class="prelude-ty">Result</span>};
-    <span class="kw">use </span>rand::rngs::OsRng;
-    <span class="kw">use </span>rand::Rng;
-    <span class="kw">use </span>ring::aead::Nonce;
-    <span class="kw">pub use </span>ring::aead::{Aad, LessSafeKey, UnboundKey, NONCE_LEN};
-
-    <span class="doccomment">/// Get a random nonce.
-    </span><span class="kw">pub fn </span>get_random_nonce() -&gt; ring::aead::Nonce {
-        Nonce::assume_unique_for_key(OsRng.gen())
-    }
-
-    <span class="doccomment">/// Encrypt `plaintext` using `key`.
-    ///
-    /// Prefixes the ciphertext with a nonce.
-    </span><span class="kw">pub fn </span>encrypt(<span class="kw-2">mut </span>plaintext: Vec&lt;u8&gt;, key: <span class="kw-2">&amp;</span>LessSafeKey) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
-        <span class="kw">let </span>nonce = get_random_nonce();
-        <span class="comment">// prefix ciphertext with nonce
-        </span><span class="kw">let </span><span class="kw-2">mut </span>ciphertext: Vec&lt;u8&gt; = nonce.as_ref().to_vec();
-
-        key.seal_in_place_append_tag(nonce, Aad::empty(), <span class="kw-2">&amp;mut </span>plaintext)
-            .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::format_err!</span>(<span class="string">&quot;Encryption failed due to unspecified aead error&quot;</span>))<span class="question-mark">?</span>;
-
-        ciphertext.append(<span class="kw-2">&amp;mut </span>plaintext);
-
-        <span class="prelude-val">Ok</span>(ciphertext)
-    }
-
-    <span class="doccomment">/// Decrypts a `ciphertext` using `key`.
-    ///
-    /// Expect nonce in the prefix, like [`encrypt`] produces.
-    </span><span class="kw">pub fn </span>decrypt&lt;<span class="lifetime">&#39;c</span>&gt;(ciphertext: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>[u8], key: <span class="kw-2">&amp;</span>LessSafeKey) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span>[u8]&gt; {
-        <span class="kw">if </span>ciphertext.len() &lt; NONCE_LEN {
-            <span class="macro">bail!</span>(<span class="string">&quot;Ciphertext too short: {}&quot;</span>, ciphertext.len());
-        }
-
-        <span class="kw">let </span>(nonce_bytes, encrypted_bytes) = ciphertext.split_at_mut(NONCE_LEN);
-
-        key.open_in_place(
-            Nonce::assume_unique_for_key(nonce_bytes.try_into().expect(<span class="string">&quot;nonce size known&quot;</span>)),
-            Aad::empty(),
-            encrypted_bytes,
-        )
-        .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::format_err!</span>(<span class="string">&quot;Decryption failed due to unspecified aead error&quot;</span>))<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(encrypted_bytes)
-    }
-}
 
 <span class="kw">impl </span>MintClient {
     <span class="doccomment">/// Prepare an encrypted backup and send it to federation for storing
@@ -814,22 +919,113 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub async fn </span>download_ecash_backup_from_federation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;PlaintextEcashBackup&gt; {
-        <span class="kw">let </span>encrypted = <span class="self">self
+    <span class="kw">pub async fn </span>restore_ecash_from_federation(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        gap_limit: usize,
+        task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Cancellable&lt;()&gt;&gt; {
+        <span class="kw">let </span>backup = <span class="kw">if let </span><span class="prelude-val">Some</span>(backup) = <span class="self">self</span>.download_ecash_backup_from_federation().<span class="kw">await</span><span class="question-mark">? </span>{
+            backup
+        } <span class="kw">else </span>{
+            <span class="macro">warn!</span>(<span class="string">&quot;Could not find any valid existing backup. Will attempt to restore from scratch. This might take a long time.&quot;</span>);
+            PlaintextEcashBackup::new_empty()
+        };
+
+        <span class="kw">let </span><span class="kw-2">mut </span>task_group = task_group.make_subgroup().<span class="kw">await</span>;
+
+        <span class="comment">// TODO: If the client attempts any operations between while the recovery is working,
+        // the recovery code will most probably miss them, which might lead to incorrect state.
+        // We should probably lock everything in some way during recovery for corectness.
+        </span><span class="kw">let </span>snapshot = <span class="kw">match </span><span class="self">self
+            </span>.restore_current_state_from_backup(<span class="kw-2">&amp;mut </span>task_group, backup, gap_limit)
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>{
+            <span class="prelude-val">Ok</span>(o) =&gt; o,
+            <span class="prelude-val">Err</span>(Cancelled) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(Cancelled)),
+        };
+
+        task_group.join_all().<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="macro">info!</span>(<span class="string">&quot;Writting out the recovered state to the database&quot;</span>);
+
+        <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self</span>.start_dbtx().<span class="kw">await</span>;
+
+        <span class="self">Self</span>::wipe_notes_static(<span class="kw-2">&amp;mut </span>dbtx).<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="kw">for </span>(amount, note) <span class="kw">in </span>snapshot.spendable_notes {
+            <span class="kw">let </span>key = CoinKey {
+                amount,
+                nonce: note.note.<span class="number">0</span>,
+            };
+            dbtx.insert_entry(<span class="kw-2">&amp;</span>key, <span class="kw-2">&amp;</span>note).<span class="kw">await</span>.expect(<span class="string">&quot;DB error&quot;</span>);
+        }
+
+        <span class="kw">for </span>(txid, issuance_requests) <span class="kw">in </span>snapshot.unconfirmed_notes {
+            dbtx.insert_entry(<span class="kw-2">&amp;</span>OutputFinalizationKey(txid), <span class="kw-2">&amp;</span>issuance_requests)
+                .<span class="kw">await
+                </span>.expect(<span class="string">&quot;DB Error&quot;</span>);
+        }
+
+        <span class="kw">for </span>(amount, note_idx) <span class="kw">in </span>snapshot.next_note_idx.iter() {
+            dbtx.insert_entry(<span class="kw-2">&amp;</span>NextECashNoteIndexKey(amount), <span class="kw-2">&amp;</span>note_idx.as_u64())
+                .<span class="kw">await
+                </span>.expect(<span class="string">&quot;DB Error&quot;</span>);
+        }
+        dbtx.commit_tx().<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(()))
+    }
+
+    <span class="kw">pub async fn </span>wipe_notes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self</span>.start_dbtx().<span class="kw">await</span>;
+        <span class="self">Self</span>::wipe_notes_static(<span class="kw-2">&amp;mut </span>dbtx).<span class="kw">await</span><span class="question-mark">?</span>;
+        dbtx.commit_tx().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Delete all the note-related data from the database
+    ///
+    /// Useful for cleaning previous data before restoring data recovered from backup.
+    </span><span class="kw">async fn </span>wipe_notes_static(dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        dbtx.remove_by_prefix(<span class="kw-2">&amp;</span>CoinKeyPrefix).<span class="kw">await</span><span class="question-mark">?</span>;
+        dbtx.remove_by_prefix(<span class="kw-2">&amp;</span>OutputFinalizationKeyPrefix).<span class="kw">await</span><span class="question-mark">?</span>;
+        dbtx.remove_by_prefix(<span class="kw-2">&amp;</span>NextECashNoteIndexKeyPrefix).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">pub async fn </span>download_ecash_backup_from_federation(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;PlaintextEcashBackup&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>responses: Vec&lt;<span class="kw">_</span>&gt; = <span class="self">self
             </span>.context
             .api
             .download_ecash_backup(<span class="kw-2">&amp;</span><span class="self">self</span>.get_derived_backup_signing_key().x_only_public_key().<span class="number">0</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.into_iter()
+            .filter_map(|backup| {
+                <span class="kw">match </span>EcashBackup(backup.data)
+                    .decrypt_with(<span class="kw-2">&amp;</span><span class="self">self</span>.get_derived_backup_encryption_key())
+                {
+                    <span class="prelude-val">Ok</span>(valid) =&gt; <span class="prelude-val">Some</span>(valid),
+                    <span class="prelude-val">Err</span>(e) =&gt; {
+                        <span class="macro">warn!</span>(<span class="string">&quot;Invalid backup returned by one of the peers: {e}&quot;</span>);
+                        <span class="prelude-val">None
+                    </span>}
+                }
+            })
+            .collect();
 
-        EcashBackup(encrypted).decrypt_with(<span class="kw-2">&amp;</span><span class="self">self</span>.get_derived_backup_encryption_key())
+        <span class="comment">// Use the newest (highest epoch)
+        </span>responses.sort_by_key(|backup| Reverse(backup.epoch));
+
+        <span class="prelude-val">Ok</span>(responses.into_iter().next())
     }
 
     <span class="doccomment">/// Static version of [`Self::get_derived_backup_encryption_key`] for testing without creating whole `MintClient`
     </span><span class="kw">fn </span>get_derived_backup_encryption_key_static(secret: <span class="kw-2">&amp;</span>DerivableSecret) -&gt; aead::LessSafeKey {
-        <span class="comment">// TODO: Do we need that one derivation level? This key is already derived for the mint itself, and internally another kdf will be done with key type tag.
-        </span>aead::LessSafeKey::new(
+        aead::LessSafeKey::new(
             secret
-                .child_key(ChildId(BACKUP_CHILD_ID))
+                .child_key(MINT_E_CASH_BACKUP_SNAPSHOT_TYPE_CHILD_ID)
                 .to_chacha20_poly1305_key(),
         )
     }
@@ -838,7 +1034,7 @@
     </span><span class="kw">fn </span>get_derived_backup_signing_key_static(secret: <span class="kw-2">&amp;</span>DerivableSecret) -&gt; secp256k1_zkp::KeyPair {
         <span class="comment">// TODO: Do we need that one derivation level? This key is already derived for the mint itself, and internally another kdf will be done with key type tag.
         </span>secret
-            .child_key(ChildId(BACKUP_CHILD_ID))
+            .child_key(MINT_E_CASH_BACKUP_SNAPSHOT_TYPE_CHILD_ID)
             .to_secp_key(<span class="kw-2">&amp;</span>Secp256k1::&lt;secp256k1::SignOnly&gt;::gen_new())
     }
 
@@ -857,6 +1053,12 @@
         <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self</span>.start_dbtx().<span class="kw">await</span>;
         <span class="kw">let </span>notes = <span class="self">self</span>.get_available_notes(<span class="kw-2">&amp;mut </span>dbtx).<span class="kw">await</span>;
 
+        <span class="kw">let </span>pending_notes: Vec&lt;<span class="kw">_</span>&gt; = dbtx
+            .find_by_prefix(<span class="kw-2">&amp;</span>OutputFinalizationKeyPrefix)
+            .<span class="kw">await
+            </span>.map(|res| res.expect(<span class="string">&quot;DB error&quot;</span>))
+            .collect();
+
         <span class="kw">let </span><span class="kw-2">mut </span>idxes = <span class="macro">vec!</span>[];
         <span class="kw">for </span><span class="kw-2">&amp;</span>amount <span class="kw">in </span><span class="self">self</span>.config.tbs_pks.tiers() {
             idxes.push((amount, <span class="self">self</span>.get_next_note_index(<span class="kw-2">&amp;mut </span>dbtx, amount).<span class="kw">await</span>));
@@ -865,6 +1067,7 @@
 
         <span class="prelude-val">Ok</span>(PlaintextEcashBackup {
             notes,
+            pending_notes,
             next_note_idx,
             epoch,
         })
@@ -893,13 +1096,15 @@
     </span><span class="kw">async fn </span>fetch_epochs(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         epoch_range: RangeInclusive&lt;u64&gt;,
-        sender: mpsc::Sender&lt;api::Result&lt;EpochHistory&gt;&gt;,
+        sender: mpsc::Sender&lt;api::Result&lt;SignedEpochOutcome&gt;&gt;,
         task_handle: <span class="kw-2">&amp;</span>TaskHandle,
     ) {
         <span class="kw">for </span>epoch <span class="kw">in </span>epoch_range {
             <span class="kw">if </span>task_handle.is_shutting_down() {
                 <span class="kw">break</span>;
             }
+
+            <span class="macro">info!</span>(epoch, <span class="string">&quot;Fetching epoch&quot;</span>);
 
             <span class="kw">match </span><span class="self">self
                 </span>.context
@@ -916,7 +1121,8 @@
                     }
                 }
                 <span class="prelude-val">Err</span>(e) =&gt; {
-                    <span class="kw">if </span>sender.send(<span class="prelude-val">Err</span>(e)).<span class="kw">await</span>.is_err() {
+                    <span class="comment">// TODO: retry?
+                    </span><span class="kw">if </span>sender.send(<span class="prelude-val">Err</span>(e)).<span class="kw">await</span>.is_err() {
                         <span class="kw">break</span>;
                     }
                 }
@@ -924,19 +1130,24 @@
         }
     }
 
-    <span class="kw">pub async fn </span>recovery_loop(
+    <span class="kw">pub async fn </span>restore_current_state_from_backup(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
         backup: PlaintextEcashBackup,
-        pub_key_shares: BTreeMap&lt;PeerId, Tiered&lt;PublicKeyShare&gt;&gt;,
-    ) -&gt; Cancellable&lt;<span class="prelude-ty">Result</span>&lt;()&gt;&gt; {
-        <span class="kw">let </span>end_epoch = <span class="kw">match </span><span class="self">self</span>.context.api.fetch_consensus_block_height().<span class="kw">await </span>{
+        gap_limit: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Cancellable&lt;EcashRecoveryFinalState&gt;&gt; {
+        <span class="kw">let </span>end_epoch = <span class="kw">match </span><span class="self">self</span>.context.api.fetch_last_epoch().<span class="kw">await </span>{
             <span class="prelude-val">Ok</span>(v) =&gt; v,
             <span class="prelude-val">Err</span>(e) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(e.into()));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(e.into());
             }
         };
         <span class="kw">let </span>epoch_range = backup.epoch..=end_epoch;
+
+        <span class="macro">info!</span>(
+            start_epoch = backup.epoch,
+            end_epoch, <span class="string">&quot;Recovering from snapshot&quot;
+        </span>);
 
         <span class="comment">// Since fetching epochs will be slow, we start a dedicated task to do it
         </span><span class="kw">let </span>(tx, <span class="kw-2">mut </span>rx) = mpsc::channel(<span class="number">10</span>);
@@ -952,33 +1163,41 @@
             })
             .<span class="kw">await</span>;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>nonce_tracker = EcashRecoveryNonceTracker::from_backup(
+        <span class="kw">let </span><span class="kw-2">mut </span>tracker = EcashRecoveryTracker::from_backup(
             backup,
             <span class="self">self</span>.secret.clone(),
-            <span class="number">1000</span>,
+            gap_limit,
             <span class="self">self</span>.config.tbs_pks.clone(),
-            pub_key_shares,
+            <span class="self">self</span>.config.peer_tbs_pks.clone(),
         );
 
         <span class="kw">for </span>epoch <span class="kw">in </span>epoch_range {
             <span class="comment">// if `recv` returned `None` that means fetch_epoch finished prematurelly,
             // withouth sending an `Err` which is supposed to mean `is_shutting_down() == true`
-            </span><span class="kw">let </span>epoch_history = <span class="kw">match </span>rx.recv().<span class="kw">await </span>{
+            </span><span class="macro">info!</span>(epoch, <span class="string">&quot;Awaiting epoch&quot;</span>);
+            <span class="kw">let </span>epoch_history = <span class="kw">match </span>rx.recv().<span class="kw">await </span>{
                 <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(o)) =&gt; o,
-                <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e)) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(e.into())),
-                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Cancelled),
+                <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e)) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e.into()),
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(Cancelled)),
             };
             <span class="macro">assert_eq!</span>(epoch_history.outcome.epoch, epoch);
 
+            <span class="macro">info!</span>(epoch, <span class="string">&quot;Processing epoch&quot;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>procesed_txs = Default::default();
             <span class="kw">for </span>(peer_id, items) <span class="kw">in </span><span class="kw-2">&amp;</span>epoch_history.outcome.items {
                 <span class="comment">// TODO: epoch history to contain rejected items, we should skip them here
                 </span><span class="kw">for </span>item <span class="kw">in </span>items {
-                    nonce_tracker.handle_consensus_item(peer_id, item);
+                    tracker.handle_consensus_item(
+                        <span class="kw-2">*</span>peer_id,
+                        item,
+                        <span class="kw-2">&amp;mut </span>procesed_txs,
+                        <span class="kw-2">&amp;</span>epoch_history.outcome.rejected_txs,
+                    );
                 }
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(()))
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(tracker.finalize()))
     }
 }
 
@@ -989,11 +1208,22 @@
 </span><span class="attr">#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>PlaintextEcashBackup {
     notes: TieredMulti&lt;SpendableNote&gt;,
+    pending_notes: Vec&lt;(OutputFinalizationKey, NoteIssuanceRequests)&gt;,
     epoch: u64,
     next_note_idx: Tiered&lt;NoteIndex&gt;,
 }
 
 <span class="kw">impl </span>PlaintextEcashBackup {
+    <span class="doccomment">/// An empty backup with, like a one created by a newly created client.
+    </span><span class="kw">fn </span>new_empty() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            notes: TieredMulti::default(),
+            pending_notes: <span class="macro">vec!</span>[],
+            epoch: <span class="number">0</span>,
+            next_note_idx: Tiered::default(),
+        }
+    }
+
     <span class="doccomment">/// Align an ecoded message size up for better privacy
     </span><span class="kw">fn </span>get_alignment_size(len: usize) -&gt; usize {
         <span class="comment">// TODO: should we align to power of 2 instead?
@@ -1003,8 +1233,7 @@
 
     <span class="doccomment">/// Encode `self` to a padded (but still plaintext) message
     </span><span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>bytes = <span class="macro">vec!</span>[];
-        <span class="self">self</span>.consensus_encode(<span class="kw-2">&amp;mut </span>bytes)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = <span class="self">self</span>.consensus_encode_to_vec()<span class="question-mark">?</span>;
 
         <span class="kw">let </span>padding_size = <span class="self">Self</span>::get_alignment_size(bytes.len()) - bytes.len();
 
@@ -1013,7 +1242,7 @@
         <span class="prelude-val">Ok</span>(bytes)
     }
 
-    <span class="doccomment">/// Decode from a plaintext (possibly aligned) message
+    <span class="doccomment">/// Decode from a plaintexet (possibly aligned) message
     </span><span class="kw">fn </span>decode(msg: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="prelude-val">Ok</span>(Decodable::consensus_decode(
             <span class="kw-2">&amp;mut &amp;</span>msg[..],
@@ -1050,8 +1279,26 @@
     }
 }
 
-<span class="doccomment">/// The state machine used for fast-fowarding backup from point when it was taken to the present time.
-</span><span class="kw">struct </span>EcashRecoveryNonceTracker {
+<span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>EcashRecoveryFinalState {
+    <span class="doccomment">/// Nonces that we track that are currently spendable.
+    </span>spendable_notes: Vec&lt;(Amount, SpendableNote)&gt;,
+
+    <span class="doccomment">/// Unsigned notes
+    </span>unconfirmed_notes: Vec&lt;(OutPoint, NoteIssuanceRequests)&gt;,
+
+    <span class="doccomment">/// Note index to derive next note in a given amount tier
+    </span>next_note_idx: Tiered&lt;NoteIndex&gt;,
+}
+
+<span class="doccomment">/// The state machine used for fast-fowarding backup from point when it was taken to the present time
+/// by following epoch history items from the time the snapshot was taken.
+///
+/// The caller is responsible for creating it, and then feeding it in order all valid
+/// consensus items from the epoch history between time taken (or even somewhat before it) and
+/// present time.
+</span><span class="attr">#[derive(Debug)]
+</span><span class="kw">struct </span>EcashRecoveryTracker {
     <span class="doccomment">/// Nonces that we track that are currently spendable.
     </span>spendable_note_by_nonce: HashMap&lt;Nonce, (Amount, SpendableNote)&gt;,
 
@@ -1108,7 +1355,7 @@
     </span>gap_limit: usize,
 }
 
-<span class="kw">impl </span>EcashRecoveryNonceTracker {
+<span class="kw">impl </span>EcashRecoveryTracker {
     <span class="kw">pub fn </span>from_backup(
         backup: PlaintextEcashBackup,
         mint_secret: DerivableSecret,
@@ -1116,6 +1363,7 @@
         tbs_pks: Tiered&lt;AggregatePublicKey&gt;,
         pub_key_shares: BTreeMap&lt;PeerId, Tiered&lt;PublicKeyShare&gt;&gt;,
     ) -&gt; <span class="self">Self </span>{
+        <span class="macro">assert_eq!</span>(mint_secret.level(), <span class="number">1</span>);
         <span class="kw">let </span>amount_tiers: Vec&lt;<span class="kw">_</span>&gt; = tbs_pks.tiers().copied().collect();
         <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="self">Self </span>{
             spendable_note_by_nonce: backup
@@ -1123,8 +1371,25 @@
                 .into_iter()
                 .map(|(amount, note)| (note.note.<span class="number">0</span>, (amount, note)))
                 .collect(),
-            <span class="comment">// TODO: needs to get these in a backup as well
-            </span>pending_outputs: HashMap::default(),
+            pending_outputs: backup
+                .pending_notes
+                .into_iter()
+                .map(|(finalization_key, issuance_requests)| {
+                    (
+                        finalization_key.<span class="number">0</span>,
+                        (
+                            issuance_requests
+                                .coins
+                                .iter_items()
+                                .map(|(amount, iss_req)| {
+                                    (amount, (iss_req.recover_blind_nonce().<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="kw-2">*</span>iss_req)))
+                                })
+                                .collect(),
+                            HashMap::default(),
+                        ),
+                    )
+                })
+                .collect(),
             pending_nonces: HashMap::default(),
             next_pending_note_idx: backup.next_note_idx.clone(),
             last_mined_nonce_idx: backup.next_note_idx,
@@ -1144,6 +1409,7 @@
 
     <span class="doccomment">/// Fill each tier pool to the gap limit
     </span><span class="kw">fn </span>fill_initial_pending_nonces(<span class="kw-2">&amp;mut </span><span class="self">self</span>, amount: Amount) {
+        <span class="macro">info!</span>(%amount, count=<span class="self">self</span>.gap_limit, <span class="string">&quot;Generating initial set of nonces for amount tier&quot;</span>);
         <span class="kw">for _ in </span><span class="number">0</span>..<span class="self">self</span>.gap_limit {
             <span class="self">self</span>.add_next_pending_nonce_in_pending_pool(amount);
         }
@@ -1203,9 +1469,7 @@
 
                         <span class="kw">if </span>pending_amount == amount_from_output {
                             found.push((amount_from_output, (nonce.<span class="number">0</span>, <span class="prelude-val">Some</span>(issuance_request))));
-                            <span class="comment">// replenish pending pool with the nonce of the same amount
-
-                            </span>(found, missing, wrong)
+                            (found, missing, wrong)
                         } <span class="kw">else </span>{
                             <span class="comment">// put it back, incorrect amount
                             </span><span class="self">self</span>.pending_nonces
@@ -1273,14 +1537,11 @@
     /// (Possibly) increment the `self.last_mined_nonce_idx`, then replenish the pending pool
     /// to always maintain at least `gap_limit` of pending onces in each amount tier.
     </span><span class="kw">fn </span>observe_nonce_idx_being_used(<span class="kw-2">&amp;mut </span><span class="self">self</span>, amount: Amount, note_idx: NoteIndex) {
-        <span class="kw-2">*</span><span class="self">self
-            </span>.last_mined_nonce_idx
-            .get_mut(amount)
-            .expect(<span class="string">&quot;must have all amounts&quot;</span>) = max(
-            <span class="kw-2">*</span><span class="self">self
-                </span>.last_mined_nonce_idx
+        <span class="kw-2">*</span><span class="self">self</span>.last_mined_nonce_idx.entry(amount).or_default() = max(
+            <span class="self">self</span>.last_mined_nonce_idx
                 .get(amount)
-                .expect(<span class="string">&quot;must have all amounts&quot;</span>),
+                .copied()
+                .unwrap_or_default(),
             note_idx,
         );
 
@@ -1361,7 +1622,7 @@
                 .expect(<span class="string">&quot;must be in the map already&quot;</span>);
 
             <span class="kw">for </span>(item_i, (item_amt, item)) <span class="kw">in </span>output_data.iter_items().enumerate() {
-                <span class="kw">let </span>iss_request = <span class="kw">if let </span><span class="prelude-val">Some</span>(iss_request) = item.<span class="number">1</span>.clone() {
+                <span class="kw">let </span>iss_request = <span class="kw">if let </span><span class="prelude-val">Some</span>(iss_request) = item.<span class="number">1 </span>{
                     iss_request
                 } <span class="kw">else </span>{
                     <span class="comment">// Items without issuance request are ones we don&#39;t consider ours
@@ -1392,11 +1653,30 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>handle_consensus_item(<span class="kw-2">&amp;mut </span><span class="self">self</span>, peer_id: <span class="kw-2">&amp;</span>PeerId, item: <span class="kw-2">&amp;</span>ConsensusItem) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>handle_consensus_item(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        peer_id: PeerId,
+        item: <span class="kw-2">&amp;</span>ConsensusItem,
+        processed_txs: <span class="kw-2">&amp;mut </span>HashSet&lt;TransactionId&gt;,
+        rejected_txs: <span class="kw-2">&amp;</span>BTreeSet&lt;TransactionId&gt;,
+    ) {
         <span class="kw">match </span>item {
-            ConsensusItem::EpochInfo(<span class="kw">_</span>) =&gt; {}
+            ConsensusItem::EpochOutcomeSignatureShare(<span class="kw">_</span>) =&gt; {}
             ConsensusItem::Transaction(tx) =&gt; {
                 <span class="kw">let </span>txid = tx.tx_hash();
+
+                <span class="kw">if </span>!processed_txs.insert(txid) {
+                    <span class="comment">// Just like server side consensus, do not attempt to process the same transaction twice.
+                    </span><span class="kw">return</span>;
+                }
+
+                <span class="kw">if </span>rejected_txs.contains(<span class="kw-2">&amp;</span>txid) {
+                    <span class="comment">// Do not process invalid transactions.
+                    // Consensus history contains all data proposed by each peer, even invalid (e.g. due to double spent)
+                    // transactions. Precisely to save downstream users from having to run the consensus themselves,
+                    // each epoch contains a list of transactions  that turned out to be invalid.
+                    </span><span class="kw">return</span>;
+                }
 
                 <span class="kw">for </span>input <span class="kw">in </span><span class="kw-2">&amp;</span>tx.inputs {
                     <span class="kw">if </span>input.module_key() == MODULE_KEY_MINT {
@@ -1410,18 +1690,20 @@
                 }
 
                 <span class="kw">for </span>(out_idx, output) <span class="kw">in </span>tx.outputs.iter().enumerate() {
-                    <span class="kw">let </span>output = output
-                        .as_any()
-                        .downcast_ref::&lt;MintOutput&gt;()
-                        .expect(<span class="string">&quot;mint key just checked&quot;</span>);
+                    <span class="kw">if </span>output.module_key() == MODULE_KEY_MINT {
+                        <span class="kw">let </span>output = output
+                            .as_any()
+                            .downcast_ref::&lt;MintOutput&gt;()
+                            .expect(<span class="string">&quot;mint key just checked&quot;</span>);
 
-                    <span class="self">self</span>.handle_output(
-                        OutPoint {
-                            txid,
-                            out_idx: out_idx <span class="kw">as </span>u64,
-                        },
-                        output,
-                    );
+                        <span class="self">self</span>.handle_output(
+                            OutPoint {
+                                txid,
+                                out_idx: out_idx <span class="kw">as </span>u64,
+                            },
+                            output,
+                        );
+                    }
                 }
             }
             ConsensusItem::Module(module_item) =&gt; {
@@ -1431,9 +1713,41 @@
                         .downcast_ref::&lt;MintOutputConfirmation&gt;()
                         .expect(<span class="string">&quot;mint key just checked&quot;</span>);
 
-                    <span class="self">self</span>.handle_output_confirmation(<span class="kw-2">*</span>peer_id, mint_item);
+                    <span class="self">self</span>.handle_output_confirmation(peer_id, mint_item);
                 }
             }
+        }
+    }
+
+    <span class="kw">fn </span>finalize(<span class="self">self</span>) -&gt; EcashRecoveryFinalState {
+        EcashRecoveryFinalState {
+            spendable_notes: <span class="self">self
+                </span>.spendable_note_by_nonce
+                .into_iter()
+                .map(|(_nonce, (amount, snote))| (amount, snote))
+                .collect(),
+            unconfirmed_notes: <span class="self">self
+                </span>.pending_outputs
+                .into_iter()
+                .map(|(out_point, data)| {
+                    (
+                        out_point,
+                        NoteIssuanceRequests {
+                            coins: TieredMulti::from_iter(data.<span class="number">0</span>.into_iter_items().filter_map(
+                                |(amount, (_bn, opt_note_iss_req))| {
+                                    opt_note_iss_req.map(|iss_req| (amount, iss_req))
+                                },
+                            )),
+                        },
+                    )
+                })
+                .collect(),
+            <span class="comment">// next note idx is the last one detected as used + 1
+            </span>next_note_idx: Tiered::from_iter(
+                <span class="self">self</span>.last_mined_nonce_idx
+                    .iter()
+                    .map(|(amount, value)| (amount, value.next())),
+            ),
         }
     }
 }
@@ -1441,4 +1755,4 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="mint_client" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0-nightly (7632db0e8 2022-12-08)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="mint_client" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (ad8ae0504 2022-12-29)" data-search-js="search-181581080540673f.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-58836c674e2f7bd2.css" ></div></body></html>

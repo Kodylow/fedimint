@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `client/client-lib/src/mint/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-d32a9866c4c3e823.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-046227e470cd3629.css"><link rel="stylesheet" disabled href="../../../static.files/dark-800f2ee593c8e6f7.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-9edae3c387f5a5b3.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-287cecec4dbb45b0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../mint_client/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `client/client-lib/src/mint/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1e2b7c35f427742c.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-bb5b51a242922cfa.css"><link rel="stylesheet" disabled href="../../../static.files/dark-4f2b7151e76e78d6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-07d82ab1a93c2170.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-4a084badb5778746.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../mint_client/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1013,9 +1013,52 @@
 <a href="#1013" id="1013">1013</a>
 <a href="#1014" id="1014">1014</a>
 <a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a>
+<a href="#1038" id="1038">1038</a>
+<a href="#1039" id="1039">1039</a>
+<a href="#1040" id="1040">1040</a>
+<a href="#1041" id="1041">1041</a>
+<a href="#1042" id="1042">1042</a>
+<a href="#1043" id="1043">1043</a>
+<a href="#1044" id="1044">1044</a>
+<a href="#1045" id="1045">1045</a>
+<a href="#1046" id="1046">1046</a>
+<a href="#1047" id="1047">1047</a>
+<a href="#1048" id="1048">1048</a>
+<a href="#1049" id="1049">1049</a>
+<a href="#1050" id="1050">1050</a>
+<a href="#1051" id="1051">1051</a>
+<a href="#1052" id="1052">1052</a>
+<a href="#1053" id="1053">1053</a>
+<a href="#1054" id="1054">1054</a>
+<a href="#1055" id="1055">1055</a>
+<a href="#1056" id="1056">1056</a>
+<a href="#1057" id="1057">1057</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>db;
 
 <span class="kw">use </span>std::borrow::Cow;
+<span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>std::time::Duration;
 
@@ -1033,8 +1076,6 @@
     BlindNonce, Mint, MintInput, MintOutput, MintOutputOutcome, Nonce, Note, OutputOutcome,
 };
 <span class="kw">use </span>fedimint_core::transaction::legacy::{Input, Output, Transaction};
-<span class="kw">use </span>futures::stream::FuturesUnordered;
-<span class="kw">use </span>futures::StreamExt;
 <span class="kw">use </span>secp256k1_zkp::{KeyPair, Secp256k1, Signing};
 <span class="kw">use </span>serde::de::Error;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -1043,14 +1084,14 @@
 <span class="kw">use </span>tracing::{debug, trace, warn};
 
 <span class="kw">use </span><span class="kw">crate</span>::api::ApiError;
-<span class="kw">use </span><span class="kw">crate</span>::mint::db::{NextECashNoteIndexKey, PendingCoinsKey};
+<span class="kw">use </span><span class="kw">crate</span>::mint::db::{NextECashNoteIndexKey, NotesPerDenominationKey, PendingCoinsKey};
 <span class="kw">use </span><span class="kw">crate</span>::utils::ClientContext;
-<span class="kw">use crate</span>::{ChildId, DerivableSecret};
+<span class="kw">use crate</span>::{ChildId, DerivableSecret, MintModuleDecoder};
 
 <span class="kw">pub mod </span>backup;
 
 <span class="kw">const </span>MINT_E_CASH_TYPE_CHILD_ID: ChildId = ChildId(<span class="number">0</span>);
-<span class="kw">const </span>TARGET_DENOMINATION_SETS: u16 = <span class="number">1</span>;
+<span class="kw">const </span>MINT_E_CASH_BACKUP_SNAPSHOT_TYPE_CHILD_ID: ChildId = ChildId(<span class="number">1</span>);
 
 <span class="doccomment">/// Federation module client for the Mint module. It can both create transaction inputs and outputs
 /// of the mint type.
@@ -1105,11 +1146,16 @@
     }
 }
 
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>NoteIndex {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="self">self</span>.<span class="number">0</span>.fmt(f)
+    }
+}
 <span class="doccomment">/// Single [`Note`] issuance request to the mint.
 ///
 /// Keeps the data to generate [`SpendableNote`] once the
 /// mint successfully processed the transaction signing the corresponding [`BlindNonce`].
-</span><span class="attr">#[derive(Debug, Clone, Deserialize, Serialize, Encodable, Decodable)]
+</span><span class="attr">#[derive(Debug, Copy, Clone, PartialEq, Eq, Deserialize, Serialize, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>NoteIssuanceRequest {
     <span class="doccomment">/// Spend key from which the coin nonce (corresponding public key) is derived
     </span>spend_key: KeyPair,
@@ -1146,14 +1192,14 @@
 ///
 /// Keeps all the data to generate [`SpendableNote`]s once the
 /// mint successfully processed corresponding [`NoteIssuanceRequest`]s.
-</span><span class="attr">#[derive(Debug, Clone, Default, Deserialize, Serialize, Encodable, Decodable)]
+</span><span class="attr">#[derive(Debug, Clone, Default, PartialEq, Eq, Deserialize, Serialize, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>NoteIssuanceRequests {
     <span class="doccomment">/// Finalization data for all coin outputs in this request
     </span>coins: TieredMulti&lt;NoteIssuanceRequest&gt;,
 }
 
 <span class="doccomment">/// A [`Note`] with associated secret key that allows to proof ownership (spend it)
-</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize, Encodable, Decodable)]
+</span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>SpendableNote {
     <span class="kw">pub </span>note: Note,
     <span class="attr">#[serde(deserialize_with = <span class="string">&quot;deserialize_key_pair&quot;</span>)]
@@ -1164,6 +1210,10 @@
     <span class="kw">type </span>Decoder = &lt;Mint <span class="kw">as </span>ServerModulePlugin&gt;::Decoder;
     <span class="kw">type </span>Module = Mint;
     <span class="kw">const </span>MODULE_KEY: ModuleKey = MODULE_KEY_MINT;
+
+    <span class="kw">fn </span>decoder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self</span>::Decoder {
+        <span class="kw-2">&amp;</span>MintModuleDecoder
+    }
 
     <span class="kw">fn </span>input_amount(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -1197,11 +1247,7 @@
     <span class="doccomment">/// Adds the final amounts of `change` to the tx before submitting it
     /// Allows for multiple `change` outputs
     </span><span class="kw">pub async fn </span>finalize_change(<span class="kw-2">&amp;</span><span class="self">self</span>, tx: <span class="kw-2">&amp;mut </span>Transaction, change: Vec&lt;Amount&gt;) {
-        <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self
-            </span>.context
-            .db
-            .begin_transaction(ModuleDecoderRegistry::default())
-            .<span class="kw">await</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self</span>.start_dbtx().<span class="kw">await</span>;
 
         <span class="comment">// remove the spent ecash from the DB
         </span><span class="kw">let </span><span class="kw-2">mut </span>input_ecash: Vec&lt;(Amount, SpendableNote)&gt; = <span class="macro">vec!</span>[];
@@ -1224,8 +1270,11 @@
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>change_outputs: Vec&lt;(usize, NoteIssuanceRequests)&gt; = <span class="macro">vec!</span>[];
+        <span class="kw">let </span>notes_per_denomination = <span class="self">self</span>.notes_per_denomination(<span class="kw-2">&amp;mut </span>dbtx).<span class="kw">await</span>;
         <span class="kw">for </span>amount <span class="kw">in </span>change {
-            <span class="kw">let </span>(issuances, nonces) = <span class="self">self</span>.create_ecash(amount).<span class="kw">await</span>;
+            <span class="kw">let </span>(issuances, nonces) = <span class="self">self
+                </span>.create_ecash(amount, notes_per_denomination, <span class="kw-2">&amp;mut </span>dbtx)
+                .<span class="kw">await</span>;
             <span class="kw">let </span>out_idx = tx.outputs.len();
             tx.outputs.push(Output::Mint(MintOutput(nonces)));
             change_outputs.push((out_idx, issuances));
@@ -1256,10 +1305,27 @@
         dbtx.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB Error&quot;</span>);
     }
 
+    <span class="kw">pub async fn </span>set_notes_per_denomination(<span class="kw-2">&amp;</span><span class="self">self</span>, notes: u16) {
+        <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self</span>.start_dbtx().<span class="kw">await</span>;
+        dbtx.insert_entry(<span class="kw-2">&amp;</span>NotesPerDenominationKey, <span class="kw-2">&amp;</span>notes)
+            .<span class="kw">await
+            </span>.expect(<span class="string">&quot;DB error&quot;</span>);
+        dbtx.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB error&quot;</span>);
+    }
+
+    <span class="kw">async fn </span>notes_per_denomination(<span class="kw-2">&amp;</span><span class="self">self</span>, dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; u16 {
+        dbtx.get_value(<span class="kw-2">&amp;</span>NotesPerDenominationKey)
+            .<span class="kw">await
+            </span>.expect(<span class="string">&quot;DB Error&quot;</span>)
+            .unwrap_or(<span class="self">self</span>.config.max_notes_per_denomination - <span class="number">1</span>)
+    }
+
     <span class="doccomment">/// Generates unsigned ecash, along with the private keys that can spend it
     </span><span class="kw">async fn </span>create_ecash(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         amount: Amount,
+        notes_per_denomination: u16,
+        dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;,
     ) -&gt; (NoteIssuanceRequests, TieredMulti&lt;BlindNonce&gt;) {
         <span class="kw">let </span><span class="kw-2">mut </span>amount_requests: Vec&lt;((Amount, NoteIssuanceRequest), (Amount, BlindNonce))&gt; =
             Vec::new();
@@ -1267,11 +1333,12 @@
             amount,
             <span class="kw-2">&amp;</span><span class="self">self</span>.coins().<span class="kw">await</span>,
             <span class="kw-2">&amp;</span><span class="self">self</span>.config.tbs_pks,
-            TARGET_DENOMINATION_SETS,
+            notes_per_denomination,
         );
         <span class="kw">for </span>(amt, num) <span class="kw">in </span>denominations.iter() {
             <span class="kw">for _ in </span><span class="number">0</span>..<span class="kw-2">*</span>num {
-                <span class="kw">let </span>(request, blind_nonce) = <span class="self">self</span>.new_ecash_note(<span class="kw-2">&amp;</span><span class="self">self</span>.context.secp, amt).<span class="kw">await</span>;
+                <span class="kw">let </span>(request, blind_nonce) =
+                    <span class="self">self</span>.new_ecash_note(<span class="kw-2">&amp;</span><span class="self">self</span>.context.secp, amt, dbtx).<span class="kw">await</span>;
                 amount_requests.push(((amt, request), (amt, blind_nonce)));
             }
         }
@@ -1349,19 +1416,15 @@
         )
     }
 
-    <span class="kw">async fn </span>new_note_secret(<span class="kw-2">&amp;</span><span class="self">self</span>, amount: Amount) -&gt; DerivableSecret {
-        <span class="kw">let </span><span class="kw-2">mut </span>new_idx;
-        <span class="kw">loop </span>{
-            <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self</span>.start_dbtx().<span class="kw">await</span>;
-            new_idx = <span class="self">self</span>.get_next_note_index(<span class="kw-2">&amp;mut </span>dbtx, amount).<span class="kw">await</span>;
-            dbtx.insert_entry(<span class="kw-2">&amp;</span>NextECashNoteIndexKey(amount), <span class="kw-2">&amp;</span>new_idx.next().as_u64())
-                .<span class="kw">await
-                </span>.expect(<span class="string">&quot;DB error&quot;</span>);
-            <span class="kw">if </span>dbtx.commit_tx().<span class="kw">await</span>.is_ok() {
-                <span class="kw">break</span>;
-            }
-        }
-
+    <span class="kw">async fn </span>new_note_secret(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        amount: Amount,
+        dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; DerivableSecret {
+        <span class="kw">let </span>new_idx = <span class="self">self</span>.get_next_note_index(dbtx, amount).<span class="kw">await</span>;
+        dbtx.insert_entry(<span class="kw-2">&amp;</span>NextECashNoteIndexKey(amount), <span class="kw-2">&amp;</span>new_idx.next().as_u64())
+            .<span class="kw">await
+            </span>.expect(<span class="string">&quot;DB Error&quot;</span>);
         <span class="self">Self</span>::new_note_secret_static(<span class="kw-2">&amp;</span><span class="self">self</span>.secret, amount, new_idx)
     }
 
@@ -1373,6 +1436,8 @@
         amount: Amount,
         note_idx: NoteIndex,
     ) -&gt; DerivableSecret {
+        <span class="macro">assert_eq!</span>(secret.level(), <span class="number">1</span>);
+        <span class="macro">debug!</span>(<span class="question-mark">?</span>secret, %amount, %note_idx, <span class="string">&quot;Deriving new mint note&quot;</span>);
         secret
             .child_key(MINT_E_CASH_TYPE_CHILD_ID) <span class="comment">// TODO: cache
             </span>.child_key(ChildId(amount.msats))
@@ -1384,8 +1449,9 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         ctx: <span class="kw-2">&amp;</span>Secp256k1&lt;C&gt;,
         amount: Amount,
+        dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;,
     ) -&gt; (NoteIssuanceRequest, BlindNonce) {
-        <span class="kw">let </span>secret = <span class="self">self</span>.new_note_secret(amount).<span class="kw">await</span>;
+        <span class="kw">let </span>secret = <span class="self">self</span>.new_note_secret(amount, dbtx).<span class="kw">await</span>;
         NoteIssuanceRequest::new(ctx, secret)
     }
 
@@ -1407,7 +1473,10 @@
         </span>F: FnMut(TieredMulti&lt;BlindNonce&gt;) -&gt; Fut,
         Fut: futures::Future&lt;Output = OutPoint&gt;,
     {
-        <span class="kw">let </span>(finalization, coins) = <span class="self">self</span>.create_ecash(amount).<span class="kw">await</span>;
+        <span class="kw">let </span>notes_per_denomination = <span class="self">self</span>.notes_per_denomination(dbtx).<span class="kw">await</span>;
+        <span class="kw">let </span>(finalization, coins) = <span class="self">self
+            </span>.create_ecash(amount, notes_per_denomination, dbtx)
+            .<span class="kw">await</span>;
         <span class="kw">let </span>out_point = create_tx(coins).<span class="kw">await</span>;
         dbtx.insert_new_entry(<span class="kw-2">&amp;</span>OutputFinalizationKey(out_point), <span class="kw-2">&amp;</span>finalization)
             .<span class="kw">await
@@ -1477,35 +1546,36 @@
             <span class="kw">return </span>Vec::new();
         }
 
-        <span class="kw">let </span>stream = active_issuances
-            .into_iter()
-            .map(|(out_point, <span class="kw">_</span>)| <span class="kw">async move </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>results: Vec&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>&gt;&gt; = Vec::new();
+        <span class="kw">for </span>(out_point, <span class="kw">_</span>) <span class="kw">in </span>active_issuances.into_iter() {
+            <span class="kw">loop </span>{
                 <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self
                     </span>.context
                     .db
                     .begin_transaction(ModuleDecoderRegistry::default())
                     .<span class="kw">await</span>;
-                <span class="kw">loop </span>{
-                    <span class="kw">match </span><span class="self">self</span>.fetch_coins(<span class="kw-2">&amp;mut </span>dbtx, out_point).<span class="kw">await </span>{
-                        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
-                            dbtx.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB Error&quot;</span>);
-                            <span class="kw">return </span><span class="prelude-val">Ok</span>(out_point);
-                        }
-                        <span class="comment">// TODO: make mint error more expressive (currently any HTTP error) and maybe use custom return type instead of error for retrying
-                        </span><span class="prelude-val">Err</span>(e) <span class="kw">if </span>e.is_retryable() =&gt; {
-                            <span class="macro">trace!</span>(<span class="string">&quot;Mint returned retryable error: {:?}&quot;</span>, e);
-                            fedimint_api::task::sleep(Duration::from_secs(<span class="number">1</span>)).<span class="kw">await
-                        </span>}
-                        <span class="prelude-val">Err</span>(e) =&gt; {
-                            <span class="macro">warn!</span>(<span class="string">&quot;Mint returned error: {:?}&quot;</span>, e);
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(e);
-                        }
+                <span class="kw">match </span><span class="self">self</span>.fetch_coins(<span class="kw-2">&amp;mut </span>dbtx, out_point).<span class="kw">await </span>{
+                    <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
+                        dbtx.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB Error&quot;</span>);
+                        results.push(<span class="prelude-val">Ok</span>(out_point));
+                        <span class="kw">break</span>;
+                    }
+                    <span class="comment">// TODO: make mint error more expressive (currently any HTTP error) and maybe use custom return type instead of error for retrying
+                    </span><span class="prelude-val">Err</span>(e) <span class="kw">if </span>e.is_retryable() =&gt; {
+                        <span class="macro">trace!</span>(<span class="string">&quot;Mint returned retryable error: {:?}&quot;</span>, e);
+                        fedimint_api::task::sleep(Duration::from_secs(<span class="number">1</span>)).<span class="kw">await
+                    </span>}
+                    <span class="prelude-val">Err</span>(e) =&gt; {
+                        <span class="macro">warn!</span>(<span class="string">&quot;Mint returned error: {:?}&quot;</span>, e);
+                        results.push(<span class="prelude-val">Err</span>(e));
+                        <span class="kw">break</span>;
                     }
                 }
-            })
-            .collect::&lt;FuturesUnordered&lt;<span class="kw">_</span>&gt;&gt;();
-        stream.collect::&lt;Vec&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>&gt;&gt;&gt;().<span class="kw">await
-    </span>}
+            }
+        }
+
+        results
+    }
 }
 
 <span class="kw">impl </span>Extend&lt;(Amount, NoteIssuanceRequest)&gt; <span class="kw">for </span>NoteIssuanceRequests {
@@ -1650,24 +1720,27 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use </span>std::collections::HashSet;
+    <span class="kw">use </span>std::collections::{BTreeMap, HashSet};
     <span class="kw">use </span>std::sync::Arc;
 
     <span class="kw">use </span>async_trait::async_trait;
     <span class="kw">use </span>bitcoin::hashes::Hash;
     <span class="kw">use </span>bitcoin::Address;
     <span class="kw">use </span>fedimint_api::backup::SignedBackupRequest;
-    <span class="kw">use </span>fedimint_api::config::ModuleConfigGenParams;
+    <span class="kw">use </span>fedimint_api::config::ConfigGenParams;
     <span class="kw">use </span>fedimint_api::db::mem_impl::MemDatabase;
     <span class="kw">use </span>fedimint_api::db::Database;
     <span class="kw">use </span>fedimint_api::module::registry::ModuleDecoderRegistry;
     <span class="kw">use </span>fedimint_api::{Amount, OutPoint, Tiered, TransactionId};
-    <span class="kw">use </span>fedimint_core::epoch::EpochHistory;
+    <span class="kw">use </span>fedimint_core::epoch::SignedEpochOutcome;
     <span class="kw">use </span>fedimint_core::modules::ln::contracts::incoming::IncomingContractOffer;
     <span class="kw">use </span>fedimint_core::modules::ln::contracts::ContractId;
     <span class="kw">use </span>fedimint_core::modules::ln::{ContractAccount, LightningGateway};
     <span class="kw">use </span>fedimint_core::modules::mint::config::MintClientConfig;
-    <span class="kw">use </span>fedimint_core::modules::mint::{Mint, MintConfigGenerator, MintOutput};
+    <span class="kw">use </span>fedimint_core::modules::mint::db::ECashUserBackupSnapshot;
+    <span class="kw">use </span>fedimint_core::modules::mint::{
+        Mint, MintConfigGenParams, MintConfigGenerator, MintOutput,
+    };
     <span class="kw">use </span>fedimint_core::modules::wallet::PegOutFees;
     <span class="kw">use </span>fedimint_core::outcome::{SerdeOutputOutcome, TransactionStatus};
     <span class="kw">use </span>fedimint_core::transaction::legacy::Input;
@@ -1680,6 +1753,7 @@
     <span class="kw">use </span><span class="kw">crate</span>::mint::MintClient;
     <span class="kw">use crate</span>::{
         BlindNonce, ClientContext, DerivableSecret, LegacyTransaction, TransactionBuilder,
+        MINT_SECRET_CHILD_ID,
     };
 
     <span class="kw">type </span>Fed = FakeFed&lt;Mint&gt;;
@@ -1756,7 +1830,7 @@
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             _epoch: u64,
             _pk: PublicKey,
-        ) -&gt; <span class="kw">crate</span>::api::Result&lt;EpochHistory&gt; {
+        ) -&gt; <span class="kw">crate</span>::api::Result&lt;SignedEpochOutcome&gt; {
             <span class="macro">unimplemented!</span>()
         }
 
@@ -1781,7 +1855,7 @@
         <span class="kw">async fn </span>download_ecash_backup(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             _id: <span class="kw-2">&amp;</span>secp256k1::XOnlyPublicKey,
-        ) -&gt; <span class="kw">crate</span>::api::Result&lt;Vec&lt;u8&gt;&gt; {
+        ) -&gt; <span class="kw">crate</span>::api::Result&lt;Vec&lt;ECashUserBackupSnapshot&gt;&gt; {
             <span class="macro">unimplemented!</span>()
         }
     }
@@ -1795,10 +1869,13 @@
             FakeFed::&lt;Mint&gt;::new(
                 <span class="number">4</span>,
                 |cfg, _db| <span class="kw">async move </span>{ <span class="prelude-val">Ok</span>(Mint::new(cfg.to_typed().unwrap())) },
-                <span class="kw-2">&amp;</span>ModuleConfigGenParams {
-                    mint_amounts: <span class="macro">vec!</span>[Amount::from_sats(<span class="number">1</span>), Amount::from_sats(<span class="number">10</span>)],
-                    ..ModuleConfigGenParams::fake_config_gen_params()
-                },
+                <span class="kw-2">&amp;</span>ConfigGenParams::new().attach(MintConfigGenParams {
+                    mint_amounts: <span class="macro">vec!</span>[
+                        Amount::from_sats(<span class="number">1</span>),
+                        Amount::from_sats(<span class="number">10</span>),
+                        Amount::from_sats(<span class="number">20</span>),
+                    ],
+                }),
                 <span class="kw-2">&amp;</span>MintConfigGenerator,
             )
             .<span class="kw">await
@@ -1855,7 +1932,7 @@
             epoch_pk: threshold_crypto::SecretKey::random().public_key(),
             config: client_config,
             context: context.clone(),
-            secret: DerivableSecret::new_root(<span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[]),
+            secret: DerivableSecret::new_root(<span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[]).child_key(MINT_SECRET_CHILD_ID),
         };
 
         <span class="kw">const </span>ISSUE_AMOUNT: Amount = Amount::from_sats(<span class="number">12</span>);
@@ -1875,7 +1952,7 @@
             epoch_pk: threshold_crypto::SecretKey::random().public_key(),
             config: client_config,
             context: context.clone(),
-            secret: DerivableSecret::new_root(<span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[]),
+            secret: DerivableSecret::new_root(<span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[]).child_key(MINT_SECRET_CHILD_ID),
         };
 
         issue_tokens(<span class="kw-2">&amp;</span>fed, <span class="kw-2">&amp;</span>client, <span class="kw-2">&amp;</span>context.db, SPEND_AMOUNT * <span class="number">2</span>).<span class="kw">await</span>;
@@ -1968,13 +2045,15 @@
             config: MintClientConfig {
                 tbs_pks: Tiered::from_iter([]),
                 fee_consensus: Default::default(),
+                peer_tbs_pks: BTreeMap::default(),
+                max_notes_per_denomination: <span class="number">0</span>,
             },
             context: Arc::new(ClientContext {
                 db: db.into(),
                 api: WsFederationApi::new(<span class="macro">vec!</span>[]).into(),
                 secp: Default::default(),
             }),
-            secret: DerivableSecret::new_root(<span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[]),
+            secret: DerivableSecret::new_root(<span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[]).child_key(MINT_SECRET_CHILD_ID),
         };
         <span class="kw">let </span>client_copy = client.clone();
         <span class="kw">let </span>amount = Amount::from_msats(<span class="number">1</span>);
@@ -1985,10 +2064,15 @@
                     |<span class="kw">_</span>| {
                         <span class="kw">let </span>client = client_copy.clone();
                         block_on(<span class="kw">async </span>{
-                            <span class="kw">let </span>(<span class="kw">_</span>, nonce) = client
-                                .new_ecash_note(secp256k1_zkp::SECP256K1, amount)
+                            <span class="kw">let </span><span class="kw-2">mut </span>dbtx = client
+                                .context
+                                .db
+                                .begin_transaction(ModuleDecoderRegistry::default())
                                 .<span class="kw">await</span>;
-                            <span class="prelude-val">Some</span>(nonce)
+                            <span class="kw">let </span>(<span class="kw">_</span>, nonce) = client
+                                .new_ecash_note(secp256k1_zkp::SECP256K1, amount, <span class="kw-2">&amp;mut </span>dbtx)
+                                .<span class="kw">await</span>;
+                            dbtx.commit_tx().<span class="kw">await</span>.map(|<span class="kw">_</span>| nonce).ok()
                         })
                     }
                 })
@@ -2004,7 +2088,7 @@
                 <span class="kw">let </span>output = t.join().unwrap();
                 <span class="comment">// Most threads will have produces far less than ITERATIONS items notes due to
                 // database transactions failing
-                </span><span class="macro">dbg!</span>(output.len());
+                </span>output.len();
                 output
             })
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
@@ -2029,4 +2113,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="mint_client" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0-nightly (7632db0e8 2022-12-08)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="mint_client" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (ad8ae0504 2022-12-29)" data-search-js="search-181581080540673f.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-58836c674e2f7bd2.css" ></div></body></html>

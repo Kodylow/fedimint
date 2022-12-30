@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `client/client-lib/src/api.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>api.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-d32a9866c4c3e823.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-046227e470cd3629.css"><link rel="stylesheet" disabled href="../../static.files/dark-800f2ee593c8e6f7.css"><link rel="stylesheet" disabled href="../../static.files/ayu-9edae3c387f5a5b3.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-287cecec4dbb45b0.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../mint_client/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `client/client-lib/src/api.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>api.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-1e2b7c35f427742c.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-bb5b51a242922cfa.css"><link rel="stylesheet" disabled href="../../static.files/dark-4f2b7151e76e78d6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-07d82ab1a93c2170.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-4a084badb5778746.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../mint_client/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -816,6 +816,36 @@
 <a href="#816" id="816">816</a>
 <a href="#817" id="817">817</a>
 <a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::cmp::min;
 <span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::sync::Arc;
@@ -829,10 +859,11 @@
 <span class="kw">use </span>fedimint_api::module::registry::ModuleDecoderRegistry;
 <span class="kw">use </span>fedimint_api::task::{sleep, RwLock, RwLockWriteGuard};
 <span class="kw">use </span>fedimint_api::{dyn_newtype_define, NumPeers, OutPoint, PeerId, TransactionId};
-<span class="kw">use </span>fedimint_core::epoch::{EpochHistory, SerdeEpochHistory};
+<span class="kw">use </span>fedimint_core::epoch::{SerdeEpochHistory, SignedEpochOutcome};
 <span class="kw">use </span>fedimint_core::modules::ln::contracts::incoming::IncomingContractOffer;
 <span class="kw">use </span>fedimint_core::modules::ln::contracts::ContractId;
 <span class="kw">use </span>fedimint_core::modules::ln::{ContractAccount, LightningGateway};
+<span class="kw">use </span>fedimint_core::modules::mint::db::ECashUserBackupSnapshot;
 <span class="kw">use </span>fedimint_core::modules::wallet::PegOutFees;
 <span class="kw">use </span>fedimint_core::outcome::legacy::{OutputOutcome, TryIntoOutcome};
 <span class="kw">use </span>fedimint_core::outcome::TransactionStatus;
@@ -858,8 +889,8 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::module_decode_stubs;
 <span class="kw">use </span><span class="kw">crate</span>::query::{
-    CurrentConsensus, EventuallyConsistent, QueryStep, QueryStrategy, Retry404, TrustAllPeers,
-    UnionResponses, ValidHistory,
+    CurrentConsensus, EventuallyConsistent, QueryStep, QueryStrategy, Retry404, UnionResponses,
+    UnionResponsesSingle, ValidHistory,
 };
 
 <span class="attr">#[cfg_attr(target_family = <span class="string">&quot;wasm&quot;</span>, async_trait(<span class="question-mark">? </span>Send))]
@@ -871,7 +902,11 @@
     <span class="doccomment">/// Submit a transaction to all federation members
     </span><span class="kw">async fn </span>submit_transaction(<span class="kw-2">&amp;</span><span class="self">self</span>, tx: LegacyTransaction) -&gt; <span class="prelude-ty">Result</span>&lt;TransactionId&gt;;
 
-    <span class="kw">async fn </span>fetch_epoch_history(<span class="kw-2">&amp;</span><span class="self">self</span>, epoch: u64, epoch_pk: PublicKey) -&gt; <span class="prelude-ty">Result</span>&lt;EpochHistory&gt;;
+    <span class="kw">async fn </span>fetch_epoch_history(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        epoch: u64,
+        epoch_pk: PublicKey,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;SignedEpochOutcome&gt;;
 
     <span class="kw">async fn </span>fetch_last_epoch(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt;;
 
@@ -906,7 +941,10 @@
     </span><span class="kw">async fn </span>upload_ecash_backup(<span class="kw-2">&amp;</span><span class="self">self</span>, request: <span class="kw-2">&amp;</span>SignedBackupRequest) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
 
     <span class="doccomment">/// Download ecash (encrypted) backup from mint to safekeep
-    </span><span class="kw">async fn </span>download_ecash_backup(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>secp256k1::XOnlyPublicKey) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt;;
+    </span><span class="kw">async fn </span>download_ecash_backup(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        id: <span class="kw-2">&amp;</span>secp256k1::XOnlyPublicKey,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;ECashUserBackupSnapshot&gt;&gt;;
 }
 
 <span class="macro">dyn_newtype_define! </span>{
@@ -1064,7 +1102,11 @@
         .<span class="kw">await
     </span>}
 
-    <span class="kw">async fn </span>fetch_epoch_history(<span class="kw-2">&amp;</span><span class="self">self</span>, epoch: u64, epoch_pk: PublicKey) -&gt; <span class="prelude-ty">Result</span>&lt;EpochHistory&gt; {
+    <span class="kw">async fn </span>fetch_epoch_history(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        epoch: u64,
+        epoch_pk: PublicKey,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;SignedEpochOutcome&gt; {
         <span class="kw">struct </span>ValidHistoryWrapper&lt;<span class="lifetime">&#39;a</span>&gt; {
             modules: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ModuleDecoderRegistry,
             strategy: ValidHistory,
@@ -1193,17 +1235,22 @@
         .<span class="kw">await
     </span>}
 
-    <span class="kw">async fn </span>download_ecash_backup(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>secp256k1::XOnlyPublicKey) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
-        <span class="kw">let </span>hex_str: String = <span class="self">self
-            </span>.request(
+    <span class="kw">async fn </span>download_ecash_backup(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        id: <span class="kw-2">&amp;</span>secp256k1::XOnlyPublicKey,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;ECashUserBackupSnapshot&gt;&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self
+            </span>.request_complex(
                 <span class="string">&quot;/mint/recover&quot;</span>,
                 id,
-                <span class="comment">// TODO: do we need a different strategy for this?
-                </span>TrustAllPeers,
+                UnionResponsesSingle::&lt;<span class="prelude-ty">Option</span>&lt;ECashUserBackupSnapshot&gt;&gt;::new(
+                    <span class="self">self</span>.peers().one_honest(),
+                ),
             )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(hex::decode(<span class="kw-2">&amp;</span>hex_str).map_err(|e| ApiError::InvalidResponse(e.to_string()))<span class="question-mark">?</span>)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.into_iter()
+            .flatten()
+            .collect())
     }
 }
 
@@ -1371,8 +1418,21 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         method: <span class="kw-2">&amp;</span>str,
         param: P,
-        <span class="kw-2">mut </span>strategy: <span class="kw">impl </span>QueryStrategy&lt;R&gt;,
+        strategy: <span class="kw">impl </span>QueryStrategy&lt;R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt; {
+        <span class="self">self</span>.request_complex(method, param, strategy).<span class="kw">await
+    </span>}
+
+    <span class="kw">pub async fn </span>request_complex&lt;
+        P: serde::Serialize,
+        IR: serde::de::DeserializeOwned,
+        OR: serde::de::DeserializeOwned,
+    &gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        method: <span class="kw-2">&amp;</span>str,
+        param: P,
+        <span class="kw-2">mut </span>strategy: <span class="kw">impl </span>QueryStrategy&lt;IR, OR&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;OR&gt; {
         <span class="kw">let </span>params = [serde_json::to_value(param).expect(<span class="string">&quot;encoding error&quot;</span>)];
         <span class="kw">let </span><span class="kw-2">mut </span>futures = FuturesUnordered::new();
 
@@ -1635,4 +1695,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="mint_client" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0-nightly (7632db0e8 2022-12-08)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="mint_client" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (ad8ae0504 2022-12-29)" data-search-js="search-181581080540673f.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-58836c674e2f7bd2.css" ></div></body></html>

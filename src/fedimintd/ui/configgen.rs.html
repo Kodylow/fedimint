@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimintd/src/ui/configgen.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>configgen.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-d32a9866c4c3e823.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-046227e470cd3629.css"><link rel="stylesheet" disabled href="../../../static.files/dark-800f2ee593c8e6f7.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-9edae3c387f5a5b3.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-287cecec4dbb45b0.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../fedimintd/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimintd/src/ui/configgen.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>configgen.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1e2b7c35f427742c.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-bb5b51a242922cfa.css"><link rel="stylesheet" disabled href="../../../static.files/dark-4f2b7151e76e78d6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-07d82ab1a93c2170.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-4a084badb5778746.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../fedimintd/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -194,22 +194,28 @@
 <a href="#194" id="194">194</a>
 <a href="#195" id="195">195</a>
 <a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, HashMap};
 
-<span class="kw">use </span>fedimint_api::config::{BitcoindRpcCfg, ClientConfig, ModuleConfigGenParams, Node};
+<span class="kw">use </span>fedimint_api::config::{BitcoindRpcCfg, ClientConfig, ConfigGenParams};
 <span class="kw">use </span>fedimint_api::module::FederationModuleConfigGen;
 <span class="kw">use </span>fedimint_api::{Amount, PeerId};
 <span class="kw">use </span>fedimint_core::modules::ln::LightningModuleConfigGen;
-<span class="kw">use </span>fedimint_core::modules::mint::MintConfigGenerator;
-<span class="kw">use </span>fedimint_server::config::{gen_cert_and_key, Peer <span class="kw">as </span>ServerPeer, ServerConfig};
-<span class="kw">use </span>fedimint_server::net::peers::ConnectionConfig;
-<span class="kw">use </span>fedimint_wallet::WalletConfigGenerator;
+<span class="kw">use </span>fedimint_core::modules::mint::{MintConfigGenParams, MintConfigGenerator};
+<span class="kw">use </span>fedimint_server::config::{
+    gen_cert_and_key, Peer <span class="kw">as </span>ServerPeer, ServerConfig, ServerConfigConsensus, ServerConfigLocal,
+    ServerConfigPrivate,
+};
+<span class="kw">use </span>fedimint_wallet::{WalletConfigGenParams, WalletConfigGenerator};
 <span class="kw">use </span>rand::rngs::OsRng;
 <span class="kw">use </span>rand::{CryptoRng, RngCore};
 <span class="kw">use </span>threshold_crypto::serde_impl::SerdeSecret;
 <span class="kw">use </span>url::Url;
 
 <span class="kw">use </span><span class="kw">crate</span>::ui::Guardian;
+<span class="kw">use </span><span class="kw">crate</span>::CODE_VERSION;
 
 <span class="kw">pub fn </span>configgen(
     federation_name: String,
@@ -282,22 +288,22 @@
         .map(|(<span class="kw-2">&amp;</span>id, <span class="kw">_</span>)| {
             <span class="kw">let </span>id_u16: u16 = id.into();
             <span class="kw">let </span>peer = ServerPeer {
-                hbbft: ConnectionConfig {
-                    address: <span class="macro">format!</span>(
-                        <span class="string">&quot;{}:{}&quot;</span>,
-                        hostnames[id_u16 <span class="kw">as </span>usize].clone(),
-                        hbbft_base_port + id_u16
-                    ),
-                },
+                tls_cert: tls_keys[<span class="kw-2">&amp;</span>id].<span class="number">0</span>.clone(),
+                hbbft: <span class="macro">format!</span>(
+                    <span class="string">&quot;{}:{}&quot;</span>,
+                    hostnames[id_u16 <span class="kw">as </span>usize].clone(),
+                    hbbft_base_port + id_u16
+                )
+                .parse()
+                .expect(<span class="string">&quot;Could not parse address&quot;</span>),
                 api_addr: {
                     <span class="kw">let </span>s = <span class="macro">format!</span>(
-                        <span class="string">&quot;ws://{}:{}&quot;</span>,
+                        <span class="string">&quot;{}:{}&quot;</span>,
                         hostnames[id_u16 <span class="kw">as </span>usize].clone(),
                         api_base_port + id_u16
                     );
                     Url::parse(<span class="kw-2">&amp;</span>s).expect(<span class="string">&quot;Could not parse URL&quot;</span>)
                 },
-                tls_cert: tls_keys[<span class="kw-2">&amp;</span>id].<span class="number">0</span>.clone(),
                 name: <span class="macro">format!</span>(<span class="string">&quot;peer-{}&quot;</span>, id.to_usize()),
             };
 
@@ -305,11 +311,15 @@
         })
         .collect::&lt;BTreeMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;();
 
-    <span class="kw">let </span>module_cfg_gen_params = ModuleConfigGenParams {
-        mint_amounts: params.amount_tiers.clone(),
-        bitcoin_rpc: params.btc_rpc.clone(),
-        other: BTreeMap::new(),
-    };
+    <span class="kw">let </span>module_cfg_gen_params = ConfigGenParams::new()
+        .attach(WalletConfigGenParams {
+            network: bitcoin::network::constants::Network::Regtest,
+            bitcoin_rpc: params.btc_rpc.clone(),
+            finality_delay: <span class="number">10</span>,
+        })
+        .attach(MintConfigGenParams {
+            mint_amounts: params.amount_tiers.clone(),
+        });
     <span class="kw">let </span>module_config_gens: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Box&lt;<span class="kw">_</span>&gt;)&gt; = <span class="macro">vec!</span>[
         (
             <span class="string">&quot;wallet&quot;</span>,
@@ -331,64 +341,60 @@
             <span class="kw">let </span>epoch_keys = epochinfo
                 .get(<span class="kw-2">&amp;</span>id)
                 .expect(<span class="string">&quot;Could not get keys from epoch info&quot;</span>);
-            <span class="kw">let </span>config = ServerConfig {
-                federation_name: params.federation_name.clone(),
-                identity: id,
-                hbbft_bind_addr: <span class="macro">format!</span>(<span class="string">&quot;0.0.0.0:{}&quot;</span>, hbbft_base_port + id_u16),
-                api_bind_addr: <span class="macro">format!</span>(<span class="string">&quot;0.0.0.0:{}&quot;</span>, api_base_port + id_u16),
-                tls_cert: tls_keys[<span class="kw-2">&amp;</span>id].<span class="number">0</span>.clone(),
-                tls_key: tls_keys[<span class="kw-2">&amp;</span>id].<span class="number">1</span>.clone(),
-                peers: cfg_peers.clone(),
-                hbbft_sks: SerdeSecret(
-                    netinf
-                        .secret_key_share()
-                        .expect(<span class="string">&quot;Could not find secret share&quot;</span>)
-                        .clone(),
-                ),
-                hbbft_pk_set: netinf.public_key_set().clone(),
-                epoch_sks: SerdeSecret(epoch_keys.secret_key_share().unwrap().clone()),
-                epoch_pk_set: epoch_keys.public_key_set().clone(),
 
-                modules: module_configs
-                    .iter()
-                    .map(|(name, cfgs)| (name.to_string(), cfgs.<span class="number">0</span>[<span class="kw-2">&amp;</span>id].clone()))
-                    .collect(),
-                max_connections: <span class="number">1000</span>,
+            <span class="kw">let </span><span class="kw-2">mut </span>config = ServerConfig {
+                consensus: ServerConfigConsensus {
+                    peers: cfg_peers.clone(),
+                    code_version: CODE_VERSION.to_string(),
+                    federation_name: params.federation_name.clone(),
+                    hbbft_pk_set: netinf.public_key_set().clone(),
+                    epoch_pk_set: epoch_keys.public_key_set().clone(),
+                    modules: Default::default(),
+                },
+                local: ServerConfigLocal {
+                    identity: id,
+                    hbbft_bind_addr: <span class="macro">format!</span>(<span class="string">&quot;0.0.0.0:{}&quot;</span>, hbbft_base_port + id_u16)
+                        .parse()
+                        .expect(<span class="string">&quot;Could not parse address&quot;</span>),
+                    api_bind_addr: <span class="macro">format!</span>(<span class="string">&quot;0.0.0.0:{}&quot;</span>, api_base_port + id_u16)
+                        .parse()
+                        .expect(<span class="string">&quot;Could not parse address&quot;</span>),
+                    tls_cert: tls_keys[<span class="kw-2">&amp;</span>id].<span class="number">0</span>.clone(),
+                    modules: Default::default(),
+                    max_connections: <span class="number">1000</span>,
+                },
+                private: ServerConfigPrivate {
+                    tls_key: tls_keys[<span class="kw-2">&amp;</span>id].<span class="number">1</span>.clone(),
+                    hbbft_sks: SerdeSecret(
+                        netinf
+                            .secret_key_share()
+                            .expect(<span class="string">&quot;Could not find secret share&quot;</span>)
+                            .clone(),
+                    ),
+                    epoch_sks: SerdeSecret(epoch_keys.secret_key_share().unwrap().clone()),
+                    modules: Default::default(),
+                },
             };
+
+            config.add_modules(
+                module_configs
+                    .iter()
+                    .map(|(name, cfgs)| (name.to_string(), cfgs[<span class="kw-2">&amp;</span>id].clone()))
+                    .collect(),
+            );
+
             (id, config)
         })
         .collect();
 
-    <span class="kw">let </span>client_config = ClientConfig {
-        federation_name: params.federation_name.clone(),
-        nodes: peers
-            .iter()
-            .map(|<span class="kw-2">&amp;</span>peer| {
-                <span class="kw">let </span>index = u16::from(peer);
-                <span class="kw">let </span>s = <span class="macro">format!</span>(
-                    <span class="string">&quot;ws://{}:{}&quot;</span>,
-                    hostnames[index <span class="kw">as </span>usize].clone(),
-                    api_base_port
-                );
-                <span class="kw">let </span>url = Url::parse(<span class="kw-2">&amp;</span>s).expect(<span class="string">&quot;Could not parse URL&quot;</span>);
-                Node {
-                    url,
-                    name: params.guardians[index <span class="kw">as </span>usize].name.clone(),
-                }
-            })
-            .collect(),
-        epoch_pk: server_config
-            .get(<span class="kw-2">&amp;</span>peers[<span class="number">0</span>])
-            .expect(<span class="string">&quot;must have at least one peer&quot;</span>)
-            .epoch_pk_set
-            .public_key(),
-        modules: module_configs
-            .iter()
-            .map(|(name, cfgs)| (name.to_string(), cfgs.<span class="number">1</span>.clone()))
-            .collect(),
-    };
+    <span class="kw">let </span>client_config = server_config
+        .values()
+        .next()
+        .unwrap()
+        .consensus
+        .to_client_config();
 
     (server_config, client_config)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="fedimintd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0-nightly (7632db0e8 2022-12-08)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="fedimintd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (ad8ae0504 2022-12-29)" data-search-js="search-181581080540673f.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-58836c674e2f7bd2.css" ></div></body></html>
