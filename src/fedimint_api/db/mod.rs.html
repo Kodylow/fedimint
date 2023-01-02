@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-api/src/db/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1e2b7c35f427742c.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-bb5b51a242922cfa.css"><link rel="stylesheet" disabled href="../../../static.files/dark-4f2b7151e76e78d6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-07d82ab1a93c2170.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-4a084badb5778746.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../fedimint_api/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-api/src/db/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-34efc64c5083af8d.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-4a084badb5778746.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../fedimint_api/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -792,6 +792,50 @@
 <a href="#792" id="792">792</a>
 <a href="#793" id="793">793</a>
 <a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::error::Error;
 <span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::sync::Arc;
@@ -928,22 +972,38 @@
 
 <span class="comment">// TODO: use macro again
 </span><span class="attr">#[doc = <span class="string">&quot; A handle to a type-erased database implementation&quot;</span>]
-</span><span class="kw">pub struct </span>DatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt;(
-    Box&lt;<span class="kw">dyn </span>IDatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt; + Send + <span class="lifetime">&#39;a</span>&gt;,
-    ModuleDecoderRegistry,
-);
+</span><span class="kw">pub struct </span>CommitTracker {
+    is_committed: bool,
+    has_writes: bool,
+}
+
+<span class="kw">impl </span>Drop <span class="kw">for </span>CommitTracker {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if </span><span class="self">self</span>.has_writes &amp;&amp; !<span class="self">self</span>.is_committed {
+            <span class="macro">warn!</span>(<span class="string">&quot;DatabaseTransaction has writes and has not called commit.&quot;</span>);
+        }
+    }
+}
+
+<span class="attr">#[doc = <span class="string">&quot; A handle to a type-erased database implementation&quot;</span>]
+</span><span class="kw">pub struct </span>DatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt; {
+    tx: Box&lt;<span class="kw">dyn </span>IDatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt; + Send + <span class="lifetime">&#39;a</span>&gt;,
+    decoders: ModuleDecoderRegistry,
+    commit_tracker: CommitTracker,
+}
+
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; std::ops::Deref <span class="kw">for </span>DatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">type </span>Target = <span class="kw">dyn </span>IDatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt; + Send + <span class="lifetime">&#39;a</span>;
 
     <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>&lt;<span class="self">Self </span><span class="kw">as </span>std::ops::Deref&gt;::Target {
-        <span class="kw-2">&amp;*</span><span class="self">self</span>.<span class="number">0
-    </span>}
+        <span class="kw-2">&amp;*</span><span class="self">self</span>.tx
+    }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; std::ops::DerefMut <span class="kw">for </span>DatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>&lt;<span class="self">Self </span><span class="kw">as </span>std::ops::Deref&gt;::Target {
-        <span class="kw-2">&amp;mut *</span><span class="self">self</span>.<span class="number">0
-    </span>}
+        <span class="kw-2">&amp;mut *</span><span class="self">self</span>.tx
+    }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -951,58 +1011,23 @@
         dbtx: I,
         decoders: ModuleDecoderRegistry,
     ) -&gt; DatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt; {
-        DatabaseTransaction(Box::new(dbtx), decoders)
-    }
-
-    <span class="kw">pub async fn </span>commit_tx(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.commit_tx().<span class="kw">await
-    </span>}
-}
-
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub async fn </span>insert_entry&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K, value: <span class="kw-2">&amp;</span>K::Value) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt;
-    <span class="kw">where
-        </span>K: DatabaseKey + DatabaseKeyPrefixConst,
-    {
-        <span class="kw">match </span><span class="self">self
-            </span>.<span class="number">0
-            </span>.raw_insert_bytes(<span class="kw-2">&amp;</span>key.to_bytes(), value.to_bytes())
-            .<span class="kw">await</span><span class="question-mark">?
-        </span>{
-            <span class="prelude-val">Some</span>(old_val_bytes) =&gt; {
-                <span class="macro">trace!</span>(
-                    <span class="string">&quot;insert_bytes: Decoding {} from bytes {:?}&quot;</span>,
-                    std::any::type_name::&lt;K::Value&gt;(),
-                    old_val_bytes
-                );
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(K::Value::from_bytes(<span class="kw-2">&amp;</span>old_val_bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">1</span>)<span class="question-mark">?</span>))
-            }
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+        DatabaseTransaction {
+            tx: Box::new(dbtx),
+            decoders,
+            commit_tracker: CommitTracker {
+                is_committed: <span class="bool-val">false</span>,
+                has_writes: <span class="bool-val">false</span>,
+            },
         }
     }
 
-    <span class="kw">pub async fn </span>insert_new_entry&lt;K&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        key: <span class="kw-2">&amp;</span>K,
-        value: <span class="kw-2">&amp;</span>K::Value,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt;
-    <span class="kw">where
-        </span>K: DatabaseKey + DatabaseKeyPrefixConst,
-    {
-        <span class="kw">match </span><span class="self">self
-            </span>.<span class="number">0
-            </span>.raw_insert_bytes(<span class="kw-2">&amp;</span>key.to_bytes(), value.to_bytes())
-            .<span class="kw">await</span><span class="question-mark">?
-        </span>{
-            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; {
-                <span class="macro">warn!</span>(
-                    <span class="string">&quot;Database overwriting element when expecting insertion of new entry. Key: {:?}&quot;</span>,
-                    key
-                );
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
-            }
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+    <span class="kw">pub async fn </span>commit_tx(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if </span><span class="self">self</span>.commit_tracker.has_writes {
+            <span class="self">self</span>.commit_tracker.is_committed = <span class="bool-val">true</span>;
+            <span class="kw">return </span><span class="self">self</span>.tx.commit_tx().<span class="kw">await</span>;
         }
+
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">pub async fn </span>get_value&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt;
@@ -1010,7 +1035,7 @@
         </span>K: DatabaseKey + DatabaseKeyPrefixConst,
     {
         <span class="kw">let </span>key_bytes = key.to_bytes();
-        <span class="kw">let </span>value_bytes = <span class="kw">match </span><span class="self">self</span>.raw_get_bytes(<span class="kw-2">&amp;</span>key_bytes).<span class="kw">await</span><span class="question-mark">? </span>{
+        <span class="kw">let </span>value_bytes = <span class="kw">match </span><span class="self">self</span>.tx.raw_get_bytes(<span class="kw-2">&amp;</span>key_bytes).<span class="kw">await</span><span class="question-mark">? </span>{
             <span class="prelude-val">Some</span>(value) =&gt; value,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
         };
@@ -1020,20 +1045,7 @@
             std::any::type_name::&lt;K::Value&gt;(),
             value_bytes
         );
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(K::Value::from_bytes(<span class="kw-2">&amp;</span>value_bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">1</span>)<span class="question-mark">?</span>))
-    }
-
-    <span class="kw">pub async fn </span>remove_entry&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt;
-    <span class="kw">where
-        </span>K: DatabaseKey + DatabaseKeyPrefixConst,
-    {
-        <span class="kw">let </span>key_bytes = key.to_bytes();
-        <span class="kw">let </span>value_bytes = <span class="kw">match </span><span class="self">self</span>.raw_remove_entry(<span class="kw-2">&amp;</span>key_bytes).<span class="kw">await</span><span class="question-mark">? </span>{
-            <span class="prelude-val">Some</span>(value) =&gt; value,
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-        };
-
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(K::Value::from_bytes(<span class="kw-2">&amp;</span>value_bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">1</span>)<span class="question-mark">?</span>))
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(K::Value::from_bytes(<span class="kw-2">&amp;</span>value_bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.decoders)<span class="question-mark">?</span>))
     }
 
     <span class="kw">pub async fn </span>find_by_prefix&lt;KP&gt;(
@@ -1043,9 +1055,10 @@
     </span><span class="kw">where
         </span>KP: DatabaseKeyPrefix + DatabaseKeyPrefixConst,
     {
-        <span class="kw">let </span>decoders = <span class="self">self</span>.<span class="number">1</span>.clone();
+        <span class="kw">let </span>decoders = <span class="self">self</span>.decoders.clone();
         <span class="kw">let </span>prefix_bytes = key_prefix.to_bytes();
-        <span class="self">self</span>.raw_find_by_prefix(<span class="kw-2">&amp;</span>prefix_bytes)
+        <span class="self">self</span>.tx
+            .raw_find_by_prefix(<span class="kw-2">&amp;</span>prefix_bytes)
             .<span class="kw">await
             </span>.map(<span class="kw">move </span>|res| {
                 res.and_then(|(key_bytes, value_bytes)| {
@@ -1061,10 +1074,70 @@
             })
     }
 
+    <span class="kw">pub async fn </span>insert_entry&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K, value: <span class="kw-2">&amp;</span>K::Value) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt;
+    <span class="kw">where
+        </span>K: DatabaseKey + DatabaseKeyPrefixConst,
+    {
+        <span class="self">self</span>.commit_tracker.has_writes = <span class="bool-val">true</span>;
+        <span class="kw">match </span><span class="self">self
+            </span>.raw_insert_bytes(<span class="kw-2">&amp;</span>key.to_bytes(), value.to_bytes())
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>{
+            <span class="prelude-val">Some</span>(old_val_bytes) =&gt; {
+                <span class="macro">trace!</span>(
+                    <span class="string">&quot;insert_bytes: Decoding {} from bytes {:?}&quot;</span>,
+                    std::any::type_name::&lt;K::Value&gt;(),
+                    old_val_bytes
+                );
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(K::Value::from_bytes(<span class="kw-2">&amp;</span>old_val_bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.decoders)<span class="question-mark">?</span>))
+            }
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+        }
+    }
+
+    <span class="kw">pub async fn </span>insert_new_entry&lt;K&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        key: <span class="kw-2">&amp;</span>K,
+        value: <span class="kw-2">&amp;</span>K::Value,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt;
+    <span class="kw">where
+        </span>K: DatabaseKey + DatabaseKeyPrefixConst,
+    {
+        <span class="self">self</span>.commit_tracker.has_writes = <span class="bool-val">true</span>;
+        <span class="kw">match </span><span class="self">self
+            </span>.raw_insert_bytes(<span class="kw-2">&amp;</span>key.to_bytes(), value.to_bytes())
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>{
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; {
+                <span class="macro">warn!</span>(
+                    <span class="string">&quot;Database overwriting element when expecting insertion of new entry. Key: {:?}&quot;</span>,
+                    key
+                );
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+            }
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+        }
+    }
+
+    <span class="kw">pub async fn </span>remove_entry&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt;
+    <span class="kw">where
+        </span>K: DatabaseKey + DatabaseKeyPrefixConst,
+    {
+        <span class="self">self</span>.commit_tracker.has_writes = <span class="bool-val">true</span>;
+        <span class="kw">let </span>key_bytes = key.to_bytes();
+        <span class="kw">let </span>value_bytes = <span class="kw">match </span><span class="self">self</span>.raw_remove_entry(<span class="kw-2">&amp;</span>key_bytes).<span class="kw">await</span><span class="question-mark">? </span>{
+            <span class="prelude-val">Some</span>(value) =&gt; value,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+        };
+
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(K::Value::from_bytes(<span class="kw-2">&amp;</span>value_bytes, <span class="kw-2">&amp;</span><span class="self">self</span>.decoders)<span class="question-mark">?</span>))
+    }
+
     <span class="kw">pub async fn </span>remove_by_prefix&lt;KP&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key_prefix: <span class="kw-2">&amp;</span>KP) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
         </span>KP: DatabaseKeyPrefix + DatabaseKeyPrefixConst,
     {
+        <span class="self">self</span>.commit_tracker.has_writes = <span class="bool-val">true</span>;
         <span class="self">self</span>.raw_remove_by_prefix(<span class="kw-2">&amp;</span>key_prefix.to_bytes()).<span class="kw">await
     </span>}
 }
@@ -1243,6 +1316,9 @@
         <span class="macro">assert_eq!</span>(dbtx.get_value(<span class="kw-2">&amp;</span>TestKey(<span class="number">1</span>)).<span class="kw">await</span>.unwrap(), <span class="prelude-val">None</span>);
         <span class="kw">let </span>removed = dbtx.remove_entry(<span class="kw-2">&amp;</span>TestKey(<span class="number">1</span>)).<span class="kw">await</span>;
         <span class="macro">assert!</span>(removed.is_ok());
+
+        <span class="comment">// Commit to surpress the warning message
+        </span>dbtx.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB Error&quot;</span>);
     }
 
     <span class="kw">pub async fn </span>verify_remove_existing(db: Database) {
@@ -1260,6 +1336,9 @@
         <span class="macro">assert!</span>(removed.is_ok());
         <span class="macro">assert_eq!</span>(removed.unwrap(), <span class="prelude-val">Some</span>(TestVal(<span class="number">2</span>)));
         <span class="macro">assert_eq!</span>(dbtx.get_value(<span class="kw-2">&amp;</span>TestKey(<span class="number">1</span>)).<span class="kw">await</span>.unwrap(), <span class="prelude-val">None</span>);
+
+        <span class="comment">// Commit to surpress the warning message
+        </span>dbtx.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB Error&quot;</span>);
     }
 
     <span class="kw">pub async fn </span>verify_read_own_writes(db: Database) {
@@ -1272,6 +1351,9 @@
             .is_none());
 
         <span class="macro">assert_eq!</span>(dbtx.get_value(<span class="kw-2">&amp;</span>TestKey(<span class="number">1</span>)).<span class="kw">await</span>.unwrap(), <span class="prelude-val">Some</span>(TestVal(<span class="number">2</span>)));
+
+        <span class="comment">// Commit to surpress the warning message
+        </span>dbtx.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB Error&quot;</span>);
     }
 
     <span class="kw">pub async fn </span>verify_prevent_dirty_reads(db: Database) {
@@ -1286,6 +1368,9 @@
         <span class="comment">// dbtx2 should not be able to see uncommitted changes
         </span><span class="kw">let </span><span class="kw-2">mut </span>dbtx2 = db.begin_transaction(ModuleDecoderRegistry::default()).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(dbtx2.get_value(<span class="kw-2">&amp;</span>TestKey(<span class="number">1</span>)).<span class="kw">await</span>.unwrap(), <span class="prelude-val">None</span>);
+
+        <span class="comment">// Commit to surpress the warning message
+        </span>dbtx.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB Error&quot;</span>);
     }
 
     <span class="kw">pub async fn </span>verify_find_by_prefix(db: Database) {
@@ -1402,6 +1487,9 @@
         );
 
         <span class="macro">assert_eq!</span>(dbtx_rollback.get_value(<span class="kw-2">&amp;</span>TestKey(<span class="number">21</span>)).<span class="kw">await</span>.unwrap(), <span class="prelude-val">None</span>);
+
+        <span class="comment">// Commit to surpress the warning message
+        </span>dbtx_rollback.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB Error&quot;</span>);
     }
 
     <span class="kw">pub async fn </span>verify_prevent_nonrepeatable_reads(db: Database) {
@@ -1587,4 +1675,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="fedimint_api" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (ad8ae0504 2022-12-29)" data-search-js="search-181581080540673f.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-58836c674e2f7bd2.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="fedimint_api" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (77429957a 2023-01-01)" data-search-js="search-181581080540673f.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-58836c674e2f7bd2.css" ></div></body></html>
