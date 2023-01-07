@@ -21,4 +21,4 @@ serde = { version = "1.0.149", features = [ "derive" ] }
 strum = "0.24"
 strum_macros = "0.24"
 impl-tools = "0.6.1"
-thiserror = "1.0.37"
+thiserror = "1.0.38"
