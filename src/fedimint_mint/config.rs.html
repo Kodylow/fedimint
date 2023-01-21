@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `modules/fedimint-mint/src/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-34efc64c5083af8d.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-4a084badb5778746.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../fedimint_mint/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `modules/fedimint-mint/src/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-52c5db6f6f352e54.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../fedimint_mint/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -122,6 +122,14 @@
 <a href="#122" id="122">122</a>
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, HashMap};
 <span class="kw">use </span>std::iter::FromIterator;
 
@@ -130,11 +138,15 @@
     ClientModuleConfig, TypedClientModuleConfig, TypedServerModuleConfig,
     TypedServerModuleConsensusConfig,
 };
+<span class="kw">use </span>fedimint_api::core::ModuleKind;
+<span class="kw">use </span>fedimint_api::encoding::Encodable;
 <span class="kw">use </span>fedimint_api::module::__reexports::serde_json;
-<span class="kw">use </span>fedimint_api::{Amount, PeerId, Tiered, TieredMultiZip};
+<span class="kw">use </span>fedimint_api::{Amount, NumPeers, PeerId, Tiered, TieredMultiZip};
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>tbs::{Aggregatable, AggregatePublicKey, PublicKeyShare};
+
+<span class="kw">use </span><span class="kw">crate</span>::KIND;
 
 <span class="attr">#[derive(Clone, Debug, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>MintConfig {
@@ -144,14 +156,12 @@
     </span><span class="kw">pub </span>consensus: MintConfigConsensus,
 }
 
-<span class="attr">#[derive(Clone, Debug, Serialize, Deserialize)]
+<span class="attr">#[derive(Clone, Debug, Serialize, Deserialize, Encodable)]
 </span><span class="kw">pub struct </span>MintConfigConsensus {
     <span class="doccomment">/// The set of public keys for blind-signing all peers and note denominations
     </span><span class="kw">pub </span>peer_tbs_pks: BTreeMap&lt;PeerId, Tiered&lt;PublicKeyShare&gt;&gt;,
     <span class="doccomment">/// Fees charged for ecash transactions
     </span><span class="kw">pub </span>fee_consensus: FeeConsensus,
-    <span class="doccomment">/// Number of signers required
-    </span><span class="kw">pub </span>threshold: usize,
     <span class="doccomment">/// The maximum amount of change a client can request
     </span><span class="kw">pub </span>max_notes_per_denomination: u16,
 }
@@ -162,7 +172,7 @@
     </span><span class="kw">pub </span>tbs_sks: Tiered&lt;tbs::SecretKeyShare&gt;,
 }
 
-<span class="attr">#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+<span class="attr">#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Encodable)]
 </span><span class="kw">pub struct </span>MintClientConfig {
     <span class="kw">pub </span>tbs_pks: Tiered&lt;AggregatePublicKey&gt;,
     <span class="kw">pub </span>fee_consensus: FeeConsensus,
@@ -170,7 +180,11 @@
     <span class="kw">pub </span>max_notes_per_denomination: u16,
 }
 
-<span class="kw">impl </span>TypedClientModuleConfig <span class="kw">for </span>MintClientConfig {}
+<span class="kw">impl </span>TypedClientModuleConfig <span class="kw">for </span>MintClientConfig {
+    <span class="kw">fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ModuleKind {
+        <span class="kw">crate</span>::KIND
+    }
+}
 
 <span class="kw">impl </span>TypedServerModuleConsensusConfig <span class="kw">for </span>MintConfigConsensus {
     <span class="kw">fn </span>to_client_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ClientModuleConfig {
@@ -179,18 +193,20 @@
                 .map(|(amt, keys)| {
                     <span class="comment">// TODO: avoid this through better aggregation API allowing references or
                     </span><span class="kw">let </span>keys = keys.into_iter().copied().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-                    (amt, keys.aggregate(<span class="self">self</span>.threshold))
+                    (amt, keys.aggregate(<span class="self">self</span>.peer_tbs_pks.threshold()))
                 })
                 .collect();
 
-        serde_json::to_value(<span class="kw-2">&amp;</span>MintClientConfig {
-            tbs_pks: Tiered::from_iter(pub_key.into_iter()),
-            fee_consensus: <span class="self">self</span>.fee_consensus.clone(),
-            peer_tbs_pks: <span class="self">self</span>.peer_tbs_pks.clone(),
-            max_notes_per_denomination: <span class="self">self</span>.max_notes_per_denomination,
-        })
-        .expect(<span class="string">&quot;Serialization can&#39;t fail&quot;</span>)
-        .into()
+        ClientModuleConfig::new(
+            KIND,
+            serde_json::to_value(<span class="kw-2">&amp;</span>MintClientConfig {
+                tbs_pks: Tiered::from_iter(pub_key.into_iter()),
+                fee_consensus: <span class="self">self</span>.fee_consensus.clone(),
+                peer_tbs_pks: <span class="self">self</span>.peer_tbs_pks.clone(),
+                max_notes_per_denomination: <span class="self">self</span>.max_notes_per_denomination,
+            })
+            .expect(<span class="string">&quot;Serialization can&#39;t fail&quot;</span>),
+        )
     }
 }
 
@@ -203,8 +219,8 @@
         <span class="self">Self </span>{ private, consensus }
     }
 
-    <span class="kw">fn </span>to_parts(<span class="self">self</span>) -&gt; (<span class="self">Self</span>::Local, <span class="self">Self</span>::Private, <span class="self">Self</span>::Consensus) {
-        ((), <span class="self">self</span>.private, <span class="self">self</span>.consensus)
+    <span class="kw">fn </span>to_parts(<span class="self">self</span>) -&gt; (ModuleKind, <span class="self">Self</span>::Local, <span class="self">Self</span>::Private, <span class="self">Self</span>::Consensus) {
+        (KIND, (), <span class="self">self</span>.private, <span class="self">self</span>.consensus)
     }
 
     <span class="kw">fn </span>validate_config(<span class="kw-2">&amp;</span><span class="self">self</span>, identity: <span class="kw-2">&amp;</span>PeerId) -&gt; anyhow::Result&lt;()&gt; {
@@ -232,19 +248,19 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+<span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize, Encodable)]
 </span><span class="kw">pub struct </span>FeeConsensus {
-    <span class="kw">pub </span>coin_issuance_abs: fedimint_api::Amount,
-    <span class="kw">pub </span>coin_spend_abs: fedimint_api::Amount,
+    <span class="kw">pub </span>note_issuance_abs: fedimint_api::Amount,
+    <span class="kw">pub </span>note_spend_abs: fedimint_api::Amount,
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>FeeConsensus {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            coin_issuance_abs: fedimint_api::Amount::ZERO,
-            coin_spend_abs: fedimint_api::Amount::ZERO,
+            note_issuance_abs: fedimint_api::Amount::ZERO,
+            note_spend_abs: fedimint_api::Amount::ZERO,
         }
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_mint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (77429957a 2023-01-01)" data-search-js="search-181581080540673f.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-58836c674e2f7bd2.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_mint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (5ce39f42b 2023-01-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-ab1d4ae2ec52020e.css" ></div></body></html>

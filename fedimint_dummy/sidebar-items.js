@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":[["KIND",""],["MODULE_KEY_DUMMY",""]],"enum":[["DummyError",""]],"mod":[["common",""],["config",""],["db",""]],"struct":[["Dummy","Dummy module"],["DummyConfigGenParams",""],["DummyConfigGenerator",""],["DummyInput",""],["DummyOutput",""],["DummyOutputConfirmation",""],["DummyOutputOutcome",""],["DummyVerificationCache",""]]};

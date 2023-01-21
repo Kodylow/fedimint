@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-core/src/transaction.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transaction.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-34efc64c5083af8d.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-4a084badb5778746.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../fedimint_core/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-core/src/transaction.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transaction.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-52c5db6f6f352e54.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../fedimint_core/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -307,11 +307,41 @@
 <a href="#307" id="307">307</a>
 <a href="#308" id="308">308</a>
 <a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
 </pre><pre class="rust"><code><span class="kw">use </span>bitcoin::hashes::Hash <span class="kw">as </span>BitcoinHash;
 <span class="kw">use </span>bitcoin::XOnlyPublicKey;
-<span class="kw">use </span>fedimint_api::core::{Input, Output};
+<span class="kw">use </span>fedimint_api::core::{DynInput, DynOutput};
 <span class="kw">use </span>fedimint_api::encoding::{Decodable, Encodable};
-<span class="kw">use </span>fedimint_api::{serde_module_encoding_wrapper, Amount, TransactionId};
+<span class="kw">use </span>fedimint_api::module::SerdeModuleEncoding;
+<span class="kw">use </span>fedimint_api::{Amount, TransactionId};
 <span class="kw">use </span>rand::Rng;
 <span class="kw">use </span>secp256k1_zkp::{schnorr, Secp256k1, Signing, Verification};
 <span class="kw">use </span>thiserror::Error;
@@ -321,15 +351,15 @@
 /// The mint enforces that the total value of the outputs equals the total value of the inputs, to prevent creating funds out of thin air. In some cases, the value of the inputs and outputs can both be 0 e.g. when creating an offer to a Lightning Gateway.
 </span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>Transaction {
-    <span class="doccomment">/// [`Input`]s consumed by the transaction
-    </span><span class="kw">pub </span>inputs: Vec&lt;Input&gt;,
-    <span class="doccomment">/// [`Output`]s created as a result of the transaction
-    </span><span class="kw">pub </span>outputs: Vec&lt;Output&gt;,
+    <span class="doccomment">/// [`DynInput`]s consumed by the transaction
+    </span><span class="kw">pub </span>inputs: Vec&lt;DynInput&gt;,
+    <span class="doccomment">/// [`DynOutput`]s created as a result of the transaction
+    </span><span class="kw">pub </span>outputs: Vec&lt;DynOutput&gt;,
     <span class="doccomment">/// Aggregated MuSig2 signature over all the public keys of the inputs
     </span><span class="kw">pub </span>signature: <span class="prelude-ty">Option</span>&lt;schnorr::Signature&gt;,
 }
 
-<span class="macro">serde_module_encoding_wrapper!</span>(SerdeTransaction, Transaction);
+<span class="kw">pub type </span>SerdeTransaction = SerdeModuleEncoding&lt;Transaction&gt;;
 
 <span class="kw">impl </span>Transaction {
     <span class="doccomment">/// Hash of the transaction (excluding the signature).
@@ -341,7 +371,7 @@
     }
 
     <span class="doccomment">/// Generate the transaction hash.
-    </span><span class="kw">pub fn </span>tx_hash_from_parts(inputs: <span class="kw-2">&amp;</span>[Input], outputs: <span class="kw-2">&amp;</span>[Output]) -&gt; TransactionId {
+    </span><span class="kw">pub fn </span>tx_hash_from_parts(inputs: <span class="kw-2">&amp;</span>[DynInput], outputs: <span class="kw-2">&amp;</span>[DynOutput]) -&gt; TransactionId {
         <span class="kw">let </span><span class="kw-2">mut </span>engine = TransactionId::engine();
         inputs
             .consensus_encode(<span class="kw-2">&amp;mut </span>engine)
@@ -476,8 +506,12 @@
 </span><span class="doccomment">/// Old transaction definition used by old client.
 </span><span class="kw">pub mod </span>legacy {
     <span class="kw">use </span>bitcoin_hashes::Hash;
+    <span class="kw">use </span>fedimint_api::core::{
+        LEGACY_HARDCODED_INSTANCE_ID_LN, LEGACY_HARDCODED_INSTANCE_ID_MINT,
+        LEGACY_HARDCODED_INSTANCE_ID_WALLET,
+    };
     <span class="kw">use </span>fedimint_api::encoding::{Decodable, Encodable};
-    <span class="kw">use </span>fedimint_api::{ServerModulePlugin, TransactionId};
+    <span class="kw">use </span>fedimint_api::{ServerModule, TransactionId};
     <span class="kw">use </span>secp256k1_zkp::{schnorr, XOnlyPublicKey};
     <span class="kw">use </span>serde::{Deserialize, Serialize};
 
@@ -504,19 +538,19 @@
     /// Inputs can not have keys if the transaction value is 0. This is useful for non-monetary transactions to announce information to the mint like incoming LN contract offers.
     </span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
     </span><span class="kw">pub enum </span>Input {
-        <span class="comment">// TODO: maybe treat every coin as a seperate input?
-        </span>Mint(&lt;fedimint_mint::Mint <span class="kw">as </span>ServerModulePlugin&gt;::Input),
-        Wallet(&lt;fedimint_wallet::Wallet <span class="kw">as </span>ServerModulePlugin&gt;::Input),
-        LN(&lt;fedimint_ln::LightningModule <span class="kw">as </span>ServerModulePlugin&gt;::Input),
+        <span class="comment">// TODO: maybe treat every note as a seperate input?
+        </span>Mint(&lt;fedimint_mint::Mint <span class="kw">as </span>ServerModule&gt;::Input),
+        Wallet(&lt;fedimint_wallet::Wallet <span class="kw">as </span>ServerModule&gt;::Input),
+        LN(&lt;fedimint_ln::Lightning <span class="kw">as </span>ServerModule&gt;::Input),
     }
 
     <span class="comment">// TODO: check if clippy is right
     </span><span class="attr">#[allow(clippy::large_enum_variant)]
     #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
     </span><span class="kw">pub enum </span>Output {
-        Mint(&lt;fedimint_mint::Mint <span class="kw">as </span>ServerModulePlugin&gt;::Output),
-        Wallet(&lt;fedimint_wallet::Wallet <span class="kw">as </span>ServerModulePlugin&gt;::Output),
-        LN(&lt;fedimint_ln::LightningModule <span class="kw">as </span>ServerModulePlugin&gt;::Output),
+        Mint(&lt;fedimint_mint::Mint <span class="kw">as </span>ServerModule&gt;::Output),
+        Wallet(&lt;fedimint_wallet::Wallet <span class="kw">as </span>ServerModule&gt;::Output),
+        LN(&lt;fedimint_ln::Lightning <span class="kw">as </span>ServerModule&gt;::Output),
     }
 
     <span class="kw">impl </span>Transaction {
@@ -530,22 +564,33 @@
 
         <span class="doccomment">/// Generate the transaction hash.
         </span><span class="kw">pub fn </span>tx_hash_from_parts(inputs: <span class="kw-2">&amp;</span>[Input], outputs: <span class="kw-2">&amp;</span>[Output]) -&gt; TransactionId {
+            <span class="kw">use </span>fedimint_api::core;
             <span class="kw">let </span>erased_inputs = inputs
                 .iter()
                 .map(|input| <span class="kw">match </span>input.clone() {
-                    Input::Mint(i) =&gt; i.into(),
-                    Input::Wallet(i) =&gt; i.into(),
-                    Input::LN(i) =&gt; i.into(),
+                    Input::Mint(i) =&gt; {
+                        core::DynInput::from_typed(LEGACY_HARDCODED_INSTANCE_ID_MINT, i)
+                    }
+                    Input::Wallet(i) =&gt; {
+                        core::DynInput::from_typed(LEGACY_HARDCODED_INSTANCE_ID_WALLET, i)
+                    }
+                    Input::LN(i) =&gt; core::DynInput::from_typed(LEGACY_HARDCODED_INSTANCE_ID_LN, i),
                 })
-                .collect::&lt;Vec&lt;fedimint_api::core::Input&gt;&gt;();
+                .collect::&lt;Vec&lt;fedimint_api::core::DynInput&gt;&gt;();
             <span class="kw">let </span>erased_outputs = outputs
                 .iter()
                 .map(|output| <span class="kw">match </span>output.clone() {
-                    Output::Mint(o) =&gt; o.into(),
-                    Output::Wallet(o) =&gt; o.into(),
-                    Output::LN(o) =&gt; o.into(),
+                    Output::Mint(o) =&gt; {
+                        core::DynOutput::from_typed(LEGACY_HARDCODED_INSTANCE_ID_MINT, o)
+                    }
+                    Output::Wallet(o) =&gt; {
+                        core::DynOutput::from_typed(LEGACY_HARDCODED_INSTANCE_ID_WALLET, o)
+                    }
+                    Output::LN(o) =&gt; {
+                        core::DynOutput::from_typed(LEGACY_HARDCODED_INSTANCE_ID_LN, o)
+                    }
                 })
-                .collect::&lt;Vec&lt;fedimint_api::core::Output&gt;&gt;();
+                .collect::&lt;Vec&lt;fedimint_api::core::DynOutput&gt;&gt;();
 
             <span class="kw">let </span><span class="kw-2">mut </span>engine = TransactionId::engine();
             erased_inputs
@@ -592,23 +637,36 @@
         }
 
         <span class="kw">pub fn </span>into_type_erased(<span class="self">self</span>) -&gt; <span class="kw">super</span>::Transaction {
+            <span class="kw">use </span>fedimint_api::core;
             <span class="kw">super</span>::Transaction {
                 inputs: <span class="self">self
                     </span>.inputs
                     .into_iter()
                     .map(|input| <span class="kw">match </span>input {
-                        Input::Mint(input) =&gt; input.into(),
-                        Input::Wallet(input) =&gt; input.into(),
-                        Input::LN(input) =&gt; input.into(),
+                        Input::Mint(input) =&gt; {
+                            core::DynInput::from_typed(LEGACY_HARDCODED_INSTANCE_ID_MINT, input)
+                        }
+                        Input::Wallet(input) =&gt; {
+                            core::DynInput::from_typed(LEGACY_HARDCODED_INSTANCE_ID_WALLET, input)
+                        }
+                        Input::LN(input) =&gt; {
+                            core::DynInput::from_typed(LEGACY_HARDCODED_INSTANCE_ID_LN, input)
+                        }
                     })
                     .collect(),
                 outputs: <span class="self">self
                     </span>.outputs
                     .into_iter()
                     .map(|output| <span class="kw">match </span>output {
-                        Output::Mint(output) =&gt; output.into(),
-                        Output::Wallet(output) =&gt; output.into(),
-                        Output::LN(output) =&gt; output.into(),
+                        Output::Mint(output) =&gt; {
+                            core::DynOutput::from_typed(LEGACY_HARDCODED_INSTANCE_ID_MINT, output)
+                        }
+                        Output::Wallet(output) =&gt; {
+                            core::DynOutput::from_typed(LEGACY_HARDCODED_INSTANCE_ID_WALLET, output)
+                        }
+                        Output::LN(output) =&gt; {
+                            core::DynOutput::from_typed(LEGACY_HARDCODED_INSTANCE_ID_LN, output)
+                        }
                     })
                     .collect(),
                 signature: <span class="self">self</span>.signature,
@@ -617,4 +675,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (77429957a 2023-01-01)" data-search-js="search-181581080540673f.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-58836c674e2f7bd2.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (5ce39f42b 2023-01-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-ab1d4ae2ec52020e.css" ></div></body></html>

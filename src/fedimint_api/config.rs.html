@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-api/src/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-34efc64c5083af8d.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-4a084badb5778746.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../fedimint_api/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-api/src/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-52c5db6f6f352e54.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../fedimint_api/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -757,17 +757,204 @@
 <a href="#757" id="757">757</a>
 <a href="#758" id="758">758</a>
 <a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, HashMap};
+<span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::hash::Hash;
 <span class="kw">use </span>std::io::Write;
 <span class="kw">use </span>std::ops::Mul;
+<span class="kw">use </span>std::str::FromStr;
 
 <span class="kw">use </span>anyhow::bail;
 <span class="kw">use </span>anyhow::format_err;
 <span class="kw">use </span>bitcoin::secp256k1;
+<span class="kw">use </span>bitcoin_hashes::hex;
+<span class="kw">use </span>bitcoin_hashes::hex::{FromHex, ToHex};
+<span class="kw">use </span>bitcoin_hashes::sha256;
 <span class="kw">use </span>bitcoin_hashes::sha256::Hash <span class="kw">as </span>Sha256;
 <span class="kw">use </span>bitcoin_hashes::sha256::HashEngine;
-<span class="kw">use </span>fedimint_api::BitcoinHash;
+<span class="kw">use </span>fedimint_api::{BitcoinHash, Encodable};
 <span class="kw">use </span>hbbft::crypto::group::Curve;
 <span class="kw">use </span>hbbft::crypto::group::GroupEncoding;
 <span class="kw">use </span>hbbft::crypto::poly::Commitment;
@@ -780,17 +967,83 @@
 <span class="kw">use </span>tbs::poly::Poly;
 <span class="kw">use </span>tbs::serde_impl;
 <span class="kw">use </span>tbs::Scalar;
+<span class="kw">use </span>threshold_crypto::serde_impl::SerdeSecret;
 <span class="kw">use </span>url::Url;
 
 <span class="kw">use </span><span class="kw">crate</span>::cancellable::Cancellable;
-<span class="kw">use </span><span class="kw">crate</span>::core::ModuleKey;
+<span class="kw">use </span><span class="kw">crate</span>::core::{ModuleInstanceId, ModuleKind};
 <span class="kw">use </span><span class="kw">crate</span>::net::peers::MuxPeerConnections;
 <span class="kw">use </span><span class="kw">crate</span>::PeerId;
 
-<span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
-</span><span class="kw">pub struct </span>Node {
-    <span class="kw">pub </span>url: Url,
-    <span class="kw">pub </span>name: String,
+<span class="doccomment">/// [`serde_json::Value`] that must contain `kind: String` field
+///
+/// TODO: enforce at ser/deserialization
+/// TODO: make inside prive and enforce `kind` on construction, to
+/// other functions non-falliable
+</span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>JsonWithKind {
+    kind: ModuleKind,
+    <span class="attr">#[serde(flatten)]
+    </span>value: serde_json::Value,
+}
+
+<span class="kw">impl </span>JsonWithKind {
+    <span class="kw">pub fn </span>new(kind: ModuleKind, value: serde_json::Value) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ kind, value }
+    }
+
+    <span class="doccomment">/// Workaround for a serde `flatten` quirk
+    ///
+    /// We serialize config with no fields as: eg. `{ kind: &quot;ln&quot; }`.
+    ///
+    /// When `kind` gets removed and `value` is parsed, it will
+    /// parse as `Value::Object` that is empty.
+    ///
+    /// Howerver empty module structs, like `struct FooConfigLocal;` (unit struct),
+    /// will fail to deserialize with this value, as they expect
+    /// `Value::Null`.
+    ///
+    /// We can turn manually empty object into null, and that&#39;s what
+    /// we do in this function. This fixes the deserialization into
+    /// unit type, but in turn breaks deserialization into `struct Foo{}`,
+    /// which is arguably much less common, but valid.
+    ///
+    /// TODO: In the future, we should have a typed and erased versions of
+    /// module construction traits, and then we can try with and
+    /// without the workaround to have both cases working.
+    /// See https://github.com/fedimint/fedimint/issues/1303
+    </span><span class="kw">pub fn </span>with_fixed_empty_value(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">if let </span>serde_json::Value::Object(<span class="kw-2">ref </span>o) = <span class="self">self</span>.value {
+            <span class="kw">if </span>o.is_empty() {
+                <span class="kw">return </span><span class="self">Self </span>{
+                    kind: <span class="self">self</span>.kind,
+                    value: serde_json::Value::Null,
+                };
+            }
+        }
+
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>serde_json::Value {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.value
+    }
+
+    <span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ModuleKind {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.kind
+    }
+
+    <span class="kw">pub fn </span>is_kind(<span class="kw-2">&amp;</span><span class="self">self</span>, kind: <span class="kw-2">&amp;</span>ModuleKind) -&gt; bool {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.kind == kind
+    }
+}
+
+<span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize, Encodable)]
+</span><span class="kw">pub struct </span>ApiEndpoint {
+    <span class="doccomment">/// The peer&#39;s API websocket network address and port (e.g. `ws://10.42.0.10:5000`)
+    </span><span class="kw">pub </span>url: Url,
+    <span class="doccomment">/// human-readable name
+    </span><span class="kw">pub </span>name: String,
 }
 
 <span class="doccomment">/// Total client config
@@ -798,19 +1051,89 @@
 /// This includes global settings and client-side module configs.
 </span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>ClientConfig {
-    <span class="kw">pub </span>federation_name: String,
-    <span class="kw">pub </span>nodes: Vec&lt;Node&gt;,
-    <span class="kw">pub </span>epoch_pk: threshold_crypto::PublicKey,
-    <span class="kw">pub </span>modules: BTreeMap&lt;String, ClientModuleConfig&gt;,
+    <span class="doccomment">/// name of the federation
+    </span><span class="kw">pub </span>federation_name: String,
+    <span class="comment">// Stable and unique id and threshold pubkey of the federation for authenticating configs
+    </span><span class="kw">pub </span>federation_id: FederationId,
+    <span class="doccomment">/// API endpoints for each federation member
+    </span><span class="kw">pub </span>nodes: Vec&lt;ApiEndpoint&gt;,
+    <span class="doccomment">/// Threshold pubkey for authenticating epoch history
+    </span><span class="kw">pub </span>epoch_pk: threshold_crypto::PublicKey,
+    <span class="doccomment">/// Configs from other client modules
+    </span><span class="kw">pub </span>modules: BTreeMap&lt;ModuleInstanceId, ClientModuleConfig&gt;,
+}
+
+<span class="doccomment">/// The API response for configuration requests
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>ConfigResponse {
+    <span class="doccomment">/// The client config
+    </span><span class="kw">pub </span>client: ClientConfig,
+    <span class="doccomment">/// Hash of the consensus config (for validating against peers)
+    </span><span class="kw">pub </span>consensus_hash: sha256::Hash,
+}
+
+<span class="doccomment">/// The federation id is a copy of the authentication threshold public key of the federation
+///
+/// Stable id so long as guardians membership does not change
+/// Unique id so long as guardians do not all collude
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, Clone, Eq, Hash, PartialEq)]
+</span><span class="kw">pub struct </span>FederationId(<span class="kw">pub </span>threshold_crypto::PublicKey);
+
+<span class="doccomment">/// Display as a hex encoding
+</span><span class="kw">impl </span>FederationId {
+    <span class="doccomment">/// Non-unique dummy id for testing
+    </span><span class="kw">pub fn </span>dummy() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(threshold_crypto::PublicKey::from(G1Projective::identity()))
+    }
+
+    <span class="kw">fn </span>try_from_bytes(bytes: [u8; <span class="number">48</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Some</span>(<span class="self">Self</span>(threshold_crypto::PublicKey::from_bytes(bytes).ok()<span class="question-mark">?</span>))
+    }
+}
+
+<span class="kw">impl </span>ToString <span class="kw">for </span>FederationId {
+    <span class="kw">fn </span>to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="self">self</span>.<span class="number">0</span>.to_bytes().to_hex()
+    }
+}
+
+<span class="kw">impl </span>FromStr <span class="kw">for </span>FederationId {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= anyhow::Error;
+
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+        <span class="self">Self</span>::try_from_bytes(
+            Vec::from_hex(s)<span class="question-mark">?
+                </span>.try_into()
+                .map_err(|bytes: Vec&lt;u8&gt;| hex::Error::InvalidLength(<span class="number">48</span>, bytes.len()))<span class="question-mark">?</span>,
+        )
+        .ok_or_else::&lt;anyhow::Error, <span class="kw">_</span>&gt;(|| <span class="macro">format_err!</span>(<span class="string">&quot;Invalid FederationId pubkey&quot;</span>))
+    }
 }
 
 <span class="kw">impl </span>ClientConfig {
-    <span class="kw">pub fn </span>get_module&lt;T: DeserializeOwned&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, module: <span class="kw-2">&amp;</span>str) -&gt; anyhow::Result&lt;T&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(client_cfg) = <span class="self">self</span>.modules.get(module) {
-            <span class="prelude-val">Ok</span>(serde_json::from_value(client_cfg.<span class="number">0</span>.clone())<span class="question-mark">?</span>)
+    <span class="kw">pub fn </span>get_module&lt;T: DeserializeOwned&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ModuleInstanceId) -&gt; anyhow::Result&lt;T&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(client_cfg) = <span class="self">self</span>.modules.get(<span class="kw-2">&amp;</span>id) {
+            <span class="prelude-val">Ok</span>(serde_json::from_value(client_cfg.<span class="number">0</span>.value().clone())<span class="question-mark">?</span>)
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="string">&quot;Client config for {module} module not found&quot;</span>))
+            <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="string">&quot;Client config for module id: {id} not found&quot;</span>))
         }
+    }
+
+    <span class="doccomment">/// (soft-deprecated): Get the first instance of a module of a given kind in defined in config
+    ///
+    /// Since module ids are numerical and for time being we only support 1:1 mint, wallet, ln
+    /// module code in the client, this is useful, but please write any new code that avoids
+    /// assumptions about available modules.
+    </span><span class="kw">pub fn </span>get_first_module_by_kind&lt;T: DeserializeOwned&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        kind: <span class="kw">impl </span>Into&lt;ModuleKind&gt;,
+    ) -&gt; anyhow::Result&lt;(ModuleInstanceId, T)&gt; {
+        <span class="kw">let </span>kind: ModuleKind = kind.into();
+        <span class="kw">let </span><span class="prelude-val">Some</span>((id, module_cfg)) = <span class="self">self</span>.modules.iter().find(|(<span class="kw">_</span>, v)| v.is_kind(<span class="kw-2">&amp;</span>kind)) <span class="kw">else </span>{
+            <span class="macro">anyhow::bail!</span>(<span class="string">&quot;Module kind {kind} not found&quot;</span>)
+        };
+
+        <span class="prelude-val">Ok</span>((<span class="kw-2">*</span>id, serde_json::from_value(module_cfg.<span class="number">0</span>.value().clone())<span class="question-mark">?</span>))
     }
 }
 
@@ -831,7 +1154,7 @@
     }
 
     <span class="doccomment">/// Add params for a module
-    </span><span class="kw">pub fn </span>attach&lt;P: ModuleConfigGenParams&gt;(<span class="kw-2">mut </span><span class="self">self</span>, module_params: P) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>attach&lt;P: ModuleGenParams&gt;(<span class="kw-2">mut </span><span class="self">self</span>, module_params: P) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.<span class="number">0</span>.insert(
             P::MODULE_NAME.to_string(),
             serde_json::to_value(<span class="kw-2">&amp;</span>module_params).expect(<span class="string">&quot;Encoding to value doesn&#39;t fail&quot;</span>),
@@ -840,7 +1163,7 @@
     </span>}
 
     <span class="doccomment">/// Retrieve a typed config generation parameters for a module
-    </span><span class="kw">pub fn </span>get&lt;P: ModuleConfigGenParams&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; anyhow::Result&lt;P&gt; {
+    </span><span class="kw">pub fn </span>get&lt;P: ModuleGenParams&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; anyhow::Result&lt;P&gt; {
         <span class="kw">let </span>value = <span class="self">self
             </span>.<span class="number">0
             </span>.get(P::MODULE_NAME)
@@ -850,8 +1173,17 @@
     }
 }
 
-<span class="kw">pub trait </span>ModuleConfigGenParams: serde::Serialize + serde::de::DeserializeOwned {
+<span class="kw">pub trait </span>ModuleGenParams: serde::Serialize + serde::de::DeserializeOwned {
     <span class="kw">const </span>MODULE_NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+}
+
+<span class="doccomment">/// Response from the API for this particular module
+</span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>ModuleConfigResponse {
+    <span class="doccomment">/// The client configuration
+    </span><span class="kw">pub </span>client: ClientModuleConfig,
+    <span class="doccomment">/// Hash of the consensus configuration
+    </span><span class="kw">pub </span>consensus_hash: sha256::Hash,
 }
 
 <span class="doccomment">/// Config for the client-side of a particular Federation module
@@ -860,17 +1192,29 @@
 /// it needs to be some form of an abstract type-erased-like
 /// value.
 </span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-</span><span class="kw">pub struct </span>ClientModuleConfig(<span class="kw">pub </span>serde_json::Value);
+</span><span class="kw">pub struct </span>ClientModuleConfig(JsonWithKind);
 
-<span class="kw">impl </span>From&lt;serde_json::Value&gt; <span class="kw">for </span>ClientModuleConfig {
-    <span class="kw">fn </span>from(v: serde_json::Value) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(v)
+<span class="kw">impl </span>ClientModuleConfig {
+    <span class="kw">pub fn </span>new(kind: ModuleKind, value: serde_json::Value) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(JsonWithKind::new(kind, value))
+    }
+
+    <span class="kw">pub fn </span>is_kind(<span class="kw-2">&amp;</span><span class="self">self</span>, kind: <span class="kw-2">&amp;</span>ModuleKind) -&gt; bool {
+        <span class="self">self</span>.<span class="number">0</span>.is_kind(kind)
+    }
+
+    <span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ModuleKind {
+        <span class="self">self</span>.<span class="number">0</span>.kind()
+    }
+
+    <span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>serde_json::Value {
+        <span class="self">self</span>.<span class="number">0</span>.value()
     }
 }
 
 <span class="kw">impl </span>ClientModuleConfig {
     <span class="kw">pub fn </span>cast&lt;T: TypedClientModuleConfig&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; anyhow::Result&lt;T&gt; {
-        <span class="prelude-val">Ok</span>(serde_json::from_value(<span class="self">self</span>.<span class="number">0</span>.clone())<span class="question-mark">?</span>)
+        <span class="prelude-val">Ok</span>(serde_json::from_value(<span class="self">self</span>.<span class="number">0</span>.value().clone())<span class="question-mark">?</span>)
     }
 }
 
@@ -879,17 +1223,13 @@
 /// See [`ClientModuleConfig`].
 </span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>ServerModuleConfig {
-    <span class="kw">pub </span>local: serde_json::Value,
-    <span class="kw">pub </span>private: serde_json::Value,
-    <span class="kw">pub </span>consensus: serde_json::Value,
+    <span class="kw">pub </span>local: JsonWithKind,
+    <span class="kw">pub </span>private: JsonWithKind,
+    <span class="kw">pub </span>consensus: JsonWithKind,
 }
 
 <span class="kw">impl </span>ServerModuleConfig {
-    <span class="kw">pub fn </span>from(
-        local: serde_json::Value,
-        private: serde_json::Value,
-        consensus: serde_json::Value,
-    ) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>from(local: JsonWithKind, private: JsonWithKind, consensus: JsonWithKind) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             local,
             private,
@@ -898,9 +1238,9 @@
     }
 
     <span class="kw">pub fn </span>to_typed&lt;T: TypedServerModuleConfig&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; anyhow::Result&lt;T&gt; {
-        <span class="kw">let </span>local = serde_json::from_value(<span class="self">self</span>.local.clone())<span class="question-mark">?</span>;
-        <span class="kw">let </span>private = serde_json::from_value(<span class="self">self</span>.private.clone())<span class="question-mark">?</span>;
-        <span class="kw">let </span>consensus = serde_json::from_value(<span class="self">self</span>.consensus.clone())<span class="question-mark">?</span>;
+        <span class="kw">let </span>local = serde_json::from_value(<span class="self">self</span>.local.value().clone())<span class="question-mark">?</span>;
+        <span class="kw">let </span>private = serde_json::from_value(<span class="self">self</span>.private.value().clone())<span class="question-mark">?</span>;
+        <span class="kw">let </span>consensus = serde_json::from_value(<span class="self">self</span>.consensus.value().clone())<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(TypedServerModuleConfig::from_parts(
             local, private, consensus,
@@ -909,7 +1249,7 @@
 }
 
 <span class="doccomment">/// Consensus-critical part of a server side module config
-</span><span class="kw">pub trait </span>TypedServerModuleConsensusConfig: DeserializeOwned + Serialize {
+</span><span class="kw">pub trait </span>TypedServerModuleConsensusConfig: DeserializeOwned + Serialize + Encodable {
     <span class="doccomment">/// Derive client side config for this module (type-erased)
     </span><span class="kw">fn </span>to_client_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ClientModuleConfig;
 }
@@ -927,16 +1267,25 @@
     </span><span class="kw">fn </span>from_parts(local: <span class="self">Self</span>::Local, private: <span class="self">Self</span>::Private, consensus: <span class="self">Self</span>::Consensus) -&gt; <span class="self">Self</span>;
 
     <span class="doccomment">/// Split the config into its three functionally distinct parts
-    </span><span class="kw">fn </span>to_parts(<span class="self">self</span>) -&gt; (<span class="self">Self</span>::Local, <span class="self">Self</span>::Private, <span class="self">Self</span>::Consensus);
+    </span><span class="kw">fn </span>to_parts(<span class="self">self</span>) -&gt; (ModuleKind, <span class="self">Self</span>::Local, <span class="self">Self</span>::Private, <span class="self">Self</span>::Consensus);
 
     <span class="doccomment">/// Turn the typed config into type-erased version
     </span><span class="kw">fn </span>to_erased(<span class="self">self</span>) -&gt; ServerModuleConfig {
-        <span class="kw">let </span>(local, private, consensus) = <span class="self">self</span>.to_parts();
+        <span class="kw">let </span>(kind, local, private, consensus) = <span class="self">self</span>.to_parts();
 
         ServerModuleConfig {
-            local: serde_json::to_value(local).expect(<span class="string">&quot;serialization can&#39;t fail&quot;</span>),
-            private: serde_json::to_value(private).expect(<span class="string">&quot;serialization can&#39;t fail&quot;</span>),
-            consensus: serde_json::to_value(consensus).expect(<span class="string">&quot;serialization can&#39;t fail&quot;</span>),
+            local: JsonWithKind::new(
+                kind.clone(),
+                serde_json::to_value(local).expect(<span class="string">&quot;serialization can&#39;t fail&quot;</span>),
+            ),
+            private: JsonWithKind::new(
+                kind.clone(),
+                serde_json::to_value(private).expect(<span class="string">&quot;serialization can&#39;t fail&quot;</span>),
+            ),
+            consensus: JsonWithKind::new(
+                kind,
+                serde_json::to_value(consensus).expect(<span class="string">&quot;serialization can&#39;t fail&quot;</span>),
+            ),
         }
     }
 
@@ -945,9 +1294,14 @@
 }
 
 <span class="doccomment">/// Typed client side module config
-</span><span class="kw">pub trait </span>TypedClientModuleConfig: DeserializeOwned + Serialize {
+</span><span class="kw">pub trait </span>TypedClientModuleConfig: DeserializeOwned + Serialize + Encodable {
+    <span class="kw">fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ModuleKind;
+
     <span class="kw">fn </span>to_erased(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ClientModuleConfig {
-        ClientModuleConfig(serde_json::to_value(<span class="self">self</span>).expect(<span class="string">&quot;serialization can&#39;t fail&quot;</span>))
+        ClientModuleConfig::new(
+            <span class="self">self</span>.kind(),
+            serde_json::to_value(<span class="self">self</span>).expect(<span class="string">&quot;serialization can&#39;t fail&quot;</span>),
+        )
     }
 }
 
@@ -956,6 +1310,8 @@
 </span><span class="kw">pub enum </span>DkgPeerMsg {
     PublicKey(secp256k1::PublicKey),
     DistributedGen((String, SupportedDkgMessage)),
+    <span class="comment">// Dkg completed on our side
+    </span>Done,
 }
 
 <span class="doccomment">/// Supported (by Fedimint&#39;s code) `DkgMessage&lt;T&gt;` types
@@ -1241,8 +1597,8 @@
     <span class="doccomment">/// Create keys from G2 (96B keys, 48B messages) used in `tbs`
     </span><span class="kw">pub async fn </span>run_g2(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        module_id: ModuleKey,
-        connections: <span class="kw-2">&amp;</span>MuxPeerConnections&lt;ModuleKey, DkgPeerMsg&gt;,
+        module_id: ModuleInstanceId,
+        connections: <span class="kw-2">&amp;</span>MuxPeerConnections&lt;ModuleInstanceId, DkgPeerMsg&gt;,
         rng: <span class="kw-2">&amp;mut </span>(<span class="kw">impl </span>RngCore + CryptoRng),
     ) -&gt; Cancellable&lt;HashMap&lt;T, DkgKeys&lt;G2Projective&gt;&gt;&gt; {
         <span class="self">self</span>.run(module_id, G2Projective::generator(), connections, rng)
@@ -1252,8 +1608,8 @@
     <span class="doccomment">/// Create keys from G1 (48B keys, 96B messages) used in `threshold_crypto`
     </span><span class="kw">pub async fn </span>run_g1(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        module_id: ModuleKey,
-        connections: <span class="kw-2">&amp;</span>MuxPeerConnections&lt;ModuleKey, DkgPeerMsg&gt;,
+        module_id: ModuleInstanceId,
+        connections: <span class="kw-2">&amp;</span>MuxPeerConnections&lt;ModuleInstanceId, DkgPeerMsg&gt;,
         rng: <span class="kw-2">&amp;mut </span>(<span class="kw">impl </span>RngCore + CryptoRng),
     ) -&gt; Cancellable&lt;HashMap&lt;T, DkgKeys&lt;G1Projective&gt;&gt;&gt; {
         <span class="self">self</span>.run(module_id, G1Projective::generator(), connections, rng)
@@ -1263,9 +1619,9 @@
     <span class="doccomment">/// Runs the DKG algorithms with our peers
     </span><span class="kw">pub async fn </span>run&lt;G: DkgGroup&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        module_id: ModuleKey,
+        module_id: ModuleInstanceId,
         group: G,
-        connections: <span class="kw-2">&amp;</span>MuxPeerConnections&lt;ModuleKey, DkgPeerMsg&gt;,
+        connections: <span class="kw-2">&amp;</span>MuxPeerConnections&lt;ModuleInstanceId, DkgPeerMsg&gt;,
         rng: <span class="kw-2">&amp;mut </span>(<span class="kw">impl </span>RngCore + CryptoRng),
     ) -&gt; Cancellable&lt;HashMap&lt;T, DkgKeys&lt;G&gt;&gt;&gt;
     <span class="kw">where
@@ -1351,6 +1707,13 @@
     <span class="kw">pub </span>secret_key_share: Scalar,
 }
 
+<span class="doccomment">/// Our secret key share of a threshold key
+</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>ThresholdKeys {
+    <span class="kw">pub </span>public_key_set: PublicKeySet,
+    <span class="kw">pub </span>secret_key_share: SerdeSecret&lt;SecretKeyShare&gt;,
+}
+
 <span class="kw">impl </span>DkgKeys&lt;G2Projective&gt; {
     <span class="kw">pub fn </span>tbs(<span class="self">self</span>) -&gt; (Poly&lt;G2Projective, Scalar&gt;, tbs::SecretKeyShare) {
         (
@@ -1361,11 +1724,13 @@
 }
 
 <span class="kw">impl </span>DkgKeys&lt;G1Projective&gt; {
-    <span class="kw">pub fn </span>threshold_crypto(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (PublicKeySet, SecretKeyShare) {
-        (
-            PublicKeySet::from(Commitment::from(<span class="self">self</span>.public_key_set.clone())),
-            SecretKeyShare::from_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.secret_key_share.clone()),
-        )
+    <span class="kw">pub fn </span>threshold_crypto(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ThresholdKeys {
+        ThresholdKeys {
+            public_key_set: PublicKeySet::from(Commitment::from(<span class="self">self</span>.public_key_set.clone())),
+            secret_key_share: SerdeSecret(SecretKeyShare::from_mut(
+                <span class="kw-2">&amp;mut </span><span class="self">self</span>.secret_key_share.clone(),
+            )),
+        }
     }
 }
 
@@ -1448,7 +1813,7 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use </span>std::collections::{HashMap, VecDeque};
 
-    <span class="kw">use </span>fedimint_api::config::DkgStep;
+    <span class="kw">use </span>fedimint_api::config::{DkgStep, ThresholdKeys};
     <span class="kw">use </span>hbbft::crypto::group::Curve;
     <span class="kw">use </span>hbbft::crypto::{G1Projective, G2Projective};
     <span class="kw">use </span>rand::rngs::OsRng;
@@ -1459,9 +1824,15 @@
     <span class="attr">#[test_log::test]
     </span><span class="kw">fn </span>test_dkg() {
         <span class="kw">for </span>(peer, keys) <span class="kw">in </span>run(G1Projective::generator()) {
-            <span class="kw">let </span>(pk, sk) = keys.threshold_crypto();
-            <span class="macro">assert_eq!</span>(pk.threshold(), <span class="number">2</span>);
-            <span class="macro">assert_eq!</span>(pk.public_key_share(peer.to_usize()), sk.public_key_share());
+            <span class="kw">let </span>ThresholdKeys {
+                public_key_set,
+                secret_key_share,
+            } = keys.threshold_crypto();
+            <span class="macro">assert_eq!</span>(public_key_set.threshold(), <span class="number">2</span>);
+            <span class="macro">assert_eq!</span>(
+                public_key_set.public_key_share(peer.to_usize()),
+                secret_key_share.public_key_share()
+            );
         }
 
         <span class="kw">for </span>(peer, keys) <span class="kw">in </span>run(G2Projective::generator()) {
@@ -1509,12 +1880,5 @@
         keys
     }
 }
-
-<span class="attr">#[derive(Clone, Debug, Serialize, Deserialize)]
-</span><span class="kw">pub struct </span>BitcoindRpcCfg {
-    <span class="kw">pub </span>btc_rpc_address: String,
-    <span class="kw">pub </span>btc_rpc_user: String,
-    <span class="kw">pub </span>btc_rpc_pass: String,
-}
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_api" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (77429957a 2023-01-01)" data-search-js="search-181581080540673f.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-58836c674e2f7bd2.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_api" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (5ce39f42b 2023-01-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-ab1d4ae2ec52020e.css" ></div></body></html>

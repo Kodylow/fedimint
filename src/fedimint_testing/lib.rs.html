@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-testing/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-34efc64c5083af8d.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-4a084badb5778746.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../fedimint_testing/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `fedimint-testing/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-52c5db6f6f352e54.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../fedimint_testing/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -348,6 +348,16 @@
 <a href="#348" id="348">348</a>
 <a href="#349" id="349">349</a>
 <a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 <span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::future::Future;
@@ -356,21 +366,19 @@
 
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>fedimint_api::config::{ClientModuleConfig, ConfigGenParams, ServerModuleConfig};
+<span class="kw">use </span>fedimint_api::core::{ModuleInstanceId, LEGACY_HARDCODED_INSTANCE_ID_WALLET};
 <span class="kw">use </span>fedimint_api::db::mem_impl::MemDatabase;
 <span class="kw">use </span>fedimint_api::db::{Database, DatabaseTransaction};
 <span class="kw">use </span>fedimint_api::module::interconnect::ModuleInterconect;
 <span class="kw">use </span>fedimint_api::module::registry::ModuleDecoderRegistry;
-<span class="kw">use </span>fedimint_api::module::{
-    ApiError, FederationModuleConfigGen, InputMeta, ModuleError, TransactionItemAmount,
-};
-<span class="kw">use </span>fedimint_api::server::IServerModule;
-<span class="kw">use </span>fedimint_api::{OutPoint, PeerId, ServerModulePlugin};
+<span class="kw">use </span>fedimint_api::module::{ApiError, InputMeta, ModuleError, ModuleGen, TransactionItemAmount};
+<span class="kw">use </span>fedimint_api::{OutPoint, PeerId, ServerModule};
 
 <span class="kw">pub mod </span>btc;
 
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>FakeFed&lt;Module&gt; {
-    members: Vec&lt;(PeerId, Module, Database)&gt;,
+    <span class="kw">pub </span>members: Vec&lt;(PeerId, Module, Database, ModuleInstanceId)&gt;,
     client_cfg: ClientModuleConfig,
     block_height: Arc&lt;std::sync::atomic::AtomicU64&gt;,
 }
@@ -384,7 +392,7 @@
 
 <span class="kw">impl</span>&lt;Module&gt; FakeFed&lt;Module&gt;
 <span class="kw">where
-    </span>Module: ServerModulePlugin + <span class="lifetime">&#39;static </span>+ Send + Sync,
+    </span>Module: ServerModule + <span class="lifetime">&#39;static </span>+ Send + Sync,
     Module::ConsensusItem: Clone,
     Module::OutputOutcome: Eq + Debug,
     Module::Decoder: Sync + Send + <span class="lifetime">&#39;static</span>,
@@ -394,9 +402,10 @@
         constructor: F,
         params: <span class="kw-2">&amp;</span>ConfigGenParams,
         conf_gen: <span class="kw-2">&amp;</span>ConfGen,
+        module_instance_id: ModuleInstanceId,
     ) -&gt; anyhow::Result&lt;FakeFed&lt;Module&gt;&gt;
     <span class="kw">where
-        </span>ConfGen: FederationModuleConfigGen,
+        </span>ConfGen: ModuleGen,
         F: Fn(ServerModuleConfig, Database) -&gt; FF,
         FF: Future&lt;Output = anyhow::Result&lt;Module&gt;&gt;,
     {
@@ -404,18 +413,22 @@
             .map(|idx| PeerId::from(idx <span class="kw">as </span>u16))
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="kw">let </span>server_cfg = conf_gen.trusted_dealer_gen(<span class="kw-2">&amp;</span>peers, params);
-        <span class="kw">let </span>client_cfg = conf_gen.to_client_config(server_cfg[<span class="kw-2">&amp;</span>PeerId::from(<span class="number">0</span>)].clone())<span class="question-mark">?</span>;
+        <span class="kw">let </span>consensus_cfg = server_cfg[<span class="kw-2">&amp;</span>PeerId::from(<span class="number">0</span>)].consensus.value().clone();
+        <span class="kw">let </span>cfg_response = conf_gen.to_config_response(consensus_cfg)<span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>members = <span class="macro">vec!</span>[];
         <span class="kw">for </span>(peer, cfg) <span class="kw">in </span>server_cfg {
-            <span class="kw">let </span>mem_db: Database = MemDatabase::new().into();
-            <span class="kw">let </span>member = constructor(cfg, mem_db.clone()).<span class="kw">await</span><span class="question-mark">?</span>;
-            members.push((peer, member, mem_db));
+            <span class="kw">let </span>db = Database::new(
+                MemDatabase::new(),
+                ModuleDecoderRegistry::from_iter([(module_instance_id, conf_gen.decoder().into())]),
+            );
+            <span class="kw">let </span>member = constructor(cfg, db.clone()).<span class="kw">await</span><span class="question-mark">?</span>;
+            members.push((peer, member, db, module_instance_id));
         }
 
         <span class="prelude-val">Ok</span>(FakeFed {
             members,
-            client_cfg,
+            client_cfg: cfg_response.client,
             block_height: Arc::new(AtomicU64::new(<span class="number">0</span>)),
         })
     }
@@ -427,7 +440,7 @@
     <span class="kw">pub async fn </span>verify_input(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Module::Input) -&gt; <span class="prelude-ty">Result</span>&lt;TestInputMeta, ModuleError&gt; {
         <span class="kw">let </span>fake_ic = FakeInterconnect::new_block_height_responder(<span class="self">self</span>.block_height.clone());
 
-        <span class="kw">async fn </span>member_validate&lt;M: ServerModulePlugin&gt;(
+        <span class="kw">async fn </span>member_validate&lt;M: ServerModule&gt;(
             member: <span class="kw-2">&amp;</span>M,
             dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;,
             fake_ic: <span class="kw-2">&amp;</span>FakeInterconnect,
@@ -445,9 +458,17 @@
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>results = <span class="macro">vec!</span>[];
-        <span class="kw">for </span>(<span class="kw">_</span>, member, db) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.members {
-            <span class="kw">let </span><span class="kw-2">mut </span>dbtx = db.begin_transaction(<span class="self">self</span>.decoders()).<span class="kw">await</span>;
-            results.push(member_validate(member, <span class="kw-2">&amp;mut </span>dbtx, <span class="kw-2">&amp;</span>fake_ic, input).<span class="kw">await</span>);
+        <span class="kw">for </span>(<span class="kw">_</span>, member, db, module_instance_id) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.members {
+            <span class="kw">let </span><span class="kw-2">mut </span>dbtx = db.begin_transaction().<span class="kw">await</span>;
+            results.push(
+                member_validate(
+                    member,
+                    <span class="kw-2">&amp;mut </span>dbtx.with_module_prefix(<span class="kw-2">*</span>module_instance_id),
+                    <span class="kw-2">&amp;</span>fake_ic,
+                    input,
+                )
+                .<span class="kw">await</span>,
+            );
             dbtx.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB tx failed&quot;</span>);
         }
 
@@ -456,23 +477,21 @@
 
     <span class="kw">pub async fn </span>verify_output(<span class="kw-2">&amp;</span><span class="self">self</span>, output: <span class="kw-2">&amp;</span>Module::Output) -&gt; bool {
         <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
-        <span class="kw">for </span>(<span class="kw">_</span>, member, db) <span class="kw">in </span><span class="self">self</span>.members.iter() {
+        <span class="kw">for </span>(<span class="kw">_</span>, member, db, module_instance_id) <span class="kw">in </span><span class="self">self</span>.members.iter() {
             results.push(
                 member
-                    .validate_output(<span class="kw-2">&amp;mut </span>db.begin_transaction(<span class="self">self</span>.decoders()).<span class="kw">await</span>, output)
+                    .validate_output(
+                        <span class="kw-2">&amp;mut </span>db
+                            .begin_transaction()
+                            .<span class="kw">await
+                            </span>.with_module_prefix(<span class="kw-2">*</span>module_instance_id),
+                        output,
+                    )
                     .<span class="kw">await
                     </span>.is_err(),
             );
         }
         assert_all_equal(results.into_iter())
-    }
-
-    <span class="kw">fn </span>decoders(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ModuleDecoderRegistry {
-        <span class="kw">let </span>module = <span class="kw-2">&amp;</span><span class="self">self</span>.members.first().unwrap().<span class="number">1</span>;
-        ModuleDecoderRegistry::new(std::iter::once((
-            module.module_key(),
-            IServerModule::decoder(module),
-        )))
     }
 
     <span class="comment">// TODO: add expected result to inputs/outputs
@@ -481,17 +500,20 @@
         inputs: <span class="kw-2">&amp;</span>[Module::Input],
         outputs: <span class="kw-2">&amp;</span>[(OutPoint, Module::Output)],
     ) <span class="kw">where
-        </span>&lt;Module <span class="kw">as </span>ServerModulePlugin&gt;::Input: Send + Sync,
+        </span>&lt;Module <span class="kw">as </span>ServerModule&gt;::Input: Send + Sync,
     {
         <span class="kw">let </span>fake_ic = FakeInterconnect::new_block_height_responder(<span class="self">self</span>.block_height.clone());
-        <span class="kw">let </span>decoders = <span class="self">self</span>.decoders();
-
         <span class="comment">// TODO: only include some of the proposals for realism
         </span><span class="kw">let </span><span class="kw-2">mut </span>consensus = <span class="macro">vec!</span>[];
-        <span class="kw">for </span>(id, member, db) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.members {
+        <span class="kw">for </span>(id, member, db, module_instance_id) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.members {
             consensus.extend(
                 member
-                    .consensus_proposal(<span class="kw-2">&amp;mut </span>db.begin_transaction(decoders.clone()).<span class="kw">await</span>)
+                    .consensus_proposal(
+                        <span class="kw-2">&amp;mut </span>db
+                            .begin_transaction()
+                            .<span class="kw">await
+                            </span>.with_module_prefix(<span class="kw-2">*</span>module_instance_id),
+                    )
                     .<span class="kw">await
                     </span>.into_iter()
                     .map(|ci| (<span class="kw-2">*</span>id, ci)),
@@ -499,34 +521,33 @@
         }
 
         <span class="kw">let </span>peers: HashSet&lt;PeerId&gt; = <span class="self">self</span>.members.iter().map(|p| p.<span class="number">0</span>).collect();
-        <span class="kw">let </span>decoders = <span class="self">self</span>.decoders();
-        <span class="kw">for </span>(_peer, member, db) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.members {
+        <span class="kw">for </span>(_peer, member, db, module_instance_id) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.members {
             <span class="kw">let </span>database = db <span class="kw">as </span><span class="kw-2">&amp;mut </span>Database;
-            <span class="kw">let </span><span class="kw-2">mut </span>dbtx = database.begin_transaction(decoders.clone()).<span class="kw">await</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>dbtx = database.begin_transaction().<span class="kw">await</span>;
+            {
+                <span class="kw">let </span><span class="kw-2">mut </span>module_dbtx = dbtx.with_module_prefix(<span class="kw-2">*</span>module_instance_id);
 
-            member
-                .begin_consensus_epoch(<span class="kw-2">&amp;mut </span>dbtx, consensus.clone())
-                .<span class="kw">await</span>;
-
-            <span class="kw">let </span>cache = member.build_verification_cache(inputs.iter());
-            <span class="kw">for </span>input <span class="kw">in </span>inputs {
                 member
-                    .apply_input(<span class="kw-2">&amp;</span>fake_ic, <span class="kw-2">&amp;mut </span>dbtx, input, <span class="kw-2">&amp;</span>cache)
-                    .<span class="kw">await
-                    </span>.expect(<span class="string">&quot;Faulty input&quot;</span>);
+                    .begin_consensus_epoch(<span class="kw-2">&amp;mut </span>module_dbtx, consensus.clone())
+                    .<span class="kw">await</span>;
+
+                <span class="kw">let </span>cache = member.build_verification_cache(inputs.iter());
+                <span class="kw">for </span>input <span class="kw">in </span>inputs {
+                    member
+                        .apply_input(<span class="kw-2">&amp;</span>fake_ic, <span class="kw-2">&amp;mut </span>module_dbtx, input, <span class="kw-2">&amp;</span>cache)
+                        .<span class="kw">await
+                        </span>.expect(<span class="string">&quot;Faulty input&quot;</span>);
+                }
+
+                <span class="kw">for </span>(out_point, output) <span class="kw">in </span>outputs {
+                    member
+                        .apply_output(<span class="kw-2">&amp;mut </span>module_dbtx, output, <span class="kw-2">*</span>out_point)
+                        .<span class="kw">await
+                        </span>.expect(<span class="string">&quot;Faulty output&quot;</span>);
+                }
+
+                member.end_consensus_epoch(<span class="kw-2">&amp;</span>peers, <span class="kw-2">&amp;mut </span>module_dbtx).<span class="kw">await</span>;
             }
-
-            <span class="kw">for </span>(out_point, output) <span class="kw">in </span>outputs {
-                member
-                    .apply_output(<span class="kw-2">&amp;mut </span>dbtx, output, <span class="kw-2">*</span>out_point)
-                    .<span class="kw">await
-                    </span>.expect(<span class="string">&quot;Faulty output&quot;</span>);
-            }
-
-            dbtx.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB Error&quot;</span>);
-
-            <span class="kw">let </span><span class="kw-2">mut </span>dbtx = database.begin_transaction(decoders.clone()).<span class="kw">await</span>;
-            member.end_consensus_epoch(<span class="kw-2">&amp;</span>peers, <span class="kw-2">&amp;mut </span>dbtx).<span class="kw">await</span>;
 
             dbtx.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB Error&quot;</span>);
         }
@@ -538,32 +559,25 @@
         // main consensus loop into another thread to optimize latency. This test will probably fail
         // then.
         </span><span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
-        <span class="kw">for </span>(<span class="kw">_</span>, member, db) <span class="kw">in </span><span class="self">self</span>.members.iter() {
+        <span class="kw">for </span>(<span class="kw">_</span>, member, db, module_instance_id) <span class="kw">in </span><span class="self">self</span>.members.iter() {
             results.push(
                 member
-                    .output_status(<span class="kw-2">&amp;mut </span>db.begin_transaction(<span class="self">self</span>.decoders()).<span class="kw">await</span>, out_point)
+                    .output_status(
+                        <span class="kw-2">&amp;mut </span>db
+                            .begin_transaction()
+                            .<span class="kw">await
+                            </span>.with_module_prefix(<span class="kw-2">*</span>module_instance_id),
+                        out_point,
+                    )
                     .<span class="kw">await</span>,
             );
         }
         assert_all_equal(results.into_iter())
     }
 
-    <span class="kw">pub async fn </span>patch_dbs&lt;U&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, update: U)
-    <span class="kw">where
-        </span>U: Fn(<span class="kw-2">&amp;mut </span>DatabaseTransaction),
-    {
-        <span class="kw">let </span>decoders = <span class="self">self</span>.decoders();
-        <span class="kw">for </span>(<span class="kw">_</span>, <span class="kw">_</span>, db) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.members {
-            <span class="kw">let </span><span class="kw-2">mut </span>dbtx = db.begin_transaction(decoders.clone()).<span class="kw">await</span>;
-            update(<span class="kw-2">&amp;mut </span>dbtx);
-            dbtx.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB Error&quot;</span>);
-        }
-    }
-
     <span class="kw">pub async fn </span>generate_fake_utxo(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">let </span>decoders = <span class="self">self</span>.decoders();
-        <span class="kw">for </span>(<span class="kw">_</span>, <span class="kw">_</span>, db) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.members {
-            <span class="kw">let </span><span class="kw-2">mut </span>dbtx = db.begin_transaction(decoders.clone()).<span class="kw">await</span>;
+        <span class="kw">for </span>(<span class="kw">_</span>, <span class="kw">_</span>, db, module_instance_id) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.members {
+            <span class="kw">let </span><span class="kw-2">mut </span>dbtx = db.begin_transaction().<span class="kw">await</span>;
             <span class="kw">let </span>out_point = bitcoin::OutPoint::default();
             <span class="kw">let </span>tweak = [<span class="number">42</span>; <span class="number">32</span>];
             <span class="kw">let </span>utxo = fedimint_wallet::SpendableUTXO {
@@ -571,20 +585,26 @@
                 amount: bitcoin::Amount::from_sat(<span class="number">48000</span>),
             };
 
-            dbtx.insert_entry(<span class="kw-2">&amp;</span>fedimint_wallet::db::UTXOKey(out_point), <span class="kw-2">&amp;</span>utxo)
-                .<span class="kw">await
-                </span>.unwrap();
+            {
+                <span class="kw">let </span><span class="kw-2">mut </span>module_dbtx = dbtx.with_module_prefix(<span class="kw-2">*</span>module_instance_id);
+                module_dbtx
+                    .insert_entry(<span class="kw-2">&amp;</span>fedimint_wallet::db::UTXOKey(out_point), <span class="kw-2">&amp;</span>utxo)
+                    .<span class="kw">await
+                    </span>.unwrap();
 
-            dbtx.insert_entry(
-                <span class="kw-2">&amp;</span>fedimint_wallet::db::RoundConsensusKey,
-                <span class="kw-2">&amp;</span>fedimint_wallet::RoundConsensus {
-                    block_height: <span class="number">0</span>,
-                    fee_rate: fedimint_api::Feerate { sats_per_kvb: <span class="number">0 </span>},
-                    randomness_beacon: tweak,
-                },
-            )
-            .<span class="kw">await
-            </span>.unwrap();
+                module_dbtx
+                    .insert_entry(
+                        <span class="kw-2">&amp;</span>fedimint_wallet::db::RoundConsensusKey,
+                        <span class="kw-2">&amp;</span>fedimint_wallet::RoundConsensus {
+                            block_height: <span class="number">0</span>,
+                            fee_rate: fedimint_api::Feerate { sats_per_kvb: <span class="number">0 </span>},
+                            randomness_beacon: tweak,
+                        },
+                    )
+                    .<span class="kw">await
+                    </span>.unwrap();
+            }
+
             dbtx.commit_tx().<span class="kw">await</span>.expect(<span class="string">&quot;DB Error&quot;</span>);
         }
     }
@@ -594,18 +614,18 @@
     }
 
     <span class="kw">pub fn </span>client_cfg_typed&lt;T: serde::de::DeserializeOwned&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; anyhow::Result&lt;T&gt; {
-        <span class="prelude-val">Ok</span>(serde_json::from_value(<span class="self">self</span>.client_cfg.<span class="number">0</span>.clone())<span class="question-mark">?</span>)
+        <span class="prelude-val">Ok</span>(serde_json::from_value(<span class="self">self</span>.client_cfg.value().clone())<span class="question-mark">?</span>)
     }
 
     <span class="kw">pub async fn </span>fetch_from_all&lt;<span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;b</span>, O, F, Fut&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, fetch: F) -&gt; O
     <span class="kw">where
         </span>O: Debug + Eq + Send,
-        F: Fn(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>Module, <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>Database) -&gt; Fut,
+        F: Fn(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>Module, <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>Database, <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>ModuleInstanceId) -&gt; Fut,
         Fut: futures::Future&lt;Output = O&gt; + Send,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
-        <span class="kw">for </span>(<span class="kw">_</span>, member, db) <span class="kw">in </span><span class="self">self</span>.members.iter_mut() {
-            results.push(fetch(member, db).<span class="kw">await</span>);
+        <span class="kw">for </span>(<span class="kw">_</span>, member, db, module_instance_id) <span class="kw">in </span><span class="self">self</span>.members.iter_mut() {
+            results.push(fetch(member, db, module_instance_id).<span class="kw">await</span>);
         }
         assert_all_equal(results.into_iter())
     }
@@ -669,7 +689,7 @@
 
 <span class="kw">struct </span>FakeInterconnect(
     Box&lt;
-        <span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, String, serde_json::Value) -&gt; <span class="prelude-ty">Result</span>&lt;serde_json::Value, ApiError&gt;
+        <span class="kw">dyn </span>Fn(ModuleInstanceId, String, serde_json::Value) -&gt; <span class="prelude-ty">Result</span>&lt;serde_json::Value, ApiError&gt;
             + Sync
             + Send,
     &gt;,
@@ -678,7 +698,7 @@
 <span class="kw">impl </span>FakeInterconnect {
     <span class="kw">fn </span>new_block_height_responder(bh: Arc&lt;AtomicU64&gt;) -&gt; FakeInterconnect {
         FakeInterconnect(Box::new(<span class="kw">move </span>|module, path, _data| {
-            <span class="macro">assert_eq!</span>(module, <span class="string">&quot;wallet&quot;</span>);
+            <span class="macro">assert_eq!</span>(module, LEGACY_HARDCODED_INSTANCE_ID_WALLET);
             <span class="macro">assert_eq!</span>(path, <span class="string">&quot;/block_height&quot;</span>);
 
             <span class="kw">let </span>height = bh.load(Ordering::Relaxed);
@@ -691,12 +711,12 @@
 </span><span class="kw">impl </span>ModuleInterconect <span class="kw">for </span>FakeInterconnect {
     <span class="kw">async fn </span>call(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        module: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        module_id: ModuleInstanceId,
         path: String,
         data: serde_json::Value,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;serde_json::Value, ApiError&gt; {
-        (<span class="self">self</span>.<span class="number">0</span>)(module, path, data)
+        (<span class="self">self</span>.<span class="number">0</span>)(module_id, path, data)
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_testing" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (77429957a 2023-01-01)" data-search-js="search-181581080540673f.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-58836c674e2f7bd2.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_testing" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (5ce39f42b 2023-01-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-ab1d4ae2ec52020e.css" ></div></body></html>

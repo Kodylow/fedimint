@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `modules/fedimint-mint/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-34efc64c5083af8d.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-4a084badb5778746.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../fedimint_mint/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `modules/fedimint-mint/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-52c5db6f6f352e54.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../fedimint_mint/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1330,7 +1330,24 @@
 <a href="#1330" id="1330">1330</a>
 <a href="#1331" id="1331">1331</a>
 <a href="#1332" id="1332">1332</a>
+<a href="#1333" id="1333">1333</a>
+<a href="#1334" id="1334">1334</a>
+<a href="#1335" id="1335">1335</a>
+<a href="#1336" id="1336">1336</a>
+<a href="#1337" id="1337">1337</a>
+<a href="#1338" id="1338">1338</a>
+<a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
+<a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+<span class="kw">use </span>std::ffi::OsString;
 <span class="kw">use </span>std::hash::Hash;
 <span class="kw">use </span>std::iter::FromIterator;
 <span class="kw">use </span>std::ops::Sub;
@@ -1340,27 +1357,28 @@
 <span class="kw">use </span>config::FeeConsensus;
 <span class="kw">use </span>db::{ECashUserBackupSnapshot, EcashBackupKey};
 <span class="kw">use </span>fedimint_api::cancellable::{Cancellable, Cancelled};
-<span class="kw">use </span>fedimint_api::config::TypedServerModuleConsensusConfig;
 <span class="kw">use </span>fedimint_api::config::{
-    scalar, ClientModuleConfig, ConfigGenParams, DkgPeerMsg, DkgRunner, ModuleConfigGenParams,
-    ServerModuleConfig, TypedServerModuleConfig,
+    scalar, ConfigGenParams, DkgPeerMsg, DkgRunner, ModuleGenParams, ServerModuleConfig,
+    TypedServerModuleConfig,
 };
-<span class="kw">use </span>fedimint_api::core::{ModuleKey, MODULE_KEY_MINT};
-<span class="kw">use </span>fedimint_api::db::DatabaseTransaction;
+<span class="kw">use </span>fedimint_api::config::{ModuleConfigResponse, TypedServerModuleConsensusConfig};
+<span class="kw">use </span>fedimint_api::core::{ModuleInstanceId, ModuleKind};
+<span class="kw">use </span>fedimint_api::db::{Database, DatabaseTransaction};
 <span class="kw">use </span>fedimint_api::encoding::{Decodable, Encodable};
 <span class="kw">use </span>fedimint_api::module::__reexports::serde_json;
 <span class="kw">use </span>fedimint_api::module::audit::Audit;
 <span class="kw">use </span>fedimint_api::module::interconnect::ModuleInterconect;
 <span class="kw">use </span>fedimint_api::module::{
-    api_endpoint, ApiEndpoint, ApiError, FederationModuleConfigGen, InputMeta, IntoModuleError,
-    ModuleError, TransactionItemAmount,
+    api_endpoint, ApiEndpoint, ApiError, InputMeta, IntoModuleError, ModuleError, ModuleGen,
+    TransactionItemAmount,
 };
 <span class="kw">use </span>fedimint_api::net::peers::MuxPeerConnections;
+<span class="kw">use </span>fedimint_api::server::DynServerModule;
 <span class="kw">use </span>fedimint_api::task::TaskGroup;
 <span class="kw">use </span>fedimint_api::tiered::InvalidAmountTierError;
 <span class="kw">use </span>fedimint_api::{
-    plugin_types_trait_impl, Amount, NumPeers, OutPoint, PeerId, ServerModulePlugin, Tiered,
-    TieredMulti, TieredMultiZip,
+    plugin_types_trait_impl, Amount, NumPeers, OutPoint, PeerId, ServerModule, Tiered, TieredMulti,
+    TieredMultiZip,
 };
 <span class="kw">use </span>impl_tools::autoimpl;
 <span class="kw">use </span>itertools::Itertools;
@@ -1376,7 +1394,7 @@
 <span class="kw">use </span>threshold_crypto::group::Curve;
 <span class="kw">use </span>tracing::{debug, error, info, warn};
 
-<span class="kw">use </span><span class="kw">crate</span>::common::MintModuleDecoder;
+<span class="kw">use </span><span class="kw">crate</span>::common::MintDecoder;
 <span class="kw">use </span><span class="kw">crate</span>::config::{MintConfig, MintConfigConsensus, MintConfigPrivate};
 <span class="kw">use </span><span class="kw">crate</span>::db::{
     MintAuditItemKey, MintAuditItemKeyPrefix, NonceKey, OutputOutcomeKey,
@@ -1388,6 +1406,8 @@
 
 <span class="kw">pub mod </span>common;
 <span class="kw">pub mod </span>db;
+
+<span class="kw">const </span>KIND: ModuleKind = ModuleKind::from_static_str(<span class="string">&quot;mint&quot;</span>);
 
 <span class="doccomment">/// By default, the maximum notes per denomination when change-making for users
 </span><span class="kw">const </span>DEFAULT_MAX_NOTES_PER_DENOMINATION: u16 = <span class="number">3</span>;
@@ -1405,25 +1425,25 @@
 
 <span class="doccomment">/// A consenus item from one of the federation members contributing partials signatures to blind nonces submitted in it
 </span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize, Encodable, Decodable)]
-</span><span class="kw">pub struct </span>MintOutputConfirmation {
+</span><span class="kw">pub struct </span>MintConsensusItem {
     <span class="doccomment">/// Reference to a Federation Transaction containing an [`MintOutput`] with `BlindNonce`s the signatures` are for
     </span><span class="kw">pub </span>out_point: OutPoint,
     <span class="doccomment">/// (Partial) signatures
-    </span><span class="kw">pub </span>signatures: OutputConfirmationSignatures,
+    </span><span class="kw">pub </span>signatures: MintOutputSignatureShare,
 }
 
 <span class="comment">// FIXME: optimize out blinded msg by making the mint remember it
 </span><span class="doccomment">/// Blind signature share from one Federation peer for a single [`MintOutput`]
 </span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
-</span><span class="kw">pub struct </span>OutputConfirmationSignatures(
+</span><span class="kw">pub struct </span>MintOutputSignatureShare(
     <span class="kw">pub </span>TieredMulti&lt;(tbs::BlindedMessage, tbs::BlindedSignatureShare)&gt;,
 );
 
-<span class="doccomment">/// Result of Federation members confirming [`MintOutput`] by contributing partial signatures via [`MintOutputConfirmation`]
+<span class="doccomment">/// Result of Federation members confirming [`MintOutput`] by contributing partial signatures via [`MintConsensusItem`]
 ///
 /// A set of full blinded singatures.
 </span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
-</span><span class="kw">pub struct </span>OutputOutcome(<span class="kw">pub </span>TieredMulti&lt;tbs::BlindedSignature&gt;);
+</span><span class="kw">pub struct </span>MintOutputBlindSignatures(<span class="kw">pub </span>TieredMulti&lt;tbs::BlindedSignature&gt;);
 
 <span class="doccomment">/// An verifiable one time use IOU from the mint.
 ///
@@ -1432,7 +1452,7 @@
 /// Consist of a user-generated nonce and a threshold signature over it generated by the
 /// federated mint (while in a [`BlindNonce`] form).
 ///
-/// As things are right now the denomination of each note is deteremined by the federation
+/// As things are right now the denomination of each note is determined by the federation
 /// keys that signed over it, and needs to be tracked outside of this type.
 ///
 /// In this form it can only be validated, not spent since for that the corresponding secret
@@ -1442,7 +1462,7 @@
 
 <span class="doccomment">/// Unique ID of a mint note.
 ///
-/// User-generated, random or otherwise unpredictably generated (deterministically derivated).
+/// User-generated, random or otherwise unpredictably generated (deterministically derived).
 ///
 /// Internally a MuSig pub key so that transactions can be signed when being spent.
 </span><span class="attr">#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
@@ -1459,22 +1479,39 @@
 </span><span class="kw">pub struct </span>BlindNonce(<span class="kw">pub </span>tbs::BlindedMessage);
 
 <span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>VerificationCache {
-    valid_coins: HashMap&lt;Note, Amount&gt;,
+</span><span class="kw">pub struct </span>VerifiedNotes {
+    valid_notes: HashMap&lt;Note, Amount&gt;,
 }
 
-<span class="kw">pub struct </span>MintConfigGenerator;
+<span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>MintGen;
 
 <span class="attr">#[async_trait]
-</span><span class="kw">impl </span>FederationModuleConfigGen <span class="kw">for </span>MintConfigGenerator {
+</span><span class="kw">impl </span>ModuleGen <span class="kw">for </span>MintGen {
+    <span class="kw">const </span>KIND: ModuleKind = KIND;
+
+    <span class="kw">type </span>Decoder = MintDecoder;
+
+    <span class="kw">fn </span>decoder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MintDecoder {
+        MintDecoder
+    }
+
+    <span class="kw">async fn </span>init(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        cfg: ServerModuleConfig,
+        _db: Database,
+        _env: <span class="kw-2">&amp;</span>BTreeMap&lt;OsString, OsString&gt;,
+        _task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
+    ) -&gt; anyhow::Result&lt;DynServerModule&gt; {
+        <span class="prelude-val">Ok</span>(Mint::new(cfg.to_typed()<span class="question-mark">?</span>).into())
+    }
+
     <span class="kw">fn </span>trusted_dealer_gen(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         peers: <span class="kw-2">&amp;</span>[PeerId],
         params: <span class="kw-2">&amp;</span>ConfigGenParams,
     ) -&gt; BTreeMap&lt;PeerId, ServerModuleConfig&gt; {
-        <span class="kw">let </span>params = params
-            .get::&lt;MintConfigGenParams&gt;()
-            .expect(<span class="string">&quot;Invalid mint params&quot;</span>);
+        <span class="kw">let </span>params = params.get::&lt;MintGenParams&gt;().expect(<span class="string">&quot;Invalid mint params&quot;</span>);
 
         <span class="kw">let </span>tbs_keys = params
             .mint_amounts
@@ -1490,7 +1527,6 @@
             .map(|<span class="kw-2">&amp;</span>peer| {
                 <span class="kw">let </span>config = MintConfig {
                     consensus: MintConfigConsensus {
-                        threshold: peers.threshold(),
                         peer_tbs_pks: peers
                             .iter()
                             .map(|<span class="kw-2">&amp;</span>key_peer| {
@@ -1527,15 +1563,14 @@
 
     <span class="kw">async fn </span>distributed_gen(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        connections: <span class="kw-2">&amp;</span>MuxPeerConnections&lt;ModuleKey, DkgPeerMsg&gt;,
+        connections: <span class="kw-2">&amp;</span>MuxPeerConnections&lt;ModuleInstanceId, DkgPeerMsg&gt;,
         our_id: <span class="kw-2">&amp;</span>PeerId,
+        module_instance_id: ModuleInstanceId,
         peers: <span class="kw-2">&amp;</span>[PeerId],
         params: <span class="kw-2">&amp;</span>ConfigGenParams,
         _task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
     ) -&gt; anyhow::Result&lt;Cancellable&lt;ServerModuleConfig&gt;&gt; {
-        <span class="kw">let </span>params = params
-            .get::&lt;MintConfigGenParams&gt;()
-            .expect(<span class="string">&quot;Invalid mint params&quot;</span>);
+        <span class="kw">let </span>params = params.get::&lt;MintGenParams&gt;().expect(<span class="string">&quot;Invalid mint params&quot;</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>dkg = DkgRunner::multi(
             params.mint_amounts.to_vec(),
@@ -1543,7 +1578,10 @@
             our_id,
             peers,
         );
-        <span class="kw">let </span>g2 = <span class="kw">if let </span><span class="prelude-val">Ok</span>(g2) = dkg.run_g2(MODULE_KEY_MINT, connections, <span class="kw-2">&amp;mut </span>OsRng).<span class="kw">await </span>{
+        <span class="kw">let </span>g2 = <span class="kw">if let </span><span class="prelude-val">Ok</span>(g2) = dkg
+            .run_g2(module_instance_id, connections, <span class="kw-2">&amp;mut </span>OsRng)
+            .<span class="kw">await
+        </span>{
             g2
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(Cancelled));
@@ -1577,7 +1615,6 @@
                     })
                     .collect(),
                 fee_consensus: Default::default(),
-                threshold: peers.threshold(),
                 max_notes_per_denomination: DEFAULT_MAX_NOTES_PER_DENOMINATION,
             },
         };
@@ -1585,18 +1622,16 @@
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(server.to_erased()))
     }
 
-    <span class="kw">fn </span>to_client_config(<span class="kw-2">&amp;</span><span class="self">self</span>, config: ServerModuleConfig) -&gt; anyhow::Result&lt;ClientModuleConfig&gt; {
-        <span class="prelude-val">Ok</span>(config
-            .to_typed::&lt;MintConfig&gt;()<span class="question-mark">?
-            </span>.consensus
-            .to_client_config())
-    }
-
-    <span class="kw">fn </span>to_client_config_from_consensus_value(
+    <span class="kw">fn </span>to_config_response(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         config: serde_json::Value,
-    ) -&gt; anyhow::Result&lt;ClientModuleConfig&gt; {
-        <span class="prelude-val">Ok</span>(serde_json::from_value::&lt;MintConfigConsensus&gt;(config)<span class="question-mark">?</span>.to_client_config())
+    ) -&gt; anyhow::Result&lt;ModuleConfigResponse&gt; {
+        <span class="kw">let </span>config = serde_json::from_value::&lt;MintConfigConsensus&gt;(config)<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(ModuleConfigResponse {
+            client: config.to_client_config(),
+            consensus_hash: config.consensus_hash()<span class="question-mark">?</span>,
+        })
     }
 
     <span class="kw">fn </span>validate_config(<span class="kw-2">&amp;</span><span class="self">self</span>, identity: <span class="kw-2">&amp;</span>PeerId, config: ServerModuleConfig) -&gt; anyhow::Result&lt;()&gt; {
@@ -1605,11 +1640,11 @@
 }
 
 <span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
-</span><span class="kw">pub struct </span>MintConfigGenParams {
+</span><span class="kw">pub struct </span>MintGenParams {
     <span class="kw">pub </span>mint_amounts: Vec&lt;Amount&gt;,
 }
 
-<span class="kw">impl </span>ModuleConfigGenParams <span class="kw">for </span>MintConfigGenParams {
+<span class="kw">impl </span>ModuleGenParams <span class="kw">for </span>MintGenParams {
     <span class="kw">const </span>MODULE_NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;mint&quot;</span>;
 }
 
@@ -1621,7 +1656,7 @@
 
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>MintInput {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Mint Coins {}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>.total_amount())
+        <span class="macro">write!</span>(f, <span class="string">&quot;Mint Notes {}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>.total_amount())
     }
 }
 
@@ -1633,13 +1668,13 @@
 
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>MintOutput {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Mint Coins {}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>.total_amount())
+        <span class="macro">write!</span>(f, <span class="string">&quot;Mint Notes {}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>.total_amount())
     }
 }
 
 <span class="attr">#[autoimpl(Deref, DerefMut using <span class="self">self</span>.<span class="number">0</span>)]
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
-</span><span class="kw">pub struct </span>MintOutputOutcome(<span class="kw">pub </span><span class="prelude-ty">Option</span>&lt;OutputOutcome&gt;);
+</span><span class="kw">pub struct </span>MintOutputOutcome(<span class="kw">pub </span><span class="prelude-ty">Option</span>&lt;MintOutputBlindSignatures&gt;);
 
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>MintOutputOutcome {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
@@ -1654,7 +1689,7 @@
     }
 }
 
-<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>MintOutputConfirmation {
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>MintConsensusItem {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
         <span class="macro">write!</span>(
             f,
@@ -1666,20 +1701,17 @@
 }
 
 <span class="attr">#[async_trait]
-</span><span class="kw">impl </span>ServerModulePlugin <span class="kw">for </span>Mint {
-    <span class="kw">type </span>Decoder = MintModuleDecoder;
+</span><span class="kw">impl </span>ServerModule <span class="kw">for </span>Mint {
+    <span class="kw">const </span>KIND: ModuleKind = KIND;
+    <span class="kw">type </span>Decoder = MintDecoder;
     <span class="kw">type </span>Input = MintInput;
     <span class="kw">type </span>Output = MintOutput;
     <span class="kw">type </span>OutputOutcome = MintOutputOutcome;
-    <span class="kw">type </span>ConsensusItem = MintOutputConfirmation;
-    <span class="kw">type </span>VerificationCache = VerificationCache;
+    <span class="kw">type </span>ConsensusItem = MintConsensusItem;
+    <span class="kw">type </span>VerificationCache = VerifiedNotes;
 
-    <span class="kw">fn </span>module_key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ModuleKey {
-        MODULE_KEY_MINT
-    }
-
-    <span class="kw">fn </span>decoder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self</span>::Decoder {
-        <span class="kw-2">&amp;</span>MintModuleDecoder
+    <span class="kw">fn </span>decoder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Decoder {
+        MintDecoder
     }
 
     <span class="kw">async fn </span>await_consensus_proposal(<span class="kw-2">&amp;</span><span class="self">self</span>, dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;) {
@@ -1696,7 +1728,7 @@
             .<span class="kw">await
             </span>.map(|res| {
                 <span class="kw">let </span>(key, signatures) = res.expect(<span class="string">&quot;DB error&quot;</span>);
-                MintOutputConfirmation {
+                MintConsensusItem {
                     out_point: key.out_point,
                     signatures,
                 }
@@ -1724,23 +1756,23 @@
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
         inputs: <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::Input&gt; + Send,
     ) -&gt; <span class="self">Self</span>::VerificationCache {
-        <span class="comment">// We build a lookup table for checking the validity of all coins for certain amounts. This
+        <span class="comment">// We build a lookup table for checking the validity of all notes for certain amounts. This
         // calculation can happen massively in parallel since verification is a pure function and
         // thus has no side effects.
-        </span><span class="kw">let </span>valid_coins = inputs
+        </span><span class="kw">let </span>valid_notes = inputs
             .flat_map(|inputs| inputs.<span class="number">0</span>.iter_items())
             .par_bridge()
-            .filter_map(|(amount, coin)| {
+            .filter_map(|(amount, note)| {
                 <span class="kw">let </span>amount_key = <span class="self">self</span>.pub_key.get(<span class="kw-2">&amp;</span>amount)<span class="question-mark">?</span>;
-                <span class="kw">if </span>coin.verify(<span class="kw-2">*</span>amount_key) {
-                    <span class="prelude-val">Some</span>((<span class="kw-2">*</span>coin, amount))
+                <span class="kw">if </span>note.verify(<span class="kw-2">*</span>amount_key) {
+                    <span class="prelude-val">Some</span>((<span class="kw-2">*</span>note, amount))
                 } <span class="kw">else </span>{
                     <span class="prelude-val">None
                 </span>}
             })
             .collect();
 
-        VerificationCache { valid_coins }
+        VerifiedNotes { valid_notes }
     }
 
     <span class="kw">async fn </span>validate_input&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt;(
@@ -1750,19 +1782,19 @@
         verification_cache: <span class="kw-2">&amp;</span><span class="self">Self</span>::VerificationCache,
         input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::Input,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;InputMeta, ModuleError&gt; {
-        <span class="kw">for </span>(amount, coin) <span class="kw">in </span>input.iter_items() {
-            <span class="kw">let </span>coin_valid = verification_cache
-                .valid_coins
-                .get(coin) <span class="comment">// We validated the coin
-                </span>.map(|coint_amount| <span class="kw-2">*</span>coint_amount == amount) <span class="comment">// It has the right amount tier
-                </span>.unwrap_or(<span class="bool-val">false</span>); <span class="comment">// If we didn&#39;t validate the coin return false
+        <span class="kw">for </span>(amount, note) <span class="kw">in </span>input.iter_items() {
+            <span class="kw">let </span>note_valid = verification_cache
+                .valid_notes
+                .get(note) <span class="comment">// We validated the note
+                </span>.map(|notet_amount| <span class="kw-2">*</span>notet_amount == amount) <span class="comment">// It has the right amount tier
+                </span>.unwrap_or(<span class="bool-val">false</span>); <span class="comment">// If we didn&#39;t validate the note return false
 
-            </span><span class="kw">if </span>!coin_valid {
+            </span><span class="kw">if </span>!note_valid {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(MintError::InvalidSignature).into_module_error_other();
             }
 
             <span class="kw">if </span>dbtx
-                .get_value(<span class="kw-2">&amp;</span>NonceKey(coin.<span class="number">0</span>))
+                .get_value(<span class="kw-2">&amp;</span>NonceKey(note.<span class="number">0</span>))
                 .<span class="kw">await
                 </span>.expect(<span class="string">&quot;DB error&quot;</span>)
                 .is_some()
@@ -1774,11 +1806,11 @@
         <span class="prelude-val">Ok</span>(InputMeta {
             amount: TransactionItemAmount {
                 amount: input.total_amount(),
-                fee: <span class="self">self</span>.cfg.consensus.fee_consensus.coin_spend_abs * (input.item_count() <span class="kw">as </span>u64),
+                fee: <span class="self">self</span>.cfg.consensus.fee_consensus.note_spend_abs * (input.count_items() <span class="kw">as </span>u64),
             },
             puk_keys: input
                 .iter_items()
-                .map(|(<span class="kw">_</span>, coin)| <span class="kw-2">*</span>coin.spend_key())
+                .map(|(<span class="kw">_</span>, note)| <span class="kw-2">*</span>note.spend_key())
                 .collect(),
         })
     }
@@ -1794,8 +1826,8 @@
             </span>.validate_input(interconnect, dbtx, cache, input)
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">for </span>(amount, coin) <span class="kw">in </span>input.iter_items() {
-            <span class="kw">let </span>key = NonceKey(coin.<span class="number">0</span>);
+        <span class="kw">for </span>(amount, note) <span class="kw">in </span>input.iter_items() {
+            <span class="kw">let </span>key = NonceKey(note.<span class="number">0</span>);
             dbtx.insert_new_entry(<span class="kw-2">&amp;</span>key, <span class="kw-2">&amp;</span>()).<span class="kw">await</span>.expect(<span class="string">&quot;DB Error&quot;</span>);
             dbtx.insert_new_entry(<span class="kw-2">&amp;</span>MintAuditItemKey::Redemption(key), <span class="kw-2">&amp;</span>amount)
                 .<span class="kw">await
@@ -1810,10 +1842,10 @@
         _dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction,
         output: <span class="kw-2">&amp;</span><span class="self">Self</span>::Output,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;TransactionItemAmount, ModuleError&gt; {
-        <span class="kw">if </span>output.max_tier_len() &gt; <span class="self">self</span>.cfg.consensus.max_notes_per_denomination.into() {
+        <span class="kw">if </span>output.longest_tier_len() &gt; <span class="self">self</span>.cfg.consensus.max_notes_per_denomination.into() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(MintError::ExceededMaxNotes(
                 <span class="self">self</span>.cfg.consensus.max_notes_per_denomination,
-                output.max_tier_len(),
+                output.longest_tier_len(),
             ))
             .into_module_error_other();
         }
@@ -1829,8 +1861,8 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(TransactionItemAmount {
                 amount: output.total_amount(),
-                fee: <span class="self">self</span>.cfg.consensus.fee_consensus.coin_issuance_abs
-                    * (output.item_count() <span class="kw">as </span>u64),
+                fee: <span class="self">self</span>.cfg.consensus.fee_consensus.note_issuance_abs
+                    * (output.count_items() <span class="kw">as </span>u64),
             })
         }
     }
@@ -1871,8 +1903,8 @@
             out_point: OutPoint,
             <span class="comment">// TODO: remove Option, make it mandatory
             // TODO: make it only the message, remove msg from PartialSigResponse
-            </span>our_contribution: <span class="prelude-ty">Option</span>&lt;OutputConfirmationSignatures&gt;,
-            signature_shares: Vec&lt;(PeerId, OutputConfirmationSignatures)&gt;,
+            </span>our_contribution: <span class="prelude-ty">Option</span>&lt;MintOutputSignatureShare&gt;,
+            signature_shares: Vec&lt;(PeerId, MintOutputSignatureShare)&gt;,
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>drop_peers = BTreeSet::new();
@@ -2028,18 +2060,13 @@
             .<span class="kw">await</span>;
     }
 
-    <span class="kw">fn </span>api_base_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-        <span class="string">&quot;mint&quot;
-    </span>}
-
     <span class="kw">fn </span>api_endpoints(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;ApiEndpoint&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="macro">vec!</span>[
             <span class="macro">api_endpoint! </span>{
                 <span class="string">&quot;/backup&quot;</span>,
                 <span class="kw">async </span>|module: <span class="kw-2">&amp;</span>Mint, dbtx, request: SignedBackupRequest| -&gt; () {
                     module
-                        .handle_backup_request(<span class="kw-2">&amp;mut </span>dbtx, request).<span class="kw">await</span><span class="question-mark">?</span>;
-                    dbtx.commit_tx().<span class="kw">await</span>.map_err(|e| ApiError::new(<span class="number">1000</span>, <span class="macro">format!</span>(<span class="string">&quot;Transaction error: {}&quot;</span>, e)))<span class="question-mark">?</span>;
+                        .handle_backup_request(dbtx, request).<span class="kw">await</span><span class="question-mark">?</span>;
                     <span class="prelude-val">Ok</span>(())
                 }
             },
@@ -2047,7 +2074,7 @@
                 <span class="string">&quot;/recover&quot;</span>,
                 <span class="kw">async </span>|module: <span class="kw-2">&amp;</span>Mint, dbtx, id: secp256k1_zkp::XOnlyPublicKey| -&gt; <span class="prelude-ty">Option</span>&lt;ECashUserBackupSnapshot&gt; {
                     <span class="prelude-val">Ok</span>(module
-                        .handle_recover_request(<span class="kw-2">&amp;mut </span>dbtx, id).<span class="kw">await</span>)
+                        .handle_recover_request(dbtx, id).<span class="kw">await</span>)
                 }
             },
         ]
@@ -2146,7 +2173,7 @@
         .map(|(amt, keys)| {
             <span class="comment">// TODO: avoid this through better aggregation API allowing references or
             </span><span class="kw">let </span>keys = keys.into_iter().copied().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-            (amt, keys.aggregate(cfg.consensus.threshold))
+            (amt, keys.aggregate(cfg.consensus.peer_tbs_pks.threshold()))
         })
         .collect();
 
@@ -2165,8 +2192,8 @@
     <span class="kw">fn </span>blind_sign(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         output: TieredMulti&lt;BlindNonce&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;OutputConfirmationSignatures, MintError&gt; {
-        <span class="prelude-val">Ok</span>(OutputConfirmationSignatures(output.map(
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;MintOutputSignatureShare, MintError&gt; {
+        <span class="prelude-val">Ok</span>(MintOutputSignatureShare(output.map(
             |amt, msg| -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, InvalidAmountTierError&gt; {
                 <span class="kw">let </span>sec_key = <span class="self">self</span>.sec_key.tier(<span class="kw-2">&amp;</span>amt)<span class="question-mark">?</span>;
                 <span class="kw">let </span>blind_signature = sign_blinded_msg(msg.<span class="number">0</span>, <span class="kw-2">*</span>sec_key);
@@ -2177,15 +2204,18 @@
 
     <span class="kw">fn </span>combine(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        our_contribution: <span class="prelude-ty">Option</span>&lt;OutputConfirmationSignatures&gt;,
-        partial_sigs: Vec&lt;(PeerId, OutputConfirmationSignatures)&gt;,
-    ) -&gt; (<span class="prelude-ty">Result</span>&lt;OutputOutcome, CombineError&gt;, MintShareErrors) {
+        our_contribution: <span class="prelude-ty">Option</span>&lt;MintOutputSignatureShare&gt;,
+        partial_sigs: Vec&lt;(PeerId, MintOutputSignatureShare)&gt;,
+    ) -&gt; (
+        <span class="prelude-ty">Result</span>&lt;MintOutputBlindSignatures, CombineError&gt;,
+        MintShareErrors,
+    ) {
         <span class="comment">// Terminate early if there are not enough shares
-        </span><span class="kw">if </span>partial_sigs.len() &lt; <span class="self">self</span>.cfg.consensus.threshold {
+        </span><span class="kw">if </span>partial_sigs.len() &lt; <span class="self">self</span>.cfg.consensus.peer_tbs_pks.threshold() {
             <span class="kw">return </span>(
                 <span class="prelude-val">Err</span>(CombineError::TooFewShares(
                     partial_sigs.iter().map(|(peer, <span class="kw">_</span>)| peer).cloned().collect(),
-                    <span class="self">self</span>.cfg.consensus.threshold,
+                    <span class="self">self</span>.cfg.consensus.peer_tbs_pks.threshold(),
                 )),
                 MintShareErrors(<span class="macro">vec!</span>[]),
             );
@@ -2278,11 +2308,11 @@
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
             <span class="comment">// Check that there are still sufficient
-            </span><span class="kw">if </span>valid_sigs.len() &lt; <span class="self">self</span>.cfg.consensus.threshold {
+            </span><span class="kw">if </span>valid_sigs.len() &lt; <span class="self">self</span>.cfg.consensus.peer_tbs_pks.threshold() {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(CombineError::TooFewValidShares(
                     valid_sigs.len(),
                     partial_sigs.len(),
-                    <span class="self">self</span>.cfg.consensus.threshold,
+                    <span class="self">self</span>.cfg.consensus.peer_tbs_pks.threshold(),
                 ));
             }
 
@@ -2290,7 +2320,7 @@
                 valid_sigs
                     .into_iter()
                     .map(|(peer, share)| (peer.to_usize(), share)),
-                <span class="self">self</span>.cfg.consensus.threshold,
+                <span class="self">self</span>.cfg.consensus.peer_tbs_pks.threshold(),
             );
 
             <span class="prelude-val">Ok</span>((amt, sig))
@@ -2302,7 +2332,10 @@
             <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span>(<span class="prelude-val">Err</span>(e), MintShareErrors(peer_errors)),
         };
 
-        (<span class="prelude-val">Ok</span>(OutputOutcome(bsigs)), MintShareErrors(peer_errors))
+        (
+            <span class="prelude-val">Ok</span>(MintOutputBlindSignatures(bsigs)),
+            MintShareErrors(peer_errors),
+        )
     }
 
     <span class="kw">async fn </span>process_partial_signature&lt;<span class="lifetime">&#39;a</span>&gt;(
@@ -2310,7 +2343,7 @@
         dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt;,
         peer: PeerId,
         output_id: OutPoint,
-        partial_sig: OutputConfirmationSignatures,
+        partial_sig: MintOutputSignatureShare,
     ) {
         <span class="kw">if </span>dbtx
             .get_value(<span class="kw-2">&amp;</span>OutputOutcomeKey(output_id))
@@ -2343,7 +2376,7 @@
 }
 
 <span class="kw">impl </span>Note {
-    <span class="doccomment">/// Verify the coin&#39;s validity under a mit key `pk`
+    <span class="doccomment">/// Verify the note&#39;s validity under a mit key `pk`
     </span><span class="kw">pub fn </span>verify(<span class="kw-2">&amp;</span><span class="self">self</span>, pk: tbs::AggregatePublicKey) -&gt; bool {
         tbs::verify(<span class="self">self</span>.<span class="number">0</span>.to_message(), <span class="self">self</span>.<span class="number">1</span>, pk)
     }
@@ -2388,8 +2421,8 @@
     MintInput,
     MintOutput,
     MintOutputOutcome,
-    MintOutputConfirmation,
-    VerificationCache
+    MintConsensusItem,
+    VerifiedNotes
 );
 
 <span class="doccomment">/// Represents an array of mint indexes that delivered faulty shares
@@ -2420,15 +2453,15 @@
 
 <span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Error)]
 </span><span class="kw">pub enum </span>MintError {
-    <span class="attr">#[error(<span class="string">&quot;One of the supplied coins had an invalid mint signature&quot;</span>)]
-    </span>InvalidCoin,
-    <span class="attr">#[error(<span class="string">&quot;Insufficient coin value: reissuing {0} but only got {1} in coins&quot;</span>)]
-    </span>TooFewCoins(Amount, Amount),
-    <span class="attr">#[error(<span class="string">&quot;One of the supplied coins was already spent previously&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;One of the supplied notes had an invalid mint signature&quot;</span>)]
+    </span>InvalidNote,
+    <span class="attr">#[error(<span class="string">&quot;Insufficient note value: reissuing {0} but only got {1} in notes&quot;</span>)]
+    </span>TooFewNotes(Amount, Amount),
+    <span class="attr">#[error(<span class="string">&quot;One of the supplied notes was already spent previously&quot;</span>)]
     </span>SpentCoin,
-    <span class="attr">#[error(<span class="string">&quot;One of the coins had an invalid amount not issued by the mint: {0:?}&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;One of the notes had an invalid amount not issued by the mint: {0:?}&quot;</span>)]
     </span>InvalidAmountTier(Amount),
-    <span class="attr">#[error(<span class="string">&quot;One of the coins had an invalid signature&quot;</span>)]
+    <span class="attr">#[error(<span class="string">&quot;One of the notes had an invalid signature&quot;</span>)]
     </span>InvalidSignature,
     <span class="attr">#[error(<span class="string">&quot;Exceeded maximum notes per denomination {0}, found {1}&quot;</span>)]
     </span>ExceededMaxNotes(u16, usize),
@@ -2445,14 +2478,14 @@
     <span class="kw">use </span>fedimint_api::config::{
         ClientModuleConfig, ConfigGenParams, ServerModuleConfig, TypedServerModuleConsensusConfig,
     };
-    <span class="kw">use </span>fedimint_api::module::FederationModuleConfigGen;
+    <span class="kw">use </span>fedimint_api::module::ModuleGen;
     <span class="kw">use </span>fedimint_api::{Amount, PeerId, TieredMulti};
     <span class="kw">use </span>tbs::{blind_message, unblind_signature, verify, AggregatePublicKey, BlindingKey, Message};
 
     <span class="kw">use </span><span class="kw">crate</span>::config::{FeeConsensus, MintClientConfig};
     <span class="kw">use crate</span>::{
-        BlindNonce, CombineError, Mint, MintConfig, MintConfigConsensus, MintConfigGenParams,
-        MintConfigGenerator, MintConfigPrivate, PeerErrorType,
+        BlindNonce, CombineError, Mint, MintConfig, MintConfigConsensus, MintConfigPrivate,
+        MintGen, MintGenParams, PeerErrorType,
     };
 
     <span class="kw">const </span>THRESHOLD: usize = <span class="number">1</span>;
@@ -2460,9 +2493,9 @@
 
     <span class="kw">fn </span>build_configs() -&gt; (Vec&lt;ServerModuleConfig&gt;, ClientModuleConfig) {
         <span class="kw">let </span>peers = (<span class="number">0</span>..MINTS <span class="kw">as </span>u16).map(PeerId::from).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-        <span class="kw">let </span>mint_cfg = MintConfigGenerator.trusted_dealer_gen(
+        <span class="kw">let </span>mint_cfg = MintGen.trusted_dealer_gen(
             <span class="kw-2">&amp;</span>peers,
-            <span class="kw-2">&amp;</span>ConfigGenParams::new().attach(MintConfigGenParams {
+            <span class="kw-2">&amp;</span>ConfigGenParams::new().attach(MintGenParams {
                 mint_amounts: <span class="macro">vec!</span>[Amount::from_sats(<span class="number">1</span>)],
             }),
         );
@@ -2496,7 +2529,7 @@
     </span><span class="kw">fn </span>test_issuance() {
         <span class="kw">let </span>(pk, <span class="kw-2">mut </span>mints) = build_mints();
 
-        <span class="kw">let </span>nonce = Message::from_bytes(<span class="kw-2">&amp;</span><span class="string">b&quot;test coin&quot;</span>[..]);
+        <span class="kw">let </span>nonce = Message::from_bytes(<span class="kw-2">&amp;</span><span class="string">b&quot;test note&quot;</span>[..]);
         <span class="kw">let </span>bkey = BlindingKey::random();
         <span class="kw">let </span>bmsg = blind_message(nonce, bkey);
         <span class="kw">let </span>blind_tokens = TieredMulti::new(
@@ -2643,7 +2676,6 @@
 
         Mint::new(MintConfig {
             consensus: MintConfigConsensus {
-                threshold: THRESHOLD,
                 peer_tbs_pks: mint_server_cfg2[<span class="number">0</span>]
                     .to_typed::&lt;MintConfig&gt;()
                     .unwrap()
@@ -2663,4 +2695,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_mint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (77429957a 2023-01-01)" data-search-js="search-181581080540673f.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-58836c674e2f7bd2.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_mint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (5ce39f42b 2023-01-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-ab1d4ae2ec52020e.css" ></div></body></html>
