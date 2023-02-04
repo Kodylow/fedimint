@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `gateway/ln-gateway/src/cln.rs`."><title>cln.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-2c6d069be585f4e9.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-f501212b8b071243.css"><link rel="stylesheet" disabled href="../../static.files/dark-e92fc12c34ff89d3.css"><link rel="stylesheet" disabled href="../../static.files/ayu-c8c85693c8a4f9db.css"><script id="default-settings" ></script><script src="../../static.files/storage-ff4706381ddb2707.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-02cbe07fc548e88c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ln_gateway/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `gateway/ln-gateway/src/cln.rs`."><title>cln.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-505eba68f310f6bf.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-f501212b8b071243.css"><link rel="stylesheet" disabled href="../../static.files/dark-e92fc12c34ff89d3.css"><link rel="stylesheet" disabled href="../../static.files/ayu-c8c85693c8a4f9db.css"><script id="default-settings" ></script><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-364b95f387bc3166.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ln_gateway/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -326,6 +326,30 @@
 <a href="#326" id="326">326</a>
 <a href="#327" id="327">327</a>
 <a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::path::PathBuf;
 <span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>std::time::Duration;
@@ -334,13 +358,14 @@
 <span class="kw">use </span>cln_plugin::{anyhow, options, Builder, Error, Plugin};
 <span class="kw">use </span>cln_rpc::model::{ListchannelsRequest, ListpeersPeersChannelsState, ListpeersRequest};
 <span class="kw">use </span>cln_rpc::primitives::ShortChannelId;
-<span class="kw">use </span>cln_rpc::{model, ClnRpc, Request, Response};
+<span class="kw">use </span>cln_rpc::{model, Request, Response};
 <span class="kw">use </span>fedimint_api::Amount;
 <span class="kw">use </span>fedimint_server::modules::ln::contracts::Preimage;
 <span class="kw">use </span>fedimint_server::modules::ln::route_hints::{RouteHint, RouteHintHop};
+<span class="kw">use </span>lightning_invoice::Invoice;
+<span class="kw">use </span>secp256k1::PublicKey;
 <span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize};
 <span class="kw">use </span>tokio::io::{stdin, stdout};
-<span class="kw">use </span>tokio::sync::Mutex;
 <span class="kw">use </span>tracing::{debug, error, instrument, trace, warn};
 
 <span class="kw">use </span><span class="kw">crate</span>::ReceivePaymentPayload;
@@ -386,18 +411,41 @@
 
 <span class="kw">pub struct </span>ClnRpcRef {
     <span class="comment">// CLN RPC client
-    </span><span class="kw">pub </span>ln_rpc: Arc&lt;Mutex&lt;ClnRpc&gt;&gt;,
+    </span><span class="kw">pub </span>ln_rpc: Arc&lt;ClnRpc&gt;,
     <span class="comment">// Config directory
     </span><span class="kw">pub </span>work_dir: PathBuf,
 }
 
+<span class="doccomment">/// Core Lightning RPC client
+</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>ClnRpc {
+    socket: PathBuf,
+}
+
+<span class="kw">impl </span>ClnRpc {
+    <span class="kw">pub fn </span>new(socket: PathBuf) -&gt; ClnRpc {
+        ClnRpc { socket }
+    }
+
+    <span class="doccomment">/// Creates a new RPC client for a request.
+    ///
+    /// This operation is cheap enough to do it for each request since it merely connects to a UNIX
+    /// domain socket without doing any further initialization.
+    </span><span class="kw">async fn </span>rpc_client(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;cln_rpc::ClnRpc, LightningError&gt; {
+        cln_rpc::ClnRpc::new(<span class="kw-2">&amp;</span><span class="self">self</span>.socket).<span class="kw">await</span>.map_err(|err| {
+            <span class="macro">error!</span>(<span class="string">&quot;Could not connect to CLN RPC socket: {err}&quot;</span>);
+            LightningError(<span class="prelude-val">None</span>)
+        })
+    }
+}
+
 <span class="attr">#[async_trait]
-</span><span class="kw">impl </span>LnRpc <span class="kw">for </span>Mutex&lt;cln_rpc::ClnRpc&gt; {
+</span><span class="kw">impl </span>LnRpc <span class="kw">for </span>ClnRpc {
     <span class="attr">#[instrument(name = <span class="string">&quot;LnRpc::pubkey&quot;</span>, skip(<span class="self">self</span>))]
-    </span><span class="kw">async fn </span>pubkey(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;secp256k1::PublicKey, LightningError&gt; {
+    </span><span class="kw">async fn </span>pubkey(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;PublicKey, LightningError&gt; {
         <span class="kw">let </span>pubkey_result = <span class="self">self
-            </span>.lock()
-            .<span class="kw">await
+            </span>.rpc_client()
+            .<span class="kw">await</span><span class="question-mark">?
             </span>.call(Request::Getinfo(model::requests::GetinfoRequest {}))
             .<span class="kw">await</span>;
 
@@ -411,18 +459,18 @@
         }
     }
 
-    <span class="attr">#[instrument(name = <span class="string">&quot;LnRpc::pay&quot;</span>, skip(<span class="self">self</span>))]
+    <span class="attr">#[instrument(name = <span class="string">&quot;LnRpc::route_hints&quot;</span>, skip(<span class="self">self</span>))]
     </span><span class="kw">async fn </span>pay(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        invoice: lightning_invoice::Invoice,
+        invoice: Invoice,
         max_delay: u64,
         max_fee_percent: f64,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Preimage, LightningError&gt; {
         <span class="macro">debug!</span>(<span class="string">&quot;Attempting to pay invoice&quot;</span>);
 
         <span class="kw">let </span>pay_result = <span class="self">self
-            </span>.lock()
-            .<span class="kw">await
+            </span>.rpc_client()
+            .<span class="kw">await</span><span class="question-mark">?
             </span>.call(cln_rpc::Request::Pay(model::PayRequest {
                 bolt11: invoice.to_string(),
                 amount_msat: <span class="prelude-val">None</span>,
@@ -464,7 +512,10 @@
             .<span class="kw">await
             </span>.map_err(|err| <span class="macro">anyhow!</span>(<span class="string">&quot;Lightning error: {:?}&quot;</span>, err))<span class="question-mark">?</span>;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>client_lock = <span class="self">self</span>.lock().<span class="kw">await</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>client_lock = <span class="self">self
+            </span>.rpc_client()
+            .<span class="kw">await
+            </span>.map_err(|<span class="kw">_</span>| <span class="macro">anyhow!</span>(<span class="string">&quot;Could not connect to CLN unix socket&quot;</span>))<span class="question-mark">?</span>;
 
         <span class="kw">let </span>peers_response = client_lock
             .call(Request::ListPeers(ListpeersRequest {
@@ -642,12 +693,9 @@
 
         <span class="kw">let </span>config = plugin.configuration();
         <span class="kw">let </span>cln_rpc_socket = PathBuf::from(config.lightning_dir).join(config.rpc_file);
-        <span class="kw">let </span>cln_rpc = ClnRpc::new(cln_rpc_socket)
-            .<span class="kw">await
-            </span>.expect(<span class="string">&quot;connect to ln_socket&quot;</span>);
 
         <span class="prelude-val">Ok</span>(ClnRpcRef {
-            ln_rpc: Arc::new(Mutex::new(cln_rpc)),
+            ln_rpc: Arc::new(ClnRpc::new(cln_rpc_socket)),
             work_dir,
         })
     } <span class="kw">else </span>{
@@ -655,4 +703,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ln_gateway" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (dc1d9d50f 2023-01-31)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-7c23ac01f615ce90.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ln_gateway" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (658fad6c5 2023-02-03)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
