@@ -422,22 +422,34 @@
 <a href="#422" id="422">422</a>
 <a href="#423" id="423">423</a>
 <a href="#424" id="424">424</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::{collections::BTreeMap, path::PathBuf};
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
+<span class="kw">use </span>std::path::PathBuf;
 
 <span class="kw">use </span>erased_serde::Serialize;
-<span class="kw">use </span>fedimint_api::{
-    config::ModuleGenRegistry,
-    db::DatabaseTransaction,
-    encoding::Encodable,
-    module::{DynModuleGen, __reexports::serde_json, registry::ModuleDecoderRegistry},
-    push_db_key_items, push_db_pair_items, push_db_pair_items_no_serde,
-};
-<span class="kw">use </span>fedimint_ln::LightningGen;
-<span class="kw">use </span>fedimint_mint::MintGen;
+<span class="kw">use </span>fedimint_core::config::ServerModuleGenRegistry;
+<span class="kw">use </span>fedimint_core::db::notifications::Notifications;
+<span class="kw">use </span>fedimint_core::db::{DatabaseTransaction, DatabaseVersionKey, SingleUseDatabaseTransaction};
+<span class="kw">use </span>fedimint_core::encoding::Encodable;
+<span class="kw">use </span>fedimint_core::module::DynServerModuleGen;
+<span class="kw">use </span>fedimint_core::module::__reexports::serde_json;
+<span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
+<span class="kw">use </span>fedimint_core::{push_db_key_items, push_db_pair_items, push_db_pair_items_no_serde};
+<span class="kw">use </span>fedimint_ln_server::LightningGen;
+<span class="kw">use </span>fedimint_mint_server::MintGen;
 <span class="kw">use </span>fedimint_rocksdb::RocksDbReadOnly;
-<span class="kw">use </span>fedimint_server::{config::ServerConfig, db <span class="kw">as </span>ConsensusRange};
-<span class="kw">use </span>fedimint_wallet::WalletGen;
-<span class="kw">use </span>fedimintd::SALT_FILE;
+<span class="kw">use </span>fedimint_server::config::io::read_server_config;
+<span class="kw">use </span>fedimint_server::config::ServerConfig;
+<span class="kw">use </span>fedimint_server::db <span class="kw">as </span>ConsensusRange;
+<span class="kw">use </span>fedimint_wallet_server::WalletGen;
+<span class="kw">use </span>futures::StreamExt;
 <span class="kw">use </span>mint_client::db <span class="kw">as </span>ClientRange;
 <span class="kw">use </span>mint_client::ln::db <span class="kw">as </span>ClientLightningRange;
 <span class="kw">use </span>mint_client::mint::db <span class="kw">as </span>ClientMintRange;
@@ -464,14 +476,14 @@
     modules: Vec&lt;String&gt;,
     prefixes: Vec&lt;String&gt;,
     cfg: <span class="prelude-ty">Option</span>&lt;ServerConfig&gt;,
-    module_inits: ModuleGenRegistry,
+    module_inits: ServerModuleGenRegistry,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DatabaseDump&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub fn </span>new(
         cfg_dir: PathBuf,
         data_dir: String,
-        password: <span class="prelude-ty">Option</span>&lt;String&gt;,
+        password: String,
         modules: Vec&lt;String&gt;,
         prefixes: Vec&lt;String&gt;,
     ) -&gt; DatabaseDump&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -481,10 +493,16 @@
                 <span class="macro">panic!</span>(<span class="string">&quot;Error reading RocksDB database. Quitting...&quot;</span>);
             }
         };
+        <span class="kw">let </span>single_use = SingleUseDatabaseTransaction::new(read_only);
 
+        <span class="comment">// leak here is OK, it only happens once.
+        </span><span class="kw">let </span>notifications = Box::leak(Box::new(Notifications::new()));
         <span class="kw">if </span>modules.contains(<span class="kw-2">&amp;</span><span class="string">&quot;client&quot;</span>.to_string()) {
-            <span class="kw">let </span>dbtx =
-                DatabaseTransaction::new(Box::new(read_only), ModuleDecoderRegistry::default());
+            <span class="kw">let </span>dbtx = DatabaseTransaction::new(
+                Box::new(single_use),
+                ModuleDecoderRegistry::default(),
+                notifications,
+            );
             <span class="kw">return </span>DatabaseDump {
                 serialized: BTreeMap::new(),
                 read_only: dbtx,
@@ -495,17 +513,15 @@
             };
         }
 
-        <span class="kw">let </span>module_inits = ModuleGenRegistry::from(<span class="macro">vec!</span>[
-            DynModuleGen::from(WalletGen),
-            DynModuleGen::from(MintGen),
-            DynModuleGen::from(LightningGen),
+        <span class="kw">let </span>module_inits = ServerModuleGenRegistry::from(<span class="macro">vec!</span>[
+            DynServerModuleGen::from(WalletGen),
+            DynServerModuleGen::from(MintGen),
+            DynServerModuleGen::from(LightningGen),
         ]);
 
-        <span class="kw">let </span>salt_path = cfg_dir.join(SALT_FILE);
-        <span class="kw">let </span>key = fedimintd::encrypt::get_key(password, salt_path).unwrap();
-        <span class="kw">let </span>cfg = fedimintd::read_server_configs(<span class="kw-2">&amp;</span>key, cfg_dir).unwrap();
+        <span class="kw">let </span>cfg = read_server_config(<span class="kw-2">&amp;</span>password, cfg_dir).unwrap();
         <span class="kw">let </span>decoders = module_inits.decoders(cfg.iter_module_instances()).unwrap();
-        <span class="kw">let </span>dbtx = DatabaseTransaction::new(Box::new(read_only), decoders);
+        <span class="kw">let </span>dbtx = DatabaseTransaction::new(Box::new(single_use), decoders, notifications);
 
         DatabaseDump {
             serialized: BTreeMap::new(),
@@ -522,13 +538,13 @@
     <span class="doccomment">/// Prints the contents of the BTreeMap to a pretty JSON string
     </span><span class="kw">fn </span>print_database(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="kw">let </span>json = serde_json::to_string_pretty(<span class="kw-2">&amp;</span><span class="self">self</span>.serialized).unwrap();
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, json);
+        <span class="macro">println!</span>(<span class="string">&quot;{json}&quot;</span>);
     }
 
-    <span class="doccomment">/// Iterates through all the specified ranges in the database and retrieves the
-    /// data for each range. Prints serialized contents at the end.
+    <span class="doccomment">/// Iterates through all the specified ranges in the database and retrieves
+    /// the data for each range. Prints serialized contents at the end.
     </span><span class="kw">pub async fn </span>dump_database(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">if </span>!<span class="self">self</span>.modules.is_empty() &amp;&amp; <span class="self">self</span>.modules.contains(<span class="kw-2">&amp;</span><span class="string">&quot;consensus&quot;</span>.to_string()) {
+        <span class="kw">if </span><span class="self">self</span>.modules.is_empty() || <span class="self">self</span>.modules.contains(<span class="kw-2">&amp;</span><span class="string">&quot;consensus&quot;</span>.to_string()) {
             <span class="self">self</span>.retrieve_consensus_data().<span class="kw">await</span>;
         }
 
@@ -545,21 +561,27 @@
                     <span class="kw">continue</span>;
                 }
 
-                <span class="kw">let </span>module_serialized = init
-                    .dump_database(
-                        <span class="kw-2">&amp;mut </span><span class="self">self</span>.read_only.with_module_prefix(<span class="kw-2">*</span>module_id),
-                        <span class="self">self</span>.prefixes.clone(),
-                    )
+                <span class="kw">let </span><span class="kw-2">mut </span>isolated_dbtx = <span class="self">self</span>.read_only.with_module_prefix(<span class="kw-2">*</span>module_id);
+                <span class="kw">let </span><span class="kw-2">mut </span>module_serialized = init
+                    .dump_database(<span class="kw-2">&amp;mut </span>isolated_dbtx, <span class="self">self</span>.prefixes.clone())
                     .<span class="kw">await
                     </span>.collect::&lt;BTreeMap&lt;String, <span class="kw">_</span>&gt;&gt;();
-                <span class="self">self</span>.serialized.insert(
-                    <span class="macro">format!</span>(<span class="string">&quot;{}-{}&quot;</span>, kind, module_id),
-                    Box::new(module_serialized),
-                );
+
+                <span class="kw">let </span>db_version = isolated_dbtx.get_value(<span class="kw-2">&amp;</span>DatabaseVersionKey).<span class="kw">await</span>;
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(db_version) = db_version {
+                    module_serialized.insert(<span class="string">&quot;Version&quot;</span>.to_string(), Box::new(db_version));
+                } <span class="kw">else </span>{
+                    module_serialized
+                        .insert(<span class="string">&quot;Version&quot;</span>.to_string(), Box::new(<span class="string">&quot;Not Specified&quot;</span>.to_string()));
+                }
+
+                <span class="self">self</span>.serialized
+                    .insert(<span class="macro">format!</span>(<span class="string">&quot;{kind}-{module_id}&quot;</span>), Box::new(module_serialized));
             }
         }
 
-        <span class="comment">// TODO: When the client is modularized, these don&#39;t need to be hardcoded anymore
+        <span class="comment">// TODO: When the client is modularized, these don&#39;t need to be hardcoded
+        // anymore
         </span><span class="kw">if </span>!<span class="self">self</span>.modules.is_empty() &amp;&amp; <span class="self">self</span>.modules.contains(<span class="kw-2">&amp;</span><span class="string">&quot;client&quot;</span>.to_string()) {
             <span class="self">self</span>.retrieve_client_data().<span class="kw">await</span>;
             <span class="self">self</span>.retrieve_ln_client_data().<span class="kw">await</span>;
@@ -570,8 +592,8 @@
         <span class="self">self</span>.print_database();
     }
 
-    <span class="doccomment">/// Iterates through each of the prefixes within the consensus range and retrieves
-    /// the corresponding data.
+    <span class="doccomment">/// Iterates through each of the prefixes within the consensus range and
+    /// retrieves the corresponding data.
     </span><span class="kw">async fn </span>retrieve_consensus_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>consensus: BTreeMap&lt;String, Box&lt;<span class="kw">dyn </span>Serialize&gt;&gt; = BTreeMap::new();
         <span class="kw">let </span>dbtx = <span class="kw-2">&amp;mut </span><span class="self">self</span>.read_only;
@@ -582,16 +604,6 @@
         });
         <span class="kw">for </span>table <span class="kw">in </span>filtered_prefixes {
             <span class="kw">match </span>table {
-                ConsensusRange::DbKeyPrefix::ProposedTransaction =&gt; {
-                    <span class="macro">push_db_pair_items_no_serde!</span>(
-                        dbtx,
-                        ConsensusRange::ProposedTransactionKeyPrefix,
-                        ConsensusRange::ProposedTransactionKey,
-                        fedimint_core::transaction::Transaction,
-                        consensus,
-                        <span class="string">&quot;Pending Transactions&quot;
-                    </span>);
-                }
                 ConsensusRange::DbKeyPrefix::AcceptedTransaction =&gt; {
                     <span class="macro">push_db_pair_items_no_serde!</span>(
                         dbtx,
@@ -632,7 +644,7 @@
                     </span>);
                 }
                 ConsensusRange::DbKeyPrefix::LastEpoch =&gt; {
-                    <span class="kw">let </span>last_epoch = dbtx.get_value(<span class="kw-2">&amp;</span>ConsensusRange::LastEpochKey).<span class="kw">await</span>.unwrap();
+                    <span class="kw">let </span>last_epoch = dbtx.get_value(<span class="kw-2">&amp;</span>ConsensusRange::LastEpochKey).<span class="kw">await</span>;
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(last_epoch) = last_epoch {
                         consensus.insert(<span class="string">&quot;LastEpoch&quot;</span>.to_string(), Box::new(last_epoch));
                     }
@@ -647,6 +659,12 @@
                         <span class="string">&quot;Client Config Signature&quot;
                     </span>);
                 }
+                ConsensusRange::DbKeyPrefix::ConsensusUpgrade =&gt; {
+                    <span class="kw">let </span>upgrade = dbtx.get_value(<span class="kw-2">&amp;</span>ConsensusRange::ConsensusUpgradeKey).<span class="kw">await</span>;
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(upgrade) = upgrade {
+                        consensus.insert(<span class="string">&quot;ConsensusUpgrade&quot;</span>.to_string(), Box::new(upgrade));
+                    }
+                }
                 <span class="comment">// Module is a global prefix for all module data
                 </span>ConsensusRange::DbKeyPrefix::Module =&gt; {}
             }
@@ -656,8 +674,8 @@
             .insert(<span class="string">&quot;Consensus&quot;</span>.to_string(), Box::new(consensus));
     }
 
-    <span class="doccomment">/// Iterates through each of the prefixes within the lightning client range and retrieves
-    /// the corresponding data.
+    <span class="doccomment">/// Iterates through each of the prefixes within the lightning client range
+    /// and retrieves the corresponding data.
     </span><span class="kw">async fn </span>retrieve_ln_client_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>ln_client: BTreeMap&lt;String, Box&lt;<span class="kw">dyn </span>Serialize&gt;&gt; = BTreeMap::new();
         <span class="kw">let </span>dbtx = <span class="kw-2">&amp;mut </span><span class="self">self</span>.read_only;
@@ -682,7 +700,7 @@
                         dbtx,
                         ClientLightningRange::LightningGatewayKeyPrefix,
                         ClientLightningRange::LightningGatewayKey,
-                        fedimint_ln::LightningGateway,
+                        fedimint_ln_server::common::LightningGateway,
                         ln_client,
                         <span class="string">&quot;Lightning Gateways&quot;
                     </span>);
@@ -723,8 +741,8 @@
             .insert(<span class="string">&quot;Client Lightning&quot;</span>.to_string(), Box::new(ln_client));
     }
 
-    <span class="doccomment">/// Iterates through each of the prefixes within the mint client range and retrieves
-    /// the corresponding data.
+    <span class="doccomment">/// Iterates through each of the prefixes within the mint client range and
+    /// retrieves the corresponding data.
     </span><span class="kw">async fn </span>retrieve_mint_client_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>mint_client: BTreeMap&lt;String, Box&lt;<span class="kw">dyn </span>Serialize&gt;&gt; = BTreeMap::new();
         <span class="kw">let </span>dbtx = <span class="kw-2">&amp;mut </span><span class="self">self</span>.read_only;
@@ -759,7 +777,7 @@
                         dbtx,
                         ClientMintRange::PendingNotesKeyPrefix,
                         ClientMintRange::PendingNotesKey,
-                        fedimint_api::TieredMulti&lt;mint_client::mint::SpendableNote&gt;,
+                        fedimint_core::TieredMulti&lt;mint_client::mint::SpendableNote&gt;,
                         mint_client,
                         <span class="string">&quot;Pending Notes&quot;
                     </span>);
@@ -777,8 +795,7 @@
                 ClientMintRange::DbKeyPrefix::NotesPerDenomination =&gt; {
                     <span class="kw">let </span>notes = dbtx
                         .get_value(<span class="kw-2">&amp;</span>ClientMintRange::NotesPerDenominationKey)
-                        .<span class="kw">await
-                        </span>.unwrap();
+                        .<span class="kw">await</span>;
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(notes) = notes {
                         mint_client.insert(<span class="string">&quot;NotesPerDenomination&quot;</span>.to_string(), Box::new(notes));
                     }
@@ -790,8 +807,8 @@
             .insert(<span class="string">&quot;Client Mint&quot;</span>.to_string(), Box::new(mint_client));
     }
 
-    <span class="doccomment">/// Iterates through each of the prefixes within the wallet client range and retrieves
-    /// the corresponding data.
+    <span class="doccomment">/// Iterates through each of the prefixes within the wallet client range and
+    /// retrieves the corresponding data.
     </span><span class="kw">async fn </span>retrieve_wallet_client_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>wallet_client: BTreeMap&lt;String, Box&lt;<span class="kw">dyn </span>Serialize&gt;&gt; = BTreeMap::new();
         <span class="kw">let </span>dbtx = <span class="kw-2">&amp;mut </span><span class="self">self</span>.read_only;
@@ -818,8 +835,8 @@
             .insert(<span class="string">&quot;Client Wallet&quot;</span>.to_string(), Box::new(wallet_client));
     }
 
-    <span class="doccomment">/// Iterates through each of the prefixes within the client range and retrieves
-    /// the corresponding data.
+    <span class="doccomment">/// Iterates through each of the prefixes within the client range and
+    /// retrieves the corresponding data.
     </span><span class="kw">async fn </span>retrieve_client_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>client: BTreeMap&lt;String, Box&lt;<span class="kw">dyn </span>Serialize&gt;&gt; = BTreeMap::new();
         <span class="kw">let </span>prefix_names = <span class="kw-2">&amp;</span><span class="self">self</span>.prefixes;
@@ -833,8 +850,7 @@
                     <span class="kw">let </span>secret = <span class="self">self
                         </span>.read_only
                         .get_value(<span class="kw-2">&amp;</span>ClientRange::ClientSecretKey)
-                        .<span class="kw">await
-                        </span>.unwrap();
+                        .<span class="kw">await</span>;
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(secret) = secret {
                         client.insert(<span class="string">&quot;Client Secret&quot;</span>.to_string(), Box::new(secret));
                     }
@@ -847,4 +863,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="dbtool" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (658fad6c5 2023-02-03)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="dbtool" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (f3126500f 2023-02-02)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

@@ -228,29 +228,19 @@
 <a href="#228" id="228">228</a>
 <a href="#229" id="229">229</a>
 <a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::{net::SocketAddr, path::PathBuf};
+</pre><pre class="rust"><code><span class="kw">use </span>std::process::exit;
 
 <span class="kw">use </span>bitcoin::{Address, Amount, Transaction};
 <span class="kw">use </span>clap::{Parser, Subcommand};
-<span class="kw">use </span>fedimint_api::config::FederationId;
-<span class="kw">use </span>fedimint_server::modules::wallet::txoproof::TxOutProof;
-<span class="kw">use </span>ln_gateway::{
-    config::GatewayConfig,
-    rpc::{
-        rpc_client::RpcClient, BackupPayload, BalancePayload, ConnectFedPayload,
-        DepositAddressPayload, DepositPayload, RestorePayload, WithdrawPayload,
-    },
+<span class="kw">use </span>fedimint_core::config::FederationId;
+<span class="kw">use </span>fedimint_logging::TracingSetup;
+<span class="kw">use </span>ln_gateway::rpc::rpc_client::RpcClient;
+<span class="kw">use </span>ln_gateway::rpc::{
+    BackupPayload, BalancePayload, ConnectFedPayload, DepositAddressPayload, DepositPayload,
+    LightningReconnectPayload, RestorePayload, WithdrawPayload,
 };
+<span class="kw">use </span>ln_gateway::Mode;
+<span class="kw">use </span>mint_client::modules::wallet::txoproof::TxOutProof;
 <span class="kw">use </span>mint_client::utils::from_hex;
 <span class="kw">use </span>url::Url;
 
@@ -269,16 +259,6 @@
 
 <span class="attr">#[derive(Subcommand)]
 </span><span class="kw">pub enum </span>Commands {
-    <span class="doccomment">/// Ganerate gateway configuration
-    /// NOTE: This command can only be used on a local gateway
-    </span>GenerateConfig {
-        <span class="doccomment">/// Address to which the API webserver will bind
-        </span>bind_address: SocketAddr,
-        <span class="doccomment">/// URL under which the API will be reachable
-        </span>announce_address: Url,
-        <span class="doccomment">/// The gateway configuration directory
-        </span>out_dir: PathBuf,
-    },
     <span class="doccomment">/// Display CLI version hash
     </span>VersionHash,
     <span class="doccomment">/// Display high-level information about the Gateway
@@ -290,7 +270,8 @@
     <span class="doccomment">/// Deposit funds into a gateway federation
     </span>Deposit {
         federation_id: FederationId,
-        <span class="doccomment">/// The TxOutProof which was created from sending BTC to the pegin-address
+        <span class="doccomment">/// The TxOutProof which was created from sending BTC to the
+        /// pegin-address
         </span><span class="attr">#[clap(value_parser = from_hex::&lt;TxOutProof&gt;)]
         </span>txout_proof: TxOutProof,
         <span class="attr">#[clap(value_parser = from_hex::&lt;Transaction&gt;)]
@@ -313,45 +294,26 @@
     </span>Backup { federation_id: FederationId },
     <span class="doccomment">/// Restore ecash from last available snapshot or from scratch
     </span>Restore { federation_id: FederationId },
+    <span class="comment">// Reconnect to the Lightning Node
+    </span>Reconnect {
+        <span class="attr">#[clap(subcommand)]
+        </span>mode: Mode,
+    },
 }
 
 <span class="attr">#[tokio::main]
-</span><span class="kw">async fn </span>main() {
+</span><span class="kw">async fn </span>main() -&gt; anyhow::Result&lt;()&gt; {
+    TracingSetup::default().init()<span class="question-mark">?</span>;
+
     <span class="kw">let </span>cli = Cli::parse();
     <span class="kw">let </span>client = RpcClient::new(cli.address);
 
     <span class="kw">match </span>cli.command {
-        Commands::GenerateConfig {
-            bind_address: address,
-            announce_address,
-            <span class="kw-2">mut </span>out_dir,
-        } =&gt; {
-            <span class="comment">// Recursively create config directory if it doesn&#39;t exist
-            </span>std::fs::create_dir_all(<span class="kw-2">&amp;</span>out_dir).expect(<span class="string">&quot;Failed to create config directory&quot;</span>);
-            <span class="comment">// Create config file
-            </span>out_dir.push(<span class="string">&quot;gateway.config&quot;</span>);
-
-            <span class="kw">let </span>cfg_file =
-                std::fs::File::create(out_dir).expect(<span class="string">&quot;Failed to create gateway config file&quot;</span>);
-            serde_json::to_writer_pretty(
-                cfg_file,
-                <span class="kw-2">&amp;</span>GatewayConfig {
-                    bind_address: address,
-                    announce_address,
-                    <span class="comment">// TODO: Generate a strong random password
-                    </span>password: source_password(cli.rpcpassword),
-                },
-            )
-            .expect(<span class="string">&quot;Failed to write gateway configs to file&quot;</span>);
-        }
         Commands::VersionHash =&gt; {
-            <span class="macro">println!</span>(<span class="string">&quot;version: {}&quot;</span>, <span class="macro">env!</span>(<span class="string">&quot;GIT_HASH&quot;</span>));
+            <span class="macro">println!</span>(<span class="string">&quot;version: {}&quot;</span>, <span class="macro">env!</span>(<span class="string">&quot;CODE_VERSION&quot;</span>));
         }
         Commands::Info =&gt; {
-            <span class="kw">let </span>response = client
-                .get_info(source_password(cli.rpcpassword))
-                .<span class="kw">await
-                </span>.expect(<span class="string">&quot;Failed to get info&quot;</span>);
+            <span class="kw">let </span>response = client.get_info(source_password(cli.rpcpassword)).<span class="kw">await</span><span class="question-mark">?</span>;
 
             print_response(response).<span class="kw">await</span>;
         }
@@ -361,8 +323,7 @@
                     source_password(cli.rpcpassword),
                     BalancePayload { federation_id },
                 )
-                .<span class="kw">await
-                </span>.expect(<span class="string">&quot;Failed to get balance&quot;</span>);
+                .<span class="kw">await</span><span class="question-mark">?</span>;
 
             print_response(response).<span class="kw">await</span>;
         }
@@ -372,8 +333,7 @@
                     source_password(cli.rpcpassword),
                     DepositAddressPayload { federation_id },
                 )
-                .<span class="kw">await
-                </span>.expect(<span class="string">&quot;Failed to get deposit address&quot;</span>);
+                .<span class="kw">await</span><span class="question-mark">?</span>;
 
             print_response(response).<span class="kw">await</span>;
         }
@@ -391,8 +351,7 @@
                         transaction,
                     },
                 )
-                .<span class="kw">await
-                </span>.expect(<span class="string">&quot;Failed to deposit&quot;</span>);
+                .<span class="kw">await</span><span class="question-mark">?</span>;
 
             print_response(response).<span class="kw">await</span>;
         }
@@ -410,8 +369,7 @@
                         address,
                     },
                 )
-                .<span class="kw">await
-                </span>.expect(<span class="string">&quot;Failed to withdraw&quot;</span>);
+                .<span class="kw">await</span><span class="question-mark">?</span>;
 
             print_response(response).<span class="kw">await</span>;
         }
@@ -421,8 +379,7 @@
                     source_password(cli.rpcpassword),
                     ConnectFedPayload { connect },
                 )
-                .<span class="kw">await
-                </span>.expect(<span class="string">&quot;Failed to connect federation&quot;</span>);
+                .<span class="kw">await</span><span class="question-mark">?</span>;
 
             print_response(response).<span class="kw">await</span>;
         }
@@ -432,8 +389,7 @@
                     source_password(cli.rpcpassword),
                     BackupPayload { federation_id },
                 )
-                .<span class="kw">await
-                </span>.expect(<span class="string">&quot;Failed to withdraw&quot;</span>);
+                .<span class="kw">await</span><span class="question-mark">?</span>;
 
             print_response(response).<span class="kw">await</span>;
         }
@@ -443,12 +399,35 @@
                     source_password(cli.rpcpassword),
                     RestorePayload { federation_id },
                 )
-                .<span class="kw">await
-                </span>.expect(<span class="string">&quot;Failed to withdraw&quot;</span>);
+                .<span class="kw">await</span><span class="question-mark">?</span>;
 
             print_response(response).<span class="kw">await</span>;
         }
+        Commands::Reconnect { mode } =&gt; {
+            <span class="kw">let </span>payload = <span class="kw">match </span>mode {
+                Mode::Cln { cln_extension_addr } =&gt; LightningReconnectPayload {
+                    node_type: <span class="prelude-val">Some</span>(Mode::Cln { cln_extension_addr }),
+                },
+                Mode::Lnd {
+                    lnd_rpc_addr,
+                    lnd_tls_cert,
+                    lnd_macaroon,
+                } =&gt; LightningReconnectPayload {
+                    node_type: <span class="prelude-val">Some</span>(Mode::Lnd {
+                        lnd_rpc_addr,
+                        lnd_tls_cert,
+                        lnd_macaroon,
+                    }),
+                },
+            };
+            <span class="kw">let </span>response = client
+                .reconnect(source_password(cli.rpcpassword), payload)
+                .<span class="kw">await</span><span class="question-mark">?</span>;
+            print_response(response).<span class="kw">await</span>;
+        }
     }
+
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">pub async fn </span>print_response(response: reqwest::Response) {
@@ -460,11 +439,12 @@
                     serde_json::from_str(<span class="kw-2">&amp;</span>text).expect(<span class="string">&quot;failed to parse response as json&quot;</span>);
                 <span class="kw">let </span>formatted =
                     serde_json::to_string_pretty(<span class="kw-2">&amp;</span>val).expect(<span class="string">&quot;failed to format response&quot;</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;\n{}&quot;</span>, formatted)
+                <span class="macro">println!</span>(<span class="string">&quot;\n{formatted}&quot;</span>)
             }
         }
         <span class="kw">_ </span>=&gt; {
             <span class="macro">eprintln!</span>(<span class="string">&quot;\nError: {}&quot;</span>, <span class="kw-2">&amp;</span>response.text().<span class="kw">await</span>.unwrap());
+            exit(<span class="number">1</span>)
         }
     }
 }
@@ -479,4 +459,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gateway_cli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (658fad6c5 2023-02-03)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gateway_cli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (f3126500f 2023-02-02)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

@@ -87,33 +87,13 @@
 <a href="#87" id="87">87</a>
 <a href="#88" id="88">88</a>
 <a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-</pre><pre class="rust"><code><span class="kw">use </span>fedimint_api::db::DatabaseKeyPrefixConst;
-<span class="kw">use </span>fedimint_api::encoding::{Decodable, Encodable};
-<span class="kw">use </span>fedimint_api::{Amount, OutPoint, TieredMulti, TransactionId};
-<span class="kw">use </span>fedimint_core::modules::mint::Nonce;
+</pre><pre class="rust"><code><span class="kw">use </span>fedimint_core::encoding::{Decodable, Encodable};
+<span class="kw">use </span>fedimint_core::{impl_db_lookup, impl_db_record, Amount, OutPoint, TieredMulti, TransactionId};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>strum_macros::EnumIter;
 
 <span class="kw">use </span><span class="kw">crate</span>::mint::{NoteIssuanceRequests, SpendableNote};
+<span class="kw">use </span><span class="kw">crate</span>::modules::mint::Nonce;
 
 <span class="attr">#[repr(u8)]
 #[derive(Clone, EnumIter, Debug)]
@@ -127,7 +107,7 @@
 
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>DbKeyPrefix {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>)
+        <span class="macro">write!</span>(f, <span class="string">&quot;{self:?}&quot;</span>)
     }
 }
 
@@ -137,82 +117,64 @@
     <span class="kw">pub </span>nonce: Nonce,
 }
 
-<span class="kw">impl </span>DatabaseKeyPrefixConst <span class="kw">for </span>NoteKey {
-    <span class="kw">const </span>DB_PREFIX: u8 = DbKeyPrefix::Note <span class="kw">as </span>u8;
-    <span class="kw">type </span>Key = <span class="self">Self</span>;
-    <span class="kw">type </span>Value = SpendableNote;
-}
-
 <span class="attr">#[derive(Debug, Clone, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>NoteKeyPrefix;
 
-<span class="kw">impl </span>DatabaseKeyPrefixConst <span class="kw">for </span>NoteKeyPrefix {
-    <span class="kw">const </span>DB_PREFIX: u8 = DbKeyPrefix::Note <span class="kw">as </span>u8;
-    <span class="kw">type </span>Key = NoteKey;
-    <span class="kw">type </span>Value = SpendableNote;
-}
+<span class="macro">impl_db_record!</span>(
+    key = NoteKey,
+    value = SpendableNote,
+    db_prefix = DbKeyPrefix::Note,
+);
+<span class="macro">impl_db_lookup!</span>(key = NoteKey, query_prefix = NoteKeyPrefix);
 
 <span class="attr">#[derive(Debug, Clone, Encodable, Decodable, Serialize)]
 </span><span class="kw">pub struct </span>PendingNotesKey(<span class="kw">pub </span>TransactionId);
 
-<span class="kw">impl </span>DatabaseKeyPrefixConst <span class="kw">for </span>PendingNotesKey {
-    <span class="kw">const </span>DB_PREFIX: u8 = DbKeyPrefix::PendingNotes <span class="kw">as </span>u8;
-    <span class="kw">type </span>Key = <span class="self">Self</span>;
-    <span class="kw">type </span>Value = TieredMulti&lt;SpendableNote&gt;;
-}
-
 <span class="attr">#[derive(Debug, Clone, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>PendingNotesKeyPrefix;
 
-<span class="kw">impl </span>DatabaseKeyPrefixConst <span class="kw">for </span>PendingNotesKeyPrefix {
-    <span class="kw">const </span>DB_PREFIX: u8 = DbKeyPrefix::PendingNotes <span class="kw">as </span>u8;
-    <span class="kw">type </span>Key = PendingNotesKey;
-    <span class="kw">type </span>Value = TieredMulti&lt;SpendableNote&gt;;
-}
+<span class="macro">impl_db_record!</span>(
+    key = PendingNotesKey,
+    value = TieredMulti&lt;SpendableNote&gt;,
+    db_prefix = DbKeyPrefix::PendingNotes,
+);
+<span class="macro">impl_db_lookup!</span>(key = PendingNotesKey, query_prefix = PendingNotesKeyPrefix);
 
 <span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Encodable, Decodable, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>OutputFinalizationKey(<span class="kw">pub </span>OutPoint);
 
-<span class="kw">impl </span>DatabaseKeyPrefixConst <span class="kw">for </span>OutputFinalizationKey {
-    <span class="kw">const </span>DB_PREFIX: u8 = DbKeyPrefix::OutputFinalizationData <span class="kw">as </span>u8;
-    <span class="kw">type </span>Key = <span class="self">Self</span>;
-    <span class="kw">type </span>Value = NoteIssuanceRequests;
-}
-
 <span class="attr">#[derive(Debug, Clone, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>OutputFinalizationKeyPrefix;
 
-<span class="kw">impl </span>DatabaseKeyPrefixConst <span class="kw">for </span>OutputFinalizationKeyPrefix {
-    <span class="kw">const </span>DB_PREFIX: u8 = DbKeyPrefix::OutputFinalizationData <span class="kw">as </span>u8;
-    <span class="kw">type </span>Key = OutputFinalizationKey;
-    <span class="kw">type </span>Value = NoteIssuanceRequests;
-}
-
-<span class="attr">#[derive(Debug, Clone, Encodable, Decodable)]
-</span><span class="kw">pub struct </span>NextECashNoteIndexKeyPrefix;
-
-<span class="kw">impl </span>DatabaseKeyPrefixConst <span class="kw">for </span>NextECashNoteIndexKeyPrefix {
-    <span class="kw">const </span>DB_PREFIX: u8 = DbKeyPrefix::NextECashNoteIndex <span class="kw">as </span>u8;
-    <span class="kw">type </span>Key = NextECashNoteIndexKey;
-    <span class="kw">type </span>Value = u64;
-}
+<span class="macro">impl_db_record!</span>(
+    key = OutputFinalizationKey,
+    value = NoteIssuanceRequests,
+    db_prefix = DbKeyPrefix::OutputFinalizationData,
+);
+<span class="macro">impl_db_lookup!</span>(
+    key = OutputFinalizationKey,
+    query_prefix = OutputFinalizationKeyPrefix
+);
 
 <span class="attr">#[derive(Debug, Clone, Encodable, Decodable, Serialize)]
 </span><span class="kw">pub struct </span>NextECashNoteIndexKey(<span class="kw">pub </span>Amount);
 
-<span class="kw">impl </span>DatabaseKeyPrefixConst <span class="kw">for </span>NextECashNoteIndexKey {
-    <span class="kw">const </span>DB_PREFIX: u8 = DbKeyPrefix::NextECashNoteIndex <span class="kw">as </span>u8;
-    <span class="kw">type </span>Key = <span class="self">Self</span>;
-    <span class="kw">type </span>Value = u64;
-}
+<span class="attr">#[derive(Debug, Clone, Encodable, Decodable)]
+</span><span class="kw">pub struct </span>NextECashNoteIndexKeyPrefix;
+
+<span class="macro">impl_db_record!</span>(
+    key = NextECashNoteIndexKey,
+    value = u64,
+    db_prefix = DbKeyPrefix::NextECashNoteIndex,
+);
+<span class="macro">impl_db_lookup!</span>(
+    key = NextECashNoteIndexKey,
+    query_prefix = NextECashNoteIndexKeyPrefix
+);
 
 <span class="attr">#[derive(Debug, Clone, Encodable, Decodable, Serialize)]
 </span><span class="kw">pub struct </span>NotesPerDenominationKey;
 
-<span class="kw">impl </span>DatabaseKeyPrefixConst <span class="kw">for </span>NotesPerDenominationKey {
-    <span class="kw">const </span>DB_PREFIX: u8 = <span class="number">0</span>;
-    <span class="kw">type </span>Key = <span class="self">Self</span>;
-    <span class="kw">type </span>Value = u16;
-}
+<span class="macro">impl_db_record!</span>(key = NotesPerDenominationKey, value = u16, db_prefix = <span class="number">0</span>);
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="mint_client" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (658fad6c5 2023-02-03)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="mint_client" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (f3126500f 2023-02-02)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

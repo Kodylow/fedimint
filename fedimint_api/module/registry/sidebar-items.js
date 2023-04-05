@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"opaque":[["",""]],"struct":[["ModuleRegistry","Module Registry hold module-specific data `M` by the `ModuleInstanceId`"]],"type":[["ModuleDecoderRegistry","Collection of decoders belonging to modules, typically obtained from a `ModuleRegistry`"],["ServerModuleRegistry","Collection of server modules"]]};

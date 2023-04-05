@@ -166,7 +166,27 @@
 <a href="#166" id="166">166</a>
 <a href="#167" id="167">167</a>
 <a href="#168" id="168">168</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+</pre><pre class="rust"><code><span class="kw">use </span>std::cmp::min;
+<span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::future::Future;
 <span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>std::time::Duration;
@@ -175,9 +195,9 @@
 <span class="kw">pub use </span>anyhow::Result;
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>bitcoin::{Block, BlockHash, Network, Transaction};
-<span class="kw">use </span>fedimint_api::{
-    bitcoin_rpc::BitcoinRpcBackendType, dyn_newtype_define, task::TaskHandle, Feerate,
-};
+<span class="kw">use </span>fedimint_core::bitcoin_rpc::BitcoinRpcBackendType;
+<span class="kw">use </span>fedimint_core::task::TaskHandle;
+<span class="kw">use </span>fedimint_core::{dyn_newtype_define, Feerate};
 <span class="kw">use </span>tracing::info;
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;bitcoincore-rpc&quot;</span>)]
@@ -185,10 +205,11 @@
 
 <span class="doccomment">/// Trait that allows interacting with the Bitcoin blockchain
 ///
-/// Functions may panic if if the bitcoind node is not reachable.
+/// Functions may panic if the bitcoind node is not reachable.
 </span><span class="attr">#[async_trait]
 </span><span class="kw">pub trait </span>IBitcoindRpc: Debug + Send + Sync {
-    <span class="doccomment">/// `true` if it&#39;s real-bitcoin (not electrum) backend and thus supports `get_block` call
+    <span class="doccomment">/// `true` if it&#39;s real-bitcoin (not electrum) backend and thus supports
+    /// `get_block` call
     ///
     /// This is a bit of a workaround to support electrum.
     </span><span class="kw">fn </span>backend_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BitcoinRpcBackendType {
@@ -204,12 +225,14 @@
     <span class="doccomment">/// Returns the block hash at a given height
     ///
     /// # Panics
-    /// If the node does not know a block for that height. Make sure to only query blocks of a
-    /// height less or equal to the one returned by `Self::get_block_height`.
+    /// If the node does not know a block for that height. Make sure to only
+    /// query blocks of a height less or equal to the one returned by
+    /// `Self::get_block_height`.
     ///
-    /// While there is a corner case that the blockchain shrinks between these two calls (through on
-    /// average heavier blocks on a fork) this is prevented by only querying hashes for blocks
-    /// tailing the chain tip by a certain number of blocks.
+    /// While there is a corner case that the blockchain shrinks between these
+    /// two calls (through on average heavier blocks on a fork) this is
+    /// prevented by only querying hashes for blocks tailing the chain tip
+    /// by a certain number of blocks.
     </span><span class="kw">async fn </span>get_block_hash(<span class="kw-2">&amp;</span><span class="self">self</span>, height: u64) -&gt; <span class="prelude-ty">Result</span>&lt;BlockHash&gt;;
 
     <span class="doccomment">/// Returns the block with the given hash
@@ -218,13 +241,27 @@
     /// If the block doesn&#39;t exist.
     </span><span class="kw">async fn </span>get_block(<span class="kw-2">&amp;</span><span class="self">self</span>, hash: <span class="kw-2">&amp;</span>BlockHash) -&gt; <span class="prelude-ty">Result</span>&lt;bitcoin::Block&gt;;
 
-    <span class="doccomment">/// Estimates the fee rate for a given confirmation target. Make sure that all federation
-    /// members use the same algorithm to avoid widely diverging results. If the node is not ready
-    /// yet to return a fee rate estimation this function returns `None`.
+    <span class="doccomment">/// Estimates the fee rate for a given confirmation target. Make sure that
+    /// all federation members use the same algorithm to avoid widely
+    /// diverging results. If the node is not ready yet to return a fee rate
+    /// estimation this function returns `None`.
     </span><span class="kw">async fn </span>get_fee_rate(<span class="kw-2">&amp;</span><span class="self">self</span>, confirmation_target: u16) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Feerate&gt;&gt;;
 
     <span class="doccomment">/// Submits a transaction to the Bitcoin network
-    </span><span class="kw">async fn </span>submit_transaction(<span class="kw-2">&amp;</span><span class="self">self</span>, transaction: Transaction) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
+    ///
+    /// This operation does not return anything as it never OK to consider its
+    /// success as final anyway. The caller should be retrying
+    /// broadcast periodically until it confirms the transaction was actually
+    /// via other means or decides that is no longer relevant.
+    ///
+    /// Also - most backends considers brodcasting a tx that is already included
+    /// in the blockchain as an error, which breaks idempotency and requires
+    /// brittle workarounds just to reliably ignore... just to retry on the
+    /// higher level anyway.
+    ///
+    /// Implementations of this error should log errors for debugging purposes
+    /// when it makes sense.
+    </span><span class="kw">async fn </span>submit_transaction(<span class="kw-2">&amp;</span><span class="self">self</span>, transaction: Transaction);
 
     <span class="doccomment">/// Check if a transaction was included in a given (only electrum)
     </span><span class="kw">async fn </span>was_transaction_confirmed_in(
@@ -232,7 +269,7 @@
         _transaction: <span class="kw-2">&amp;</span>Transaction,
         _height: u64,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
-        <span class="macro">bail!</span>(<span class="string">&quot;is_transaction_confirmed_in call not supported in standard (non-electrum) backends&quot;</span>)
+        <span class="macro">bail!</span>(<span class="string">&quot;was_transaction_confirmed_in call not supported in standard (non-electrum/esplora) backends&quot;</span>)
     }
 }
 
@@ -241,28 +278,29 @@
     </span><span class="kw">pub </span>DynBitcoindRpc(Arc&lt;IBitcoindRpc&gt;)
 }
 
+<span class="kw">const </span>RETRY_SLEEP_MIN_MS: Duration = Duration::from_millis(<span class="number">10</span>);
+<span class="kw">const </span>RETRY_SLEEP_MAX_MS: Duration = Duration::from_millis(<span class="number">1000</span>);
+
 <span class="doccomment">/// Wrapper around [`IBitcoindRpc`] that will retry failed calls
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>RetryClient&lt;C&gt; {
     inner: C,
-    sleep: Duration,
     task_handle: TaskHandle,
 }
 
 <span class="kw">impl</span>&lt;C&gt; RetryClient&lt;C&gt; {
     <span class="kw">pub fn </span>new(inner: C, task_handle: TaskHandle) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            inner,
-            sleep: Duration::from_millis(<span class="number">10</span>),
-            task_handle,
-        }
+        <span class="self">Self </span>{ inner, task_handle }
     }
 
-    <span class="kw">async fn </span>retry_call&lt;T, F, R&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, call_fn: F) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
+    <span class="doccomment">/// Retries with an exponential backoff from `RETRY_SLEEP_MIN_MS` to
+    /// `RETRY_SLEEP_MAX_MS`
+    </span><span class="kw">async fn </span>retry_call&lt;T, F, R&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, call_fn: F) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
     <span class="kw">where
         </span>F: Fn() -&gt; R,
         R: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;T&gt;&gt;,
     {
+        <span class="kw">let </span><span class="kw-2">mut </span>retry_time = RETRY_SLEEP_MIN_MS;
         <span class="kw">let </span>ret = <span class="kw">loop </span>{
             <span class="kw">match </span>call_fn().<span class="kw">await </span>{
                 <span class="prelude-val">Ok</span>(ret) =&gt; {
@@ -274,7 +312,8 @@
                     }
 
                     <span class="macro">info!</span>(<span class="string">&quot;Bitcoind error {:?}, retrying&quot;</span>, e);
-                    std::thread::sleep(<span class="self">self</span>.sleep);
+                    std::thread::sleep(retry_time);
+                    retry_time = min(RETRY_SLEEP_MAX_MS, retry_time * <span class="number">2</span>);
                 }
             }
         };
@@ -316,10 +355,9 @@
             .<span class="kw">await
     </span>}
 
-    <span class="kw">async fn </span>submit_transaction(<span class="kw-2">&amp;</span><span class="self">self</span>, transaction: Transaction) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.retry_call(|| <span class="kw">async </span>{ <span class="self">self</span>.inner.submit_transaction(transaction.clone()).<span class="kw">await </span>})
-            .<span class="kw">await
-    </span>}
+    <span class="kw">async fn </span>submit_transaction(<span class="kw-2">&amp;</span><span class="self">self</span>, transaction: Transaction) {
+        <span class="self">self</span>.inner.submit_transaction(transaction.clone()).<span class="kw">await</span>;
+    }
 
     <span class="kw">async fn </span>was_transaction_confirmed_in(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -335,4 +373,4 @@
     </span>}
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_bitcoind" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (658fad6c5 2023-02-03)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_bitcoind" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (f3126500f 2023-02-02)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

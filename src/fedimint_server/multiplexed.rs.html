@@ -250,22 +250,23 @@
 <a href="#250" id="250">250</a>
 <a href="#251" id="251">251</a>
 <a href="#252" id="252">252</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
+<a href="#253" id="253">253</a>
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{HashMap, VecDeque};
+<span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::hash::Hash;
-<span class="kw">use </span>std::{
-    collections::{HashMap, VecDeque},
-    sync::Arc,
-    time::Duration,
-};
+<span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>std::time::Duration;
 
 <span class="kw">use </span>async_trait::async_trait;
-<span class="kw">use </span>fedimint_api::cancellable::Cancellable;
-<span class="kw">use </span>fedimint_api::net::peers::{IMuxPeerConnections, PeerConnections};
-<span class="kw">use </span>serde::{de::DeserializeOwned, Deserialize, Serialize};
-<span class="kw">use </span>tokio::{sync::Mutex, time::sleep};
+<span class="kw">use </span>fedimint_core::cancellable::Cancellable;
+<span class="kw">use </span>fedimint_core::net::peers::{IMuxPeerConnections, PeerConnections};
+<span class="kw">use </span>fedimint_logging::LOG_NET_PEER;
+<span class="kw">use </span>serde::de::DeserializeOwned;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>tokio::sync::Mutex;
+<span class="kw">use </span>tokio::time::sleep;
 <span class="kw">use </span>tracing::{debug, warn};
 
-<span class="kw">use </span><span class="kw">crate</span>::logging::LOG_NET_PEER;
 <span class="kw">use </span><span class="kw">crate</span>::PeerId;
 
 <span class="doccomment">/// TODO: Use proper ModuleId after modularization is complete
@@ -309,10 +310,11 @@
     </span>out_of_order: Mutex&lt;ModuleMultiplexerOutOfOrder&lt;MuxKey, Msg&gt;&gt;,
 }
 
-<span class="doccomment">/// A wrapper around `AnyPeerConnections` multiplexing communication between multiple modules over it
+<span class="doccomment">/// A wrapper around `AnyPeerConnections` multiplexing communication between
+/// multiple modules over it
 ///
-/// This works by addressing each module when sending, and handling buffering messages received
-/// out of order until they are requested.
+/// This works by addressing each module when sending, and handling buffering
+/// messages received out of order until they are requested.
 ///
 /// This type is thread-safe and can be cheaply cloned.
 </span><span class="attr">#[derive(Clone)]
@@ -406,11 +408,11 @@
                         .or_default()
                         .push_back((peer, new_msg.msg));
                 } <span class="kw">else </span>{
-                    <span class="macro">warn!</span>(target: LOG_NET_PEER, <span class="string">&quot;Peer {peer} has already {peer_msgs_pending_count} pending out of order messages. Droping new message.&quot;</span>);
+                    <span class="macro">warn!</span>(target: LOG_NET_PEER, <span class="string">&quot;Peer {peer} has already {peer_msgs_pending_count} pending out of order messages. Dropping new message.&quot;</span>);
                 }
             } <span class="kw">else </span>{
                 drop(out_of_order);
-                <span class="comment">// Sleep just enough to not hog the CPU continously.
+                <span class="comment">// Sleep just enough to not hog the CPU continuously.
                 // TODO: 99% this can be done better with `CondVar`, but
                 // it&#39;s not essential RN
                 </span>sleep(Duration::from_millis(<span class="number">10</span>)).<span class="kw">await</span>;
@@ -427,10 +429,10 @@
 </span><span class="kw">pub mod </span>test {
     <span class="kw">use </span>std::time::Duration;
 
-    <span class="kw">use </span>fedimint_api::net::peers::fake::make_fake_peer_connection;
-    <span class="kw">use </span>fedimint_api::net::peers::IMuxPeerConnections;
-    <span class="kw">use </span>fedimint_api::task::TaskGroup;
-    <span class="kw">use </span>fedimint_api::PeerId;
+    <span class="kw">use </span>fedimint_core::net::peers::fake::make_fake_peer_connection;
+    <span class="kw">use </span>fedimint_core::net::peers::IMuxPeerConnections;
+    <span class="kw">use </span>fedimint_core::task::TaskGroup;
+    <span class="kw">use </span>fedimint_core::PeerId;
     <span class="kw">use </span>rand::rngs::OsRng;
     <span class="kw">use </span>rand::Rng;
     <span class="kw">use </span>tokio::time::sleep;
@@ -503,4 +505,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (658fad6c5 2023-02-03)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (f3126500f 2023-02-02)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

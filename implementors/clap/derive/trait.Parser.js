@@ -1,7 +1,11 @@
 (function() {var implementors = {
 "dbtool":[["impl Parser for <a class=\"struct\" href=\"dbtool/struct.Options.html\" title=\"struct dbtool::Options\">Options</a>"]],
-"distributedgen":[["impl Parser for <a class=\"struct\" href=\"distributedgen/struct.Cli.html\" title=\"struct distributedgen::Cli\">Cli</a>"]],
-"fedimint_cli":[["impl Parser for <a class=\"struct\" href=\"fedimint_cli/struct.Cli.html\" title=\"struct fedimint_cli::Cli\">Cli</a>"],["impl Parser for <a class=\"struct\" href=\"fedimint_cli/struct.CliNoWorkdir.html\" title=\"struct fedimint_cli::CliNoWorkdir\">CliNoWorkdir</a>"]],
+"fedimint_bin_tests":[["impl Parser for <a class=\"struct\" href=\"fedimint_bin_tests/struct.Args.html\" title=\"struct fedimint_bin_tests::Args\">Args</a>"]],
+"fedimint_cli":[["impl Parser for <a class=\"struct\" href=\"fedimint_cli/struct.Opts.html\" title=\"struct fedimint_cli::Opts\">Opts</a>"]],
+"fedimintd":[["impl Parser for <a class=\"struct\" href=\"fedimintd/distributed_gen/struct.Cli.html\" title=\"struct fedimintd::distributed_gen::Cli\">Cli</a>"],["impl Parser for <a class=\"struct\" href=\"fedimintd/fedimintd/struct.ServerOpts.html\" title=\"struct fedimintd::fedimintd::ServerOpts\">ServerOpts</a>"]],
+"fixtures":[["impl Parser for <a class=\"struct\" href=\"fixtures/struct.Args.html\" title=\"struct fixtures::Args\">Args</a>"]],
 "gateway_cli":[["impl Parser for <a class=\"struct\" href=\"gateway_cli/struct.Cli.html\" title=\"struct gateway_cli::Cli\">Cli</a>"]],
-"gateway_cln_extension":[["impl Parser for <a class=\"struct\" href=\"gateway_cln_extension/struct.ClnExtensionOpts.html\" title=\"struct gateway_cln_extension::ClnExtensionOpts\">ClnExtensionOpts</a>"]]
+"gateway_cln_extension":[["impl Parser for <a class=\"struct\" href=\"gateway_cln_extension/struct.ClnExtensionOpts.html\" title=\"struct gateway_cln_extension::ClnExtensionOpts\">ClnExtensionOpts</a>"]],
+"gatewayd":[["impl Parser for <a class=\"struct\" href=\"gatewayd/struct.GatewayOpts.html\" title=\"struct gatewayd::GatewayOpts\">GatewayOpts</a>"]],
+"recoverytool":[["impl Parser for <a class=\"struct\" href=\"recoverytool/struct.RecoveryTool.html\" title=\"struct recoverytool::RecoveryTool\">RecoveryTool</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -404,35 +404,41 @@
 <a href="#404" id="404">404</a>
 <a href="#405" id="405">405</a>
 <a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
-<span class="kw">use </span>bitcoin::Address;
-<span class="kw">use </span>bitcoin::KeyPair;
+<span class="kw">use </span>bitcoin::{Address, KeyPair};
 <span class="kw">use </span>db::PegInKey;
-<span class="kw">use </span>fedimint_api::core::client::ClientModule;
-<span class="kw">use </span>fedimint_api::db::DatabaseTransaction;
-<span class="kw">use </span>fedimint_api::module::TransactionItemAmount;
-<span class="kw">use </span>fedimint_api::{Amount, ServerModule};
-<span class="kw">use </span>fedimint_core::modules::wallet::common::WalletDecoder;
-<span class="kw">use </span>fedimint_core::modules::wallet::config::WalletClientConfig;
-<span class="kw">use </span>fedimint_core::modules::wallet::tweakable::Tweakable;
-<span class="kw">use </span>fedimint_core::modules::wallet::txoproof::{PegInProof, PegInProofError, TxOutProof};
-<span class="kw">use </span>fedimint_core::modules::wallet::WalletInput;
-<span class="kw">use </span>fedimint_core::modules::wallet::WalletOutput;
-<span class="kw">use </span>fedimint_core::modules::wallet::{Wallet, WalletOutputOutcome};
+<span class="kw">use </span>fedimint_core::api::{GlobalFederationApi, OutputOutcomeError};
+<span class="kw">use </span>fedimint_core::core::client::ClientModule;
+<span class="kw">use </span>fedimint_core::core::Decoder;
+<span class="kw">use </span>fedimint_core::db::DatabaseTransaction;
+<span class="kw">use </span>fedimint_core::module::{ModuleCommon, TransactionItemAmount};
+<span class="kw">use </span>fedimint_core::Amount;
 <span class="kw">use </span>rand::{CryptoRng, RngCore};
 <span class="kw">use </span>thiserror::Error;
 <span class="kw">use </span>tracing::debug;
 
-<span class="kw">use </span><span class="kw">crate</span>::api::GlobalFederationApi;
-<span class="kw">use </span><span class="kw">crate</span>::api::OutputOutcomeError;
+<span class="kw">use </span><span class="kw">crate</span>::modules::wallet::config::WalletClientConfig;
+<span class="kw">use </span><span class="kw">crate</span>::modules::wallet::tweakable::Tweakable;
+<span class="kw">use </span><span class="kw">crate</span>::modules::wallet::txoproof::{PegInProof, PegInProofError, TxOutProof};
+<span class="kw">use </span><span class="kw">crate</span>::modules::wallet::{WalletInput, WalletModuleTypes, WalletOutput, WalletOutputOutcome};
 <span class="kw">use </span><span class="kw">crate</span>::utils::ClientContext;
 <span class="kw">use </span><span class="kw">crate</span>::MemberError;
 
 <span class="kw">pub mod </span>db;
 
-<span class="doccomment">/// Federation module client for the Wallet module. It can both create transaction inputs and
-/// outputs of the wallet (on-chain) type.
+<span class="doccomment">/// Federation module client for the Wallet module. It can both create
+/// transaction inputs and outputs of the wallet (on-chain) type.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>WalletClient {
     <span class="kw">pub </span>config: WalletClientConfig,
@@ -441,11 +447,10 @@
 
 <span class="kw">impl </span>ClientModule <span class="kw">for </span>WalletClient {
     <span class="kw">const </span>KIND: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;wallet&quot;</span>;
-    <span class="kw">type </span>Decoder = &lt;Wallet <span class="kw">as </span>ServerModule&gt;::Decoder;
-    <span class="kw">type </span>Module = Wallet;
+    <span class="kw">type </span>Module = WalletModuleTypes;
 
-    <span class="kw">fn </span>decoder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Decoder {
-        WalletDecoder
+    <span class="kw">fn </span>decoder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Decoder {
+        WalletModuleTypes::decoder()
     }
 
     <span class="kw">fn </span>input_amount(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>WalletInput) -&gt; TransactionItemAmount {
@@ -457,22 +462,27 @@
 
     <span class="kw">fn </span>output_amount(<span class="kw-2">&amp;</span><span class="self">self</span>, output: <span class="kw-2">&amp;</span>WalletOutput) -&gt; TransactionItemAmount {
         TransactionItemAmount {
-            amount: (output.amount + output.fees.amount()).into(),
+            amount: output.amount().into(),
             fee: <span class="self">self</span>.config.fee_consensus.peg_out_abs,
         }
     }
 }
 
 <span class="kw">impl </span>WalletClient {
-    <span class="doccomment">/// Returns a bitcoin-address derived from the federations peg-in-descriptor and a random tweak
+    <span class="doccomment">/// Returns a bitcoin-address derived from the federations peg-in-descriptor
+    /// and a random tweak
     ///
-    /// This function will create a public/secret [keypair](bitcoin::KeyPair). The public key is used to tweak the
-    /// federations peg-in-descriptor resulting in a bitcoin script. Both script and keypair are stored in the DB
-    /// by using the script as part of the key and the keypair as the value. Even though only the public-key is used to tweak
-    /// the descriptor, the secret-key is needed to prove that one actually created the tweak to be able to claim the funds and
+    /// This function will create a public/secret [keypair](bitcoin::KeyPair).
+    /// The public key is used to tweak the federations peg-in-descriptor
+    /// resulting in a bitcoin script. Both script and keypair are stored in the
+    /// DB by using the script as part of the key and the keypair as the
+    /// value. Even though only the public-key is used to tweak
+    /// the descriptor, the secret-key is needed to prove that one actually
+    /// created the tweak to be able to claim the funds and
     /// prevent front-running by a malicious  federation member
-    /// The returned bitcoin-address is derived from the script. Thus sending bitcoin to that address will result in a
-    /// transaction containing the scripts public-key in at least one of it&#39;s outpoints.
+    /// The returned bitcoin-address is derived from the script. Thus sending
+    /// bitcoin to that address will result in a transaction containing the
+    /// scripts public-key in at least one of it&#39;s outpoints.
     </span><span class="kw">pub async fn </span>get_new_pegin_address&lt;<span class="lifetime">&#39;a</span>, R: RngCore + CryptoRng&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -498,8 +508,7 @@
             },
             <span class="kw-2">&amp;</span>peg_in_keypair.secret_bytes(),
         )
-        .<span class="kw">await
-        </span>.expect(<span class="string">&quot;DB Error&quot;</span>);
+        .<span class="kw">await</span>;
 
         address
     }
@@ -521,8 +530,7 @@
                         peg_in_script: out.script_pubkey.clone(),
                     })
                     .<span class="kw">await
-                    </span>.expect(<span class="string">&quot;DB error&quot;</span>)
-                    .map(|tweak_secret| (idx, tweak_secret));
+                    </span>.map(|tweak_secret| (idx, tweak_secret));
                 <span class="kw">if </span>result.is_some() {
                     <span class="kw">return </span>result;
                 }
@@ -563,14 +571,14 @@
 
     <span class="kw">pub async fn </span>await_peg_out_outcome(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        out_point: fedimint_api::OutPoint,
+        out_point: fedimint_core::OutPoint,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;bitcoin::Txid&gt; {
         <span class="comment">// TODO: define timeout centrally
         </span><span class="kw">let </span>timeout = std::time::Duration::from_secs(<span class="number">15</span>);
-        <span class="kw">let </span>outcome: WalletOutputOutcome = <span class="self">self
+        <span class="kw">let </span>outcome = <span class="self">self
             </span>.context
             .api
-            .await_output_outcome(out_point, timeout, <span class="kw-2">&amp;</span><span class="self">self</span>.context.decoders)
+            .await_output_outcome::&lt;WalletOutputOutcome&gt;(out_point, timeout, <span class="kw-2">&amp;</span><span class="self">self</span>.context.decoders)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(outcome.<span class="number">0</span>)
     }
@@ -601,26 +609,24 @@
     <span class="kw">use </span>bitcoin::hashes::sha256;
     <span class="kw">use </span>bitcoin::{Address, Txid};
     <span class="kw">use </span>bitcoin_hashes::Hash;
-    <span class="kw">use </span>fedimint_api::config::ConfigGenParams;
-    <span class="kw">use </span>fedimint_api::core::{
+    <span class="kw">use </span>fedimint_core::config::ConfigGenParams;
+    <span class="kw">use </span>fedimint_core::core::{
         DynOutputOutcome, ModuleInstanceId, LEGACY_HARDCODED_INSTANCE_ID_WALLET,
     };
-    <span class="kw">use </span>fedimint_api::db::mem_impl::MemDatabase;
-    <span class="kw">use </span>fedimint_api::db::Database;
-    <span class="kw">use </span>fedimint_api::module::registry::ModuleDecoderRegistry;
-    <span class="kw">use </span>fedimint_api::task::TaskGroup;
-    <span class="kw">use </span>fedimint_api::{Feerate, OutPoint, TransactionId};
-    <span class="kw">use </span>fedimint_core::modules::wallet::common::WalletDecoder;
-    <span class="kw">use </span>fedimint_core::modules::wallet::config::WalletClientConfig;
-    <span class="kw">use </span>fedimint_core::modules::wallet::{
-        PegOut, PegOutFees, Wallet, WalletGen, WalletGenParams, WalletOutput, WalletOutputOutcome,
-    };
+    <span class="kw">use </span>fedimint_core::db::mem_impl::MemDatabase;
+    <span class="kw">use </span>fedimint_core::db::Database;
+    <span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
     <span class="kw">use </span>fedimint_core::outcome::{SerdeOutputOutcome, TransactionStatus};
+    <span class="kw">use </span>fedimint_core::task::TaskGroup;
+    <span class="kw">use </span>fedimint_core::{Feerate, OutPoint, ServerModule, TransactionId};
     <span class="kw">use </span>fedimint_testing::btc::bitcoind::{FakeBitcoindRpc, FakeBitcoindRpcController};
     <span class="kw">use </span>fedimint_testing::FakeFed;
+    <span class="kw">use </span>fedimint_wallet_server::{Wallet, WalletGen, WalletGenParams};
     <span class="kw">use </span>tokio::sync::Mutex;
 
     <span class="kw">use </span><span class="kw">crate</span>::api::fake::FederationApiFaker;
+    <span class="kw">use </span><span class="kw">crate</span>::modules::wallet::config::WalletClientConfig;
+    <span class="kw">use </span><span class="kw">crate</span>::modules::wallet::{PegOut, PegOutFees, WalletOutput, WalletOutputOutcome};
     <span class="kw">use </span><span class="kw">crate</span>::wallet::WalletClient;
     <span class="kw">use crate</span>::{module_decode_stubs, ClientContext};
 
@@ -644,18 +650,31 @@
             .iter()
             .map(|(peer_id, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)| <span class="kw-2">*</span>peer_id)
             .collect();
-        FederationApiFaker::new(fed, members).with(
-            <span class="string">&quot;/fetch_transaction&quot;</span>,
-            <span class="kw">move </span>|_mint: Arc&lt;Mutex&lt;FakeFed&lt;Wallet&gt;&gt;&gt;, _tx: TransactionId| <span class="kw">async move </span>{
-                <span class="prelude-val">Ok</span>(TransactionStatus::Accepted {
-                    epoch: <span class="number">0</span>,
-                    outputs: <span class="macro">vec!</span>[SerdeOutputOutcome::from(<span class="kw-2">&amp;</span>DynOutputOutcome::from_typed(
-                        module_id,
-                        WalletOutputOutcome(Txid::from_slice([<span class="number">0</span>; <span class="number">32</span>].as_slice()).unwrap()),
-                    ))],
-                })
-            },
-        )
+        FederationApiFaker::new(fed, members)
+            .with(
+                <span class="string">&quot;/fetch_transaction&quot;</span>,
+                <span class="kw">move </span>|_mint: Arc&lt;Mutex&lt;FakeFed&lt;Wallet&gt;&gt;&gt;, _tx: TransactionId| <span class="kw">async move </span>{
+                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(TransactionStatus::Accepted {
+                        epoch: <span class="number">0</span>,
+                        outputs: <span class="macro">vec!</span>[SerdeOutputOutcome::from(<span class="kw-2">&amp;</span>DynOutputOutcome::from_typed(
+                            module_id,
+                            WalletOutputOutcome(Txid::from_slice([<span class="number">0</span>; <span class="number">32</span>].as_slice()).unwrap()),
+                        ))],
+                    }))
+                },
+            )
+            .with(
+                <span class="string">&quot;/wait_transaction&quot;</span>,
+                <span class="kw">move </span>|_mint: Arc&lt;Mutex&lt;FakeFed&lt;Wallet&gt;&gt;&gt;, _tx: TransactionId| <span class="kw">async move </span>{
+                    <span class="prelude-val">Ok</span>(TransactionStatus::Accepted {
+                        epoch: <span class="number">0</span>,
+                        outputs: <span class="macro">vec!</span>[SerdeOutputOutcome::from(<span class="kw-2">&amp;</span>DynOutputOutcome::from_typed(
+                            module_id,
+                            WalletOutputOutcome(Txid::from_slice([<span class="number">0</span>; <span class="number">32</span>].as_slice()).unwrap()),
+                        ))],
+                    })
+                },
+            )
     }
 
     <span class="kw">async fn </span>new_mint_and_client(
@@ -686,10 +705,11 @@
                         .<span class="kw">await</span><span class="question-mark">?</span>)
                     }
                 },
-                <span class="kw-2">&amp;</span>ConfigGenParams::new().attach(WalletGenParams {
+                <span class="kw-2">&amp;</span>ConfigGenParams::from_typed(WalletGenParams {
                     network: bitcoin::network::constants::Network::Regtest,
                     finality_delay: <span class="number">10</span>,
-                }),
+                })
+                .expect(<span class="string">&quot;Invalid wallet gen config&quot;</span>),
                 <span class="kw-2">&amp;</span>WalletGen,
                 module_id,
             )
@@ -701,7 +721,10 @@
         <span class="kw">let </span>client_config = fed.lock().<span class="kw">await</span>.client_cfg().clone();
 
         <span class="kw">let </span>client = ClientContext {
-            decoders: ModuleDecoderRegistry::from_iter([(module_id, WalletDecoder.into())]),
+            decoders: ModuleDecoderRegistry::from_iter([(
+                module_id,
+                &lt;Wallet <span class="kw">as </span>ServerModule&gt;::decoder(),
+            )]),
             module_gens: Default::default(),
             db: Database::new(MemDatabase::new(), module_decode_stubs()),
             api: api.into(),
@@ -726,9 +749,8 @@
             context: Arc::new(client_context),
         };
 
-        <span class="comment">// Set fees low forever
-        </span>btc_rpc
-            .set_fee_rate(<span class="prelude-val">Some</span>(Feerate { sats_per_kvb: <span class="number">0 </span>}))
+        btc_rpc
+            .set_fee_rate(<span class="prelude-val">Some</span>(Feerate { sats_per_kvb: <span class="number">1000 </span>}))
             .<span class="kw">await</span>;
 
         <span class="comment">// generate fake UTXO
@@ -744,17 +766,14 @@
         <span class="kw">let </span>output = PegOut {
             recipient: addr.clone(),
             amount,
-            fees: PegOutFees {
-                fee_rate: Feerate { sats_per_kvb: <span class="number">0 </span>},
-                total_weight: <span class="number">0</span>,
-            },
+            fees: PegOutFees::new(<span class="number">1000</span>, <span class="number">883</span>),
         };
 
         <span class="comment">// agree on output
         </span>btc_rpc.set_block_height(<span class="number">100</span>).<span class="kw">await</span>;
         fed.lock()
             .<span class="kw">await
-            </span>.consensus_round(<span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[(out_point, WalletOutput(output))])
+            </span>.consensus_round(<span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[(out_point, WalletOutput::PegOut(output))])
             .<span class="kw">await</span>;
 
         <span class="comment">// begin pegout
@@ -764,12 +783,13 @@
         <span class="comment">// combine signatures
         </span>fed.lock().<span class="kw">await</span>.consensus_round(<span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>;
 
-        <span class="comment">// FIXME: find out why these extra rounds are necessary (needs tracing improvement), increases latency only negligibly
+        <span class="comment">// FIXME: find out why these extra rounds are necessary (needs tracing
+        // improvement), increases latency only negligibly
         </span>fed.lock().<span class="kw">await</span>.consensus_round(<span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>;
         fed.lock().<span class="kw">await</span>.consensus_round(<span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>;
 
         <span class="comment">// wait for broadcast
-        </span>fedimint_api::task::sleep(Duration::from_secs(<span class="number">12</span>)).<span class="kw">await</span>;
+        </span>fedimint_core::task::sleep(Duration::from_secs(<span class="number">12</span>)).<span class="kw">await</span>;
         <span class="macro">assert!</span>(btc_rpc.is_btc_sent_to(amount, addr).<span class="kw">await</span>);
 
         <span class="kw">let </span>wallet_value = fed
@@ -811,4 +831,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="mint_client" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (658fad6c5 2023-02-03)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="mint_client" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (f3126500f 2023-02-02)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

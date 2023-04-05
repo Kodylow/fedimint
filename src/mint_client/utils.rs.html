@@ -77,18 +77,44 @@
 <a href="#77" id="77">77</a>
 <a href="#78" id="78">78</a>
 <a href="#79" id="79">79</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::str::FromStr;
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+</pre><pre class="rust"><code><span class="kw">use </span>std::num::ParseIntError;
+<span class="kw">use </span>std::str::FromStr;
 
 <span class="kw">use </span>bitcoin::{secp256k1, Network};
 <span class="kw">use </span>bitcoin_hashes::hex::FromHex;
-<span class="kw">use </span>fedimint_api::config::ModuleGenRegistry;
-<span class="kw">use </span>fedimint_api::db::Database;
-<span class="kw">use </span>fedimint_api::encoding::{Decodable, Encodable};
-<span class="kw">use </span>fedimint_api::module::registry::ModuleDecoderRegistry;
-<span class="kw">use </span>fedimint_api::{ParseAmountError, TieredMulti};
+<span class="kw">use </span>fedimint_client::module::gen::ClientModuleGenRegistry;
+<span class="kw">use </span>fedimint_core::api::DynFederationApi;
+<span class="kw">use </span>fedimint_core::db::Database;
+<span class="kw">use </span>fedimint_core::encoding::{Decodable, Encodable};
+<span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
+<span class="kw">use </span>fedimint_core::{ParseAmountError, PeerId, TieredMulti};
 <span class="kw">use </span>lightning_invoice::Currency;
 
-<span class="kw">use </span><span class="kw">crate</span>::api::DynFederationApi;
 <span class="kw">use </span><span class="kw">crate</span>::mint::SpendableNote;
 
 <span class="kw">pub fn </span>parse_ecash(s: <span class="kw-2">&amp;</span>str) -&gt; anyhow::Result&lt;TieredMulti&lt;SpendableNote&gt;&gt; {
@@ -125,13 +151,13 @@
     }
 }
 
-<span class="kw">pub fn </span>parse_fedimint_amount(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;fedimint_api::Amount, ParseAmountError&gt; {
+<span class="kw">pub fn </span>parse_fedimint_amount(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;fedimint_core::Amount, ParseAmountError&gt; {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(i) = s.find(char::is_alphabetic) {
         <span class="kw">let </span>(amt, denom) = s.split_at(i);
-        fedimint_api::Amount::from_str_in(amt, denom.parse()<span class="question-mark">?</span>)
+        fedimint_core::Amount::from_str_in(amt, denom.parse()<span class="question-mark">?</span>)
     } <span class="kw">else </span>{
-        <span class="comment">//default to satoshi
-        </span>fedimint_api::Amount::from_str_in(s, bitcoin::Denomination::Satoshi)
+        <span class="comment">//default to millisatoshi
+        </span>fedimint_core::Amount::from_str_in(s, bitcoin::Denomination::MilliSatoshi)
     }
 }
 
@@ -139,10 +165,14 @@
     secp256k1::PublicKey::from_str(s)
 }
 
+<span class="kw">pub fn </span>parse_peer_id(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;PeerId, ParseIntError&gt; {
+    <span class="prelude-val">Ok</span>(PeerId::from(s.parse::&lt;u16&gt;()<span class="question-mark">?</span>))
+}
+
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>ClientContext {
     <span class="kw">pub </span>decoders: ModuleDecoderRegistry,
-    <span class="kw">pub </span>module_gens: ModuleGenRegistry,
+    <span class="kw">pub </span>module_gens: ClientModuleGenRegistry,
     <span class="kw">pub </span>db: Database,
     <span class="kw">pub </span>api: DynFederationApi,
     <span class="kw">pub </span>secp: secp256k1_zkp::Secp256k1&lt;secp256k1_zkp::All&gt;,
@@ -156,5 +186,25 @@
         Network::Signet =&gt; Currency::Signet,
     }
 }
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>sanity_check_parse_fedimint_amount() {
+    <span class="macro">assert_eq!</span>(
+        parse_fedimint_amount(<span class="string">&quot;34&quot;</span>).unwrap(),
+        fedimint_core::Amount { msats: <span class="number">34 </span>}
+    );
+    <span class="macro">assert_eq!</span>(
+        parse_fedimint_amount(<span class="string">&quot;34msat&quot;</span>).unwrap(),
+        fedimint_core::Amount { msats: <span class="number">34 </span>}
+    );
+    <span class="macro">assert_eq!</span>(
+        parse_fedimint_amount(<span class="string">&quot;34sat&quot;</span>).unwrap(),
+        fedimint_core::Amount { msats: <span class="number">34 </span>* <span class="number">1000 </span>}
+    );
+    <span class="macro">assert_eq!</span>(
+        parse_fedimint_amount(<span class="string">&quot;34satoshi&quot;</span>).unwrap(),
+        fedimint_core::Amount { msats: <span class="number">34 </span>* <span class="number">1000 </span>}
+    );
+}
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="mint_client" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (658fad6c5 2023-02-03)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="mint_client" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (f3126500f 2023-02-02)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

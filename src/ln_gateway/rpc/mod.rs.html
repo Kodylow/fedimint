@@ -223,6 +223,18 @@
 <a href="#223" id="223">223</a>
 <a href="#224" id="224">224</a>
 <a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>rpc_client;
 <span class="kw">pub mod </span>rpc_server;
 
@@ -232,16 +244,16 @@
 <span class="kw">use </span>anyhow::{anyhow, Error};
 <span class="kw">use </span>bitcoin::{Address, Transaction, XOnlyPublicKey};
 <span class="kw">use </span>bitcoin_hashes::hex::{FromHex, ToHex};
-<span class="kw">use </span>fedimint_api::config::FederationId;
-<span class="kw">use </span>fedimint_api::{Amount, TransactionId};
-<span class="kw">use </span>fedimint_server::{modules::ln::contracts::Preimage, modules::wallet::txoproof::TxOutProof};
+<span class="kw">use </span>fedimint_core::config::FederationId;
+<span class="kw">use </span>fedimint_core::{Amount, TransactionId};
 <span class="kw">use </span>futures::Future;
 <span class="kw">use </span>mint_client::ln::PayInvoicePayload;
+<span class="kw">use </span>mint_client::modules::wallet::txoproof::TxOutProof;
 <span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
 <span class="kw">use </span>tokio::sync::{mpsc, oneshot};
 <span class="kw">use </span>tracing::error;
 
-<span class="kw">use crate</span>::{cln::HtlcAccepted, LnGatewayError, <span class="prelude-ty">Result</span>};
+<span class="kw">use crate</span>::{Gateway, GatewayError, Mode, <span class="prelude-ty">Result</span>};
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>GatewayRpcSender {
@@ -250,8 +262,9 @@
 
 <span class="doccomment">/// A two-way rpc channel for [`GatewayRequest`]s.
 ///
-/// The channel consists of a long lived sender and receiver used to pass along the original message
-/// And a short lived (oneshot tx, rx) is used to receive a response in the opposite direction as the original message.
+/// The channel consists of a long lived sender and receiver used to pass along
+/// the original message And a short lived (oneshot tx, rx) is used to receive a
+/// response in the opposite direction as the original message.
 </span><span class="kw">impl </span>GatewayRpcSender {
     <span class="kw">pub fn </span>new(sender: mpsc::Sender&lt;GatewayRequest&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ sender }
@@ -272,7 +285,7 @@
         receiver
             .<span class="kw">await
             </span>.unwrap_or_else(|<span class="kw">_</span>| {
-                <span class="prelude-val">Err</span>(LnGatewayError::Other(<span class="macro">anyhow!</span>(
+                <span class="prelude-val">Err</span>(GatewayError::Other(<span class="macro">anyhow!</span>(
                     <span class="string">&quot;Failed to receive response over channel&quot;
                 </span>)))
             })
@@ -286,13 +299,6 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
-</span><span class="kw">pub struct </span>ReceivePaymentPayload {
-    <span class="comment">// NOTE: On ReceivePayment signal from ln_rpc,
-    // we extract the relevant federation id from the accepted htlc
-    </span><span class="kw">pub </span>htlc_accepted: HtlcAccepted,
-}
-
-<span class="attr">#[derive(Debug, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>InfoPayload;
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
@@ -303,6 +309,13 @@
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>RestorePayload {
     <span class="kw">pub </span>federation_id: FederationId,
+}
+
+<span class="attr">#[derive(Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>LightningReconnectPayload {
+    <span class="comment">// Sending `None` for node_type will be interpreted as just reconnecting using the existing
+    // settings
+    </span><span class="kw">pub </span>node_type: <span class="prelude-ty">Option</span>&lt;Mode&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, Clone)]
@@ -344,13 +357,14 @@
 </span><span class="kw">pub struct </span>GatewayInfo {
     <span class="kw">pub </span>version_hash: String,
     <span class="kw">pub </span>federations: Vec&lt;FederationInfo&gt;,
+    <span class="kw">pub </span>lightning_pub_key: String,
+    <span class="kw">pub </span>lightning_alias: String,
 }
 
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub enum </span>GatewayRequest {
     Info(GatewayRequestInner&lt;InfoPayload&gt;),
     ConnectFederation(GatewayRequestInner&lt;ConnectFedPayload&gt;),
-    ReceivePayment(GatewayRequestInner&lt;ReceivePaymentPayload&gt;),
     PayInvoice(GatewayRequestInner&lt;PayInvoicePayload&gt;),
     Balance(GatewayRequestInner&lt;BalancePayload&gt;),
     DepositAddress(GatewayRequestInner&lt;DepositAddressPayload&gt;),
@@ -358,6 +372,7 @@
     Withdraw(GatewayRequestInner&lt;WithdrawPayload&gt;),
     Backup(GatewayRequestInner&lt;BackupPayload&gt;),
     Restore(GatewayRequestInner&lt;RestorePayload&gt;),
+    LightningReconnect(GatewayRequestInner&lt;LightningReconnectPayload&gt;),
 }
 
 <span class="attr">#[derive(Debug)]
@@ -387,11 +402,10 @@
 }
 
 <span class="macro">impl_gateway_request_trait!</span>(InfoPayload, GatewayInfo, GatewayRequest::Info);
-<span class="macro">impl_gateway_request_trait!</span>(ConnectFedPayload, (), GatewayRequest::ConnectFederation);
 <span class="macro">impl_gateway_request_trait!</span>(
-    ReceivePaymentPayload,
-    Preimage,
-    GatewayRequest::ReceivePayment
+    ConnectFedPayload,
+    FederationInfo,
+    GatewayRequest::ConnectFederation
 );
 <span class="macro">impl_gateway_request_trait!</span>(PayInvoicePayload, (), GatewayRequest::PayInvoice);
 <span class="macro">impl_gateway_request_trait!</span>(BalancePayload, Amount, GatewayRequest::Balance);
@@ -404,17 +418,27 @@
 <span class="macro">impl_gateway_request_trait!</span>(WithdrawPayload, TransactionId, GatewayRequest::Withdraw);
 <span class="macro">impl_gateway_request_trait!</span>(BackupPayload, (), GatewayRequest::Backup);
 <span class="macro">impl_gateway_request_trait!</span>(RestorePayload, (), GatewayRequest::Restore);
+<span class="macro">impl_gateway_request_trait!</span>(
+    LightningReconnectPayload,
+    (),
+    GatewayRequest::LightningReconnect
+);
 
 <span class="kw">impl</span>&lt;T&gt; GatewayRequestInner&lt;T&gt;
 <span class="kw">where
     </span>T: GatewayRequestTrait,
     T::Response: std::fmt::Debug,
 {
-    <span class="kw">pub async fn </span>handle&lt;F: Fn(T) -&gt; FF, FF: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;T::Response&gt;&gt; + Send&gt;(
+    <span class="kw">pub async fn </span>handle&lt;
+        <span class="lifetime">&#39;gateway</span>,
+        F: Fn(<span class="kw-2">&amp;</span><span class="lifetime">&#39;gateway </span><span class="kw-2">mut </span>Gateway, T) -&gt; FF,
+        FF: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;T::Response&gt;&gt; + Send + <span class="lifetime">&#39;gateway</span>,
+    &gt;(
         <span class="self">self</span>,
+        gateway: <span class="kw-2">&amp;</span><span class="lifetime">&#39;gateway </span><span class="kw-2">mut </span>Gateway,
         handler: F,
     ) {
-        <span class="kw">let </span>result = handler(<span class="self">self</span>.request).<span class="kw">await</span>;
+        <span class="kw">let </span>result = handler(gateway, <span class="self">self</span>.request).<span class="kw">await</span>;
         <span class="kw">if </span><span class="self">self</span>.sender.send(result).is_err() {
             <span class="comment">// TODO: figure out how to log the result
             </span><span class="macro">tracing::error!</span>(<span class="string">&quot;Plugin hung up&quot;</span>);
@@ -449,4 +473,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ln_gateway" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (658fad6c5 2023-02-03)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ln_gateway" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (f3126500f 2023-02-02)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

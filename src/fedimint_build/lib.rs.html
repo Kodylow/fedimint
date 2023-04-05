@@ -23,8 +23,8 @@
 <span class="kw">use </span>std::fs::File;
 <span class="kw">use </span>std::process::Command;
 
-<span class="kw">pub fn </span>print_git_hash() {
-    <span class="kw">if </span>env::var_os(<span class="string">&quot;GIT_HASH&quot;</span>).is_none() {
+<span class="kw">pub fn </span>set_code_version() {
+    <span class="kw">if </span>env::var_os(<span class="string">&quot;CODE_VERSION&quot;</span>).is_none() {
         <span class="kw">let </span>git_hash = <span class="kw">if </span>File::open(<span class="string">&quot;./../../.git/HEAD&quot;</span>).is_ok() {
             <span class="kw">let </span>output = Command::new(<span class="string">&quot;git&quot;</span>)
                 .args([<span class="string">&quot;rev-parse&quot;</span>, <span class="string">&quot;HEAD&quot;</span>])
@@ -36,9 +36,9 @@
             // by giving it a prefix (0x0123456)
             </span>String::from(<span class="string">&quot;01234569afbe457afa1d2683a099c7af48a523c1&quot;</span>)
         };
-        <span class="macro">println!</span>(<span class="string">&quot;cargo:rustc-env=GIT_HASH={git_hash}&quot;</span>);
+        <span class="macro">println!</span>(<span class="string">&quot;cargo:rustc-env=CODE_VERSION={git_hash}&quot;</span>);
     }
-    <span class="macro">println!</span>(<span class="string">&quot;cargo:rerun-if-env-changed=GIT_HASH&quot;</span>);
+    <span class="macro">println!</span>(<span class="string">&quot;cargo:rerun-if-env-changed=CODE_VERSION&quot;</span>);
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_build" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (658fad6c5 2023-02-03)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimint_build" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (f3126500f 2023-02-02)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

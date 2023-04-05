@@ -1,3 +1,3 @@
 (function() {var implementors = {
-"fedimint_api":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/alloc/string/trait.ToString.html\" title=\"trait alloc::string::ToString\">ToString</a> for <a class=\"struct\" href=\"fedimint_api/config/struct.FederationId.html\" title=\"struct fedimint_api::config::FederationId\">FederationId</a>"]]
+"fixtures":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/alloc/string/trait.ToString.html\" title=\"trait alloc::string::ToString\">ToString</a> for <a class=\"enum\" href=\"fixtures/enum.GatewayNode.html\" title=\"enum fixtures::GatewayNode\">GatewayNode</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

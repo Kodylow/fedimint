@@ -421,7 +421,38 @@
 <a href="#421" id="421">421</a>
 <a href="#422" id="422">422</a>
 <a href="#423" id="423">423</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::net::SocketAddr;
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+</pre><pre class="rust"><code><span class="kw">use </span>std::env;
+<span class="kw">use </span>std::net::SocketAddr;
 <span class="kw">use </span>std::path::PathBuf;
 <span class="kw">use </span>std::sync::Arc;
 
@@ -429,34 +460,31 @@
 <span class="kw">use </span>askama::Template;
 <span class="kw">use </span>axum::extract::Form;
 <span class="kw">use </span>axum::response::{IntoResponse, Redirect, Response};
-<span class="kw">use </span>axum::{
-    routing::{get, post},
-    Router,
-};
+<span class="kw">use </span>axum::routing::{get, post};
+<span class="kw">use </span>axum::Router;
 <span class="kw">use </span>axum_macros::debug_handler;
 <span class="kw">use </span>bitcoin::Network;
-<span class="kw">use </span>fedimint_api::bitcoin_rpc::BitcoindRpcBackend;
-<span class="kw">use </span>fedimint_api::config::{ClientConfig, ModuleGenRegistry};
-<span class="kw">use </span>fedimint_api::task::TaskGroup;
-<span class="kw">use </span>fedimint_api::Amount;
+<span class="kw">use </span>fedimint_core::api::WsClientConnectInfo;
+<span class="kw">use </span>fedimint_core::bitcoin_rpc::BitcoindRpcBackend;
+<span class="kw">use </span>fedimint_core::config::{ClientConfig, ServerModuleGenParamsRegistry, ServerModuleGenRegistry};
+<span class="kw">use </span>fedimint_core::task::TaskGroup;
 <span class="kw">use </span>fedimint_core::util::SanitizedUrl;
+<span class="kw">use </span>fedimint_core::Amount;
+<span class="kw">use </span>fedimint_server::config::io::{
+    create_cert, parse_peer_params, write_server_config, CONSENSUS_CONFIG, JSON_EXT,
+};
+<span class="kw">use </span>fedimint_server::config::{ServerConfig, ServerConfigConsensus, ServerConfigParams};
+<span class="kw">use </span>fedimint_server::net::peers::DelayCalculator;
 <span class="kw">use </span>http::StatusCode;
-<span class="kw">use </span>mint_client::api::WsFederationConnect;
 <span class="kw">use </span>qrcode_generator::QrCodeEcc;
 <span class="kw">use </span>serde::Deserialize;
 <span class="kw">use </span>tokio::select;
 <span class="kw">use </span>tokio::sync::mpsc::Sender;
 <span class="kw">use </span>tokio::sync::Mutex;
-<span class="kw">use </span>tokio_rustls::rustls;
-<span class="kw">use </span>tracing::{debug, error};
+<span class="kw">use </span>tracing::{debug, error, info};
 <span class="kw">use </span>url::Url;
 
-<span class="kw">use </span><span class="kw">crate</span>::distributedgen::{create_cert, parse_peer_params, run_dkg};
-<span class="kw">use </span><span class="kw">crate</span>::encrypt::{encrypted_read, get_key};
-<span class="kw">use crate</span>::{
-    encrypted_json_write, write_nonprivate_configs, CONSENSUS_CONFIG, JSON_EXT, PRIVATE_CONFIG,
-    SALT_FILE, TLS_PK,
-};
+<span class="kw">use </span><span class="kw">crate</span>::attach_default_module_gen_params;
 
 <span class="attr">#[derive(Deserialize, Debug, Clone)]
 #[allow(dead_code)]
@@ -482,7 +510,7 @@
 <span class="kw">enum </span>RunTemplateState {
     DkgNotStarted,
     DkgInProgress,
-    DkgDone(String),   <span class="comment">// connnection string
+    DkgDone(String),   <span class="comment">// connection string
     </span>DkgFailed(String), <span class="comment">// error
     </span>LocalIoError(String),
 }
@@ -493,16 +521,20 @@
     RunTemplate {
         state: <span class="kw">match </span>state.dkg_state {
             <span class="prelude-val">Some</span>(DkgState::Success) =&gt; {
-                <span class="kw">let </span>path = state.data_dir.join(<span class="string">&quot;client.json&quot;</span>);
+                <span class="kw">let </span>path = state
+                    .data_dir
+                    .join(CONSENSUS_CONFIG)
+                    .with_extension(JSON_EXT);
                 <span class="comment">// TODO: refactor be a standalone function
                 </span><span class="kw">match </span>std::fs::File::open(path) {
                     <span class="prelude-val">Ok</span>(file) =&gt; <span class="kw">match </span>serde_json::from_reader(file) {
-                        <span class="prelude-val">Ok</span>(cfg) =&gt; {
-                            <span class="kw">let </span>connect_info = WsFederationConnect::from(<span class="kw-2">&amp;</span>cfg);
+                        <span class="prelude-val">Ok</span>::&lt;ServerConfigConsensus, <span class="kw">_</span>&gt;(consensus_config) =&gt; {
+                            <span class="kw">let </span>cfg = consensus_config
+                                .to_config_response(<span class="kw-2">&amp;</span>state.module_gens)
+                                .client;
+                            <span class="kw">let </span>connect_info = WsClientConnectInfo::from_honest_peers(<span class="kw-2">&amp;</span>cfg);
 
-                            RunTemplateState::DkgDone(
-                                serde_json::to_string(<span class="kw-2">&amp;</span>connect_info).expect(<span class="string">&quot;should deserialize&quot;</span>),
-                            )
+                            RunTemplateState::DkgDone(connect_info.to_string())
                         }
                         <span class="prelude-val">Err</span>(e) =&gt; RunTemplateState::LocalIoError(e.to_string()),
                     },
@@ -572,9 +604,7 @@
     }
 
     <span class="comment">// Actually run DKG
-    </span><span class="kw">let </span>key = get_key(<span class="prelude-val">Some</span>(state.password.clone()), state.data_dir.join(SALT_FILE))<span class="question-mark">?</span>;
-    <span class="kw">let </span>pk_bytes = encrypted_read(<span class="kw-2">&amp;</span>key, state.data_dir.join(TLS_PK))<span class="question-mark">?</span>;
-    <span class="kw">let </span>max_denomination = Amount::from_msats(<span class="number">100000000000</span>);
+    </span><span class="kw">let </span>max_denomination = Amount::from_msats(<span class="number">100000000000</span>);
     <span class="kw">let </span>dir_out_path = state.data_dir.clone();
     <span class="kw">let </span>fedimintd_sender = state.sender.clone();
 
@@ -591,29 +621,43 @@
     <span class="kw">let </span><span class="kw-2">mut </span>dkg_task_group = state.task_group.make_subgroup().<span class="kw">await</span>;
     state.dkg_task_group = <span class="prelude-val">Some</span>(dkg_task_group.clone());
     <span class="kw">let </span>module_gens = state.module_gens.clone();
+    <span class="kw">let </span><span class="kw-2">mut </span>module_gens_params = state.module_gens_params.clone();
+    attach_default_module_gen_params(
+        <span class="kw-2">&amp;mut </span>module_gens_params,
+        max_denomination,
+        params.network,
+        params.finality_delay,
+    );
+
+    <span class="kw">let </span>password = state.password.clone();
     state
         .task_group
         .spawn(<span class="string">&quot;admin UI running DKG&quot;</span>, <span class="kw">move </span>|<span class="kw">_</span>| <span class="kw">async move </span>{
             <span class="macro">tracing::info!</span>(<span class="string">&quot;Running DKG&quot;</span>);
 
             state_copy.lock().<span class="kw">await</span>.dkg_state = <span class="prelude-val">Some</span>(DkgState::Running);
-            <span class="kw">let </span>maybe_config = run_dkg(
+            <span class="kw">let </span>maybe_config = <span class="kw">match </span>ServerConfigParams::parse_from_connect_strings(
                 params.bind_p2p,
                 params.bind_api,
                 <span class="kw-2">&amp;</span>dir_out_path,
-                max_denomination,
                 params.federation_name,
                 connection_strings,
-                params.network,
-                params.finality_delay,
-                rustls::PrivateKey(pk_bytes),
-                <span class="kw-2">&amp;mut </span>dkg_task_group,
-            )
-            .<span class="kw">await</span>;
+                <span class="kw-2">&amp;</span>password,
+                module_gens_params,
+            ) {
+                <span class="prelude-val">Ok</span>(params) =&gt; ServerConfig::distributed_gen(
+                    <span class="kw-2">&amp;</span>params,
+                    module_gens.clone().legacy_init_modules(),
+                    DelayCalculator::default(),
+                    <span class="kw-2">&amp;mut </span>dkg_task_group,
+                )
+                .<span class="kw">await
+                </span>.map_err(|e| <span class="macro">format_err!</span>(<span class="string">&quot;Failed {}&quot;</span>, e)),
+                <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
+            };
 
             <span class="kw">let </span>write_result = maybe_config.and_then(|server| {
-                encrypted_json_write(<span class="kw-2">&amp;</span>server.private, <span class="kw-2">&amp;</span>key, dir_out_path.join(PRIVATE_CONFIG))<span class="question-mark">?</span>;
-                write_nonprivate_configs(<span class="kw-2">&amp;</span>server, dir_out_path, <span class="kw-2">&amp;</span>module_gens)
+                write_server_config(<span class="kw-2">&amp;</span>server, dir_out_path, <span class="kw-2">&amp;</span>password, <span class="kw-2">&amp;</span>module_gens)
             });
 
             <span class="kw">match </span>write_result {
@@ -648,13 +692,17 @@
 </span><span class="kw">struct </span>UrlConnection {
     ro_bitcoin_rpc_type: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
     ro_bitcoin_rpc_url: String,
+    bind_p2p: String,
+    p2p_url: String,
+    bind_api: String,
+    api_url: String,
 }
 
 <span class="kw">async fn </span>params_page(
     axum::extract::State(_state): axum::extract::State&lt;MutableState&gt;,
 ) -&gt; UrlConnection {
     <span class="kw">let </span>(ro_bitcoin_rpc_type, ro_bitcoin_rpc_url) =
-        <span class="kw">match </span>fedimint_api::bitcoin_rpc::read_bitcoin_backend_from_global_env() {
+        <span class="kw">match </span>fedimint_core::bitcoin_rpc::read_bitcoin_backend_from_global_env() {
             <span class="prelude-val">Ok</span>(BitcoindRpcBackend::Bitcoind(url)) =&gt; {
                 <span class="kw">let </span>url_str = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, SanitizedUrl::new_borrowed(<span class="kw-2">&amp;</span>url));
                 (<span class="string">&quot;bitcoind&quot;</span>, url_str)
@@ -663,11 +711,19 @@
                 <span class="kw">let </span>url_str = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, SanitizedUrl::new_borrowed(<span class="kw-2">&amp;</span>url));
                 (<span class="string">&quot;electrum&quot;</span>, url_str)
             }
+            <span class="prelude-val">Ok</span>(BitcoindRpcBackend::Esplora(url)) =&gt; {
+                <span class="kw">let </span>url_str = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, SanitizedUrl::new_borrowed(<span class="kw-2">&amp;</span>url));
+                (<span class="string">&quot;esplora&quot;</span>, url_str)
+            }
             <span class="prelude-val">Err</span>(e) =&gt; (<span class="string">&quot;error&quot;</span>, e.to_string()),
         };
     UrlConnection {
         ro_bitcoin_rpc_type,
         ro_bitcoin_rpc_url,
+        bind_p2p: env::var(<span class="string">&quot;FM_BIND_P2P&quot;</span>).unwrap_or(<span class="string">&quot;&quot;</span>.to_string()),
+        p2p_url: env::var(<span class="string">&quot;FM_P2P_URL&quot;</span>).unwrap_or(<span class="string">&quot;&quot;</span>.to_string()),
+        bind_api: env::var(<span class="string">&quot;FM_BIND_API&quot;</span>).unwrap_or(<span class="string">&quot;&quot;</span>.to_string()),
+        api_url: env::var(<span class="string">&quot;FM_API_URL&quot;</span>).unwrap_or(<span class="string">&quot;&quot;</span>.to_string()),
     }
 }
 
@@ -690,8 +746,8 @@
     </span>guardians_count: u32,
     <span class="doccomment">/// Which bitcoin network the federation is using
     </span>network: Network,
-    <span class="doccomment">/// The number of confirmations a deposit transaction requires before accepted by the
-    /// federation
+    <span class="doccomment">/// The number of confirmations a deposit transaction requires before
+    /// accepted by the federation
     </span>block_confirmations: u32,
 }
 
@@ -711,7 +767,7 @@
         form.p2p_url.clone(),
         form.api_url.clone(),
         form.guardian_name.clone(),
-        <span class="prelude-val">Some</span>(state.password.clone()),
+        <span class="kw-2">&amp;</span>state.password,
     )<span class="question-mark">?</span>;
 
     <span class="comment">// Update state
@@ -754,8 +810,8 @@
         <span class="prelude-val">Ok</span>(file) =&gt; {
             <span class="kw">let </span>cfg: ClientConfig =
                 serde_json::from_reader(file).expect(<span class="string">&quot;Could not parse cfg file.&quot;</span>);
-            <span class="kw">let </span>connect_info = WsFederationConnect::from(<span class="kw-2">&amp;</span>cfg);
-            serde_json::to_string(<span class="kw-2">&amp;</span>connect_info).expect(<span class="string">&quot;should deserialize&quot;</span>)
+            <span class="kw">let </span>connect_info = WsClientConnectInfo::from_honest_peers(<span class="kw-2">&amp;</span>cfg);
+            connect_info.to_string()
         }
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="string">&quot;&quot;</span>.into(),
     };
@@ -783,7 +839,8 @@
     password: String,
     task_group: TaskGroup,
     dkg_task_group: <span class="prelude-ty">Option</span>&lt;TaskGroup&gt;,
-    module_gens: ModuleGenRegistry,
+    module_gens: ServerModuleGenRegistry,
+    module_gens_params: ServerModuleGenParamsRegistry,
     dkg_state: <span class="prelude-ty">Option</span>&lt;DkgState&gt;,
 }
 <span class="kw">type </span>MutableState = Arc&lt;Mutex&lt;State&gt;&gt;;
@@ -798,7 +855,8 @@
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub enum </span>UiMessage {
     DkgSuccess,
-    DkgFailure(String),
+    <span class="attr">#[allow(unused)]
+    </span>DkgFailure(String),
 }
 
 <span class="kw">pub async fn </span>run_ui(
@@ -807,7 +865,8 @@
     bind_addr: SocketAddr,
     password: String,
     task_group: TaskGroup,
-    module_gens: ModuleGenRegistry,
+    module_gens: ServerModuleGenRegistry,
+    module_gens_params: ServerModuleGenParamsRegistry,
 ) {
     <span class="kw">let </span>state = Arc::new(Mutex::new(State {
         params: <span class="prelude-val">None</span>,
@@ -817,6 +876,7 @@
         task_group: task_group.clone(),
         dkg_task_group: <span class="prelude-val">None</span>,
         module_gens,
+        module_gens_params,
         dkg_state: <span class="prelude-val">None</span>,
     }));
 
@@ -833,7 +893,7 @@
     <span class="kw">let </span>shutdown_future = task_group.make_handle().make_shutdown_rx().<span class="kw">await</span>;
     <span class="kw">let </span>server_future = axum::Server::bind(<span class="kw-2">&amp;</span>bind_addr).serve(app.into_make_service());
 
-    <span class="macro">debug!</span>(<span class="string">&quot;Starting setup UI server&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">&quot;Setup UI is listening on {}&quot;</span>, bind_addr);
     <span class="macro">select! </span>{
         <span class="kw">_ </span>= shutdown_future =&gt; {
             <span class="macro">debug!</span>(<span class="string">&quot;Setup UI server shutting down&quot;</span>);
@@ -845,4 +905,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimintd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (658fad6c5 2023-02-03)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fedimintd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (f3126500f 2023-02-02)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

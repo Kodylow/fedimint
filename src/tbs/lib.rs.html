@@ -309,15 +309,13 @@
 <a href="#309" id="309">309</a>
 </pre><pre class="rust"><code><span class="doccomment">//! # Threshold Blind Signatures
 //!
-//! This library implements an ad-hoc threshold blind signature scheme based on BLS signatures using
-//! the (unrelated) BLS12-381 curve.
+//! This library implements an ad-hoc threshold blind signature scheme based on
+//! BLS signatures using the (unrelated) BLS12-381 curve.
 
 </span><span class="kw">use </span>std::hash::Hasher;
 
-<span class="kw">pub use </span>bls12_381::G1Affine <span class="kw">as </span>MessagePoint;
-<span class="kw">pub use </span>bls12_381::G2Affine <span class="kw">as </span>PubKeyPoint;
-<span class="kw">pub use </span>bls12_381::Scalar;
 <span class="kw">use </span>bls12_381::{pairing, G1Affine, G1Projective, G2Affine, G2Projective};
+<span class="kw">pub use </span>bls12_381::{G1Affine <span class="kw">as </span>MessagePoint, G2Affine <span class="kw">as </span>PubKeyPoint, Scalar};
 <span class="kw">use </span>ff::Field;
 <span class="kw">use </span>group::Curve;
 <span class="kw">use </span>rand::rngs::OsRng;
@@ -469,10 +467,12 @@
     BlindedSignatureShare(sig.to_affine())
 }
 
-<span class="doccomment">/// Combines a sufficent amount of valid blinded signature shares to a blinded signature. The
-/// responsibility of verifying the supplied shares lies with the caller.
+<span class="doccomment">/// Combines a sufficient amount of valid blinded signature shares to a blinded
+/// signature. The responsibility of verifying the supplied shares lies with the
+/// caller.
 ///
-/// * `sig_shares`: an iterator yielding pairs of key indices and signature shares from said key
+/// * `sig_shares`: an iterator yielding pairs of key indices and signature
+///   shares from said key
 /// * `threshold`: number of shares needed to combine a signature
 ///
 /// # Panics
@@ -617,4 +617,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tbs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (658fad6c5 2023-02-03)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tbs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (f3126500f 2023-02-02)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
