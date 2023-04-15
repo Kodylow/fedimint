@@ -893,6 +893,13 @@
 <a href="#893" id="893">893</a>
 <a href="#894" id="894">894</a>
 <a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 <span class="kw">use </span>std::fs;
 <span class="kw">use </span>std::iter::once;
@@ -986,11 +993,6 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         request: ConfigGenConnectionsRequest,
     ) -&gt; ApiResult&lt;()&gt; {
-        <span class="comment">// TODO: should probably just replace bad chars with &#39;_&#39; in `TlsTcpConnector`
-        </span><span class="kw">if </span>rustls::ServerName::try_from(request.our_name.as_str()).is_err() {
-            <span class="kw">return </span><span class="self">Self</span>::bad_request(<span class="string">&quot;Name must be a valid domain string&quot;</span>);
-        }
-
         <span class="kw">let </span>connection = {
             <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.state.lock().expect(<span class="string">&quot;lock poisoned&quot;</span>);
 
@@ -1290,6 +1292,7 @@
             api_auth: connection.auth,
             p2p_bind: connection.settings.p2p_bind,
             api_bind: connection.settings.api_bind,
+            download_token_limit: connection.settings.download_token_limit,
         };
 
         <span class="kw">let </span>params = ConfigGenParams { local, consensus };
@@ -1312,11 +1315,15 @@
     </span><span class="kw">pub </span>p2p_bind: SocketAddr,
     <span class="doccomment">/// Bind address for API communication
     </span><span class="kw">pub </span>api_bind: SocketAddr,
+    <span class="doccomment">/// Limit on the number of times a config download token can be used
+    </span><span class="kw">pub </span>download_token_limit: <span class="prelude-ty">Option</span>&lt;u64&gt;,
 }
 
 <span class="doccomment">/// All the connections info we configure locally without talking to peers
 </span><span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>ConfigGenSettings {
+    <span class="doccomment">/// Limit on the number of times a config download token can be used
+    </span><span class="kw">pub </span>download_token_limit: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     <span class="doccomment">/// Bind address for our P2P connection
     </span><span class="kw">pub </span>p2p_bind: SocketAddr,
     <span class="doccomment">/// Bind address for our API connection
@@ -1421,7 +1428,12 @@
         request: <span class="kw-2">&amp;</span>ApiRequestErased,
         id: <span class="prelude-ty">Option</span>&lt;ModuleInstanceId&gt;,
     ) -&gt; (<span class="kw-2">&amp;</span>ConfigGenApi, ApiEndpointContext&lt;<span class="lifetime">&#39;_</span>&gt;) {
-        <span class="kw">let </span>dbtx = <span class="self">self</span>.db.begin_transaction().<span class="kw">await</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>db = <span class="self">self</span>.db.clone();
+        <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self</span>.db.begin_transaction().<span class="kw">await</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = id {
+            db = <span class="self">self</span>.db.new_isolated(id);
+            dbtx = dbtx.new_module_tx(id)
+        }
         <span class="kw">let </span>state = <span class="self">self</span>.state.lock().expect(<span class="string">&quot;locks&quot;</span>);
         <span class="kw">let </span>auth = request.auth.as_ref();
         <span class="kw">let </span>has_auth = <span class="kw">match </span><span class="kw-2">&amp;*</span>state {
@@ -1436,7 +1448,7 @@
             ConfigApiState::RunningConsensus(cfg) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>cfg.private.api_auth) == auth,
         };
 
-        (<span class="self">self</span>, ApiEndpointContext::new(has_auth, dbtx, id))
+        (<span class="self">self</span>, ApiEndpointContext::new(db, dbtx, has_auth))
     }
 }
 
@@ -1616,6 +1628,7 @@
     <span class="kw">use </span>url::Url;
 
     <span class="kw">use </span><span class="kw">crate</span>::config::api::{run_server, ConfigGenConnectionsRequest, ConfigGenSettings};
+    <span class="kw">use </span><span class="kw">crate</span>::config::DEFAULT_CONFIG_DOWNLOAD_LIMIT;
 
     <span class="doccomment">/// Helper in config API tests for simulating a guardian&#39;s client and server
     </span><span class="kw">struct </span>TestConfigApi {
@@ -1639,6 +1652,7 @@
                 .parse()
                 .expect(<span class="string">&quot;parses&quot;</span>);
             <span class="kw">let </span>our_connections = ConfigGenSettings {
+                download_token_limit: <span class="prelude-val">Some</span>(DEFAULT_CONFIG_DOWNLOAD_LIMIT),
                 p2p_bind,
                 api_bind,
                 p2p_url,
