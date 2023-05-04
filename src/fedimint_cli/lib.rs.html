@@ -1063,7 +1063,86 @@
 <a href="#1063" id="1063">1063</a>
 <a href="#1064" id="1064">1064</a>
 <a href="#1065" id="1065">1065</a>
-</pre><pre class="rust"><code><span class="kw">use </span>core::fmt;
+<a href="#1066" id="1066">1066</a>
+<a href="#1067" id="1067">1067</a>
+<a href="#1068" id="1068">1068</a>
+<a href="#1069" id="1069">1069</a>
+<a href="#1070" id="1070">1070</a>
+<a href="#1071" id="1071">1071</a>
+<a href="#1072" id="1072">1072</a>
+<a href="#1073" id="1073">1073</a>
+<a href="#1074" id="1074">1074</a>
+<a href="#1075" id="1075">1075</a>
+<a href="#1076" id="1076">1076</a>
+<a href="#1077" id="1077">1077</a>
+<a href="#1078" id="1078">1078</a>
+<a href="#1079" id="1079">1079</a>
+<a href="#1080" id="1080">1080</a>
+<a href="#1081" id="1081">1081</a>
+<a href="#1082" id="1082">1082</a>
+<a href="#1083" id="1083">1083</a>
+<a href="#1084" id="1084">1084</a>
+<a href="#1085" id="1085">1085</a>
+<a href="#1086" id="1086">1086</a>
+<a href="#1087" id="1087">1087</a>
+<a href="#1088" id="1088">1088</a>
+<a href="#1089" id="1089">1089</a>
+<a href="#1090" id="1090">1090</a>
+<a href="#1091" id="1091">1091</a>
+<a href="#1092" id="1092">1092</a>
+<a href="#1093" id="1093">1093</a>
+<a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
+<a href="#1108" id="1108">1108</a>
+<a href="#1109" id="1109">1109</a>
+<a href="#1110" id="1110">1110</a>
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
+<a href="#1122" id="1122">1122</a>
+<a href="#1123" id="1123">1123</a>
+<a href="#1124" id="1124">1124</a>
+<a href="#1125" id="1125">1125</a>
+<a href="#1126" id="1126">1126</a>
+<a href="#1127" id="1127">1127</a>
+<a href="#1128" id="1128">1128</a>
+<a href="#1129" id="1129">1129</a>
+<a href="#1130" id="1130">1130</a>
+<a href="#1131" id="1131">1131</a>
+<a href="#1132" id="1132">1132</a>
+<a href="#1133" id="1133">1133</a>
+<a href="#1134" id="1134">1134</a>
+<a href="#1135" id="1135">1135</a>
+<a href="#1136" id="1136">1136</a>
+<a href="#1137" id="1137">1137</a>
+<a href="#1138" id="1138">1138</a>
+<a href="#1139" id="1139">1139</a>
+<a href="#1140" id="1140">1140</a>
+<a href="#1141" id="1141">1141</a>
+<a href="#1142" id="1142">1142</a>
+</pre><pre class="rust"><code><span class="kw">mod </span>ng;
+
+<span class="kw">use </span>core::fmt;
 <span class="kw">use </span>std::collections::BTreeMap;
 <span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::io::Write;
@@ -1076,13 +1155,13 @@
 <span class="kw">use </span>bitcoin::{secp256k1, Address, Network, Transaction};
 <span class="kw">use </span>clap::{Parser, Subcommand};
 <span class="kw">use </span>fedimint_aead::get_password_hash;
-<span class="kw">use </span>fedimint_client::module::gen::{
-    ClientModuleGen, ClientModuleGenRegistry, ClientModuleGenRegistryExt,
-};
+<span class="kw">use </span>fedimint_client::derivable_secret::ChildId;
+<span class="kw">use </span>fedimint_client::get_client_root_secret;
+<span class="kw">use </span>fedimint_client::module::gen::{ClientModuleGen, ClientModuleGenRegistry, IClientModuleGen};
+<span class="kw">use </span>fedimint_client::sm::Notifier;
 <span class="kw">use </span>fedimint_client_legacy::mint::backup::Metadata;
 <span class="kw">use </span>fedimint_client_legacy::mint::SpendableNote;
 <span class="kw">use </span>fedimint_client_legacy::modules::ln::contracts::ContractId;
-<span class="kw">use </span>fedimint_client_legacy::modules::wallet::txoproof::TxOutProof;
 <span class="kw">use </span>fedimint_client_legacy::modules::wallet::WalletClientGen;
 <span class="kw">use </span>fedimint_client_legacy::utils::{
     from_hex, parse_bitcoin_amount, parse_ecash, parse_fedimint_amount, parse_node_pub_key,
@@ -1097,11 +1176,13 @@
 <span class="kw">use </span>fedimint_core::config::{load_from_file, ClientConfig, FederationId};
 <span class="kw">use </span>fedimint_core::core::{ModuleInstanceId, ModuleKind};
 <span class="kw">use </span>fedimint_core::db::{Database, DatabaseValue};
-<span class="kw">use </span>fedimint_core::encoding::Encodable;
+<span class="kw">use </span>fedimint_core::encoding::{Decodable, Encodable};
+<span class="kw">use </span>fedimint_core::epoch::{SerdeEpochHistory, SignedEpochOutcome};
 <span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
 <span class="kw">use </span>fedimint_core::module::{ApiAuth, ApiRequestErased};
 <span class="kw">use </span>fedimint_core::query::EventuallyConsistent;
 <span class="kw">use </span>fedimint_core::task::TaskGroup;
+<span class="kw">use </span>fedimint_core::txoproof::TxOutProof;
 <span class="kw">use </span>fedimint_core::{Amount, OutPoint, PeerId, TieredMulti, TransactionId};
 <span class="kw">use </span>fedimint_ln_client::LightningClientGen;
 <span class="kw">use </span>fedimint_logging::TracingSetup;
@@ -1214,6 +1295,12 @@
         count: u64,
     },
 
+    LastEpoch {
+        hex_outcome: String,
+    },
+
+    ForceEpoch,
+
     Raw(serde_json::Value),
 }
 
@@ -1236,6 +1323,7 @@
     InsufficientBalance,
     SerializationError,
     GeneralFailure,
+    MissingAuth,
 }
 
 <span class="doccomment">/// `Result` with `CliError` as `Error`
@@ -1356,6 +1444,18 @@
     </span><span class="attr">#[arg(long = <span class="string">&quot;data-dir&quot;</span>, alias = <span class="string">&quot;workdir&quot;</span>, env = <span class="string">&quot;FM_DATA_DIR&quot;</span>)]
     </span>workdir: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 
+    <span class="doccomment">/// Location of the salt file
+    </span><span class="attr">#[arg(env = <span class="string">&quot;FM_SALT_PATH&quot;</span>)]
+    </span>salt_path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
+
+    <span class="doccomment">/// Peer id of the guardian
+    </span><span class="attr">#[arg(env = <span class="string">&quot;FM_OUR_ID&quot;</span>, value_parser = parse_peer_id)]
+    </span>our_id: <span class="prelude-ty">Option</span>&lt;PeerId&gt;,
+
+    <span class="doccomment">/// Guardian password for authentication
+    </span><span class="attr">#[arg(long, env = <span class="string">&quot;FM_PASSWORD&quot;</span>)]
+    </span>password: <span class="prelude-ty">Option</span>&lt;String&gt;,
+
     <span class="attr">#[clap(subcommand)]
     </span>command: Command,
 }
@@ -1365,6 +1465,32 @@
         <span class="self">self</span>.workdir
             .as_ref()
             .ok_or_cli_msg(CliErrorKind::IOError, <span class="string">&quot;`--data-dir=` argument not set.&quot;</span>)
+    }
+
+    <span class="kw">async fn </span>admin_client(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CliResult&lt;WsAdminClient&gt; {
+        <span class="kw">let </span>salt_path = <span class="self">self</span>.salt_path.clone().ok_or_cli_msg(
+            CliErrorKind::MissingAuth,
+            <span class="string">&quot;Admin client needs salt-path set&quot;</span>,
+        )<span class="question-mark">?</span>;
+        <span class="kw">let </span>password = <span class="self">self
+            </span>.password
+            .clone()
+            .ok_or_cli_msg(CliErrorKind::MissingAuth, <span class="string">&quot;Admin client needs password set&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>our_id = <span class="kw-2">&amp;</span><span class="self">self
+            </span>.our_id
+            .ok_or_cli_msg(CliErrorKind::MissingAuth, <span class="string">&quot;Admin client needs our-id set&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>salt = fs::read_to_string(salt_path)
+            .map_err_cli_msg(CliErrorKind::IOError, <span class="string">&quot;Unable to open salt file&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>auth = ApiAuth(get_password_hash(<span class="kw-2">&amp;</span>password, <span class="kw-2">&amp;</span>salt).map_err_cli_io()<span class="question-mark">?</span>);
+        <span class="kw">let </span>url = <span class="self">self
+            </span>.load_config()<span class="question-mark">?
+            </span>.<span class="number">0
+            </span>.api_endpoints
+            .get(our_id)
+            .expect(<span class="string">&quot;Endpoint exists&quot;</span>)
+            .url
+            .clone();
+        <span class="prelude-val">Ok</span>(WsAdminClient::new(url, <span class="kw-2">*</span>our_id, auth))
     }
 
     <span class="kw">fn </span>load_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CliResult&lt;UserClientConfig&gt; {
@@ -1385,9 +1511,16 @@
     ) -&gt; ModuleDecoderRegistry {
         ModuleDecoderRegistry::new(cfg.clone().<span class="number">0</span>.modules.into_iter().filter_map(
             |(id, module_cfg)| {
-                module_gens
-                    .get(module_cfg.kind())
-                    .map(|module_gen| (id, module_gen.as_ref().decoder()))
+                <span class="kw">let </span>kind = module_cfg.kind().clone();
+                module_gens.get(<span class="kw-2">&amp;</span>kind).map(|module_gen| {
+                    (
+                        id,
+                        kind,
+                        IClientModuleGen::decoder(AsRef::&lt;<span class="kw">dyn </span>IClientModuleGen + <span class="lifetime">&#39;static</span>&gt;::as_ref(
+                            module_gen,
+                        )),
+                    )
+                })
             },
         ))
     }
@@ -1555,20 +1688,16 @@
     </span>DecodeTransaction { hex_string: String },
 
     <span class="doccomment">/// Signal a consensus upgrade
-    </span>SignalUpgrade {
-        <span class="doccomment">/// Location of the salt file
-        </span><span class="attr">#[clap(long)]
-        </span>salt_path: PathBuf,
-        <span class="doccomment">/// Peer id of the guardian
-        </span><span class="attr">#[arg(long, value_parser = parse_peer_id)]
-        </span>our_id: PeerId,
-        <span class="doccomment">/// Guardian password for authentication
-        </span><span class="attr">#[arg(long, env = <span class="string">&quot;FM_PASSWORD&quot;</span>)]
-        </span>password: String,
-    },
+    </span>SignalUpgrade,
 
     <span class="doccomment">/// Gets the current epoch count
     </span>EpochCount,
+
+    <span class="doccomment">/// Gets the last epoch
+    </span>LastEpoch,
+
+    <span class="doccomment">/// Force processing an epoch
+    </span>ForceEpoch { hex_outcome: String },
 
     <span class="doccomment">/// Call module-specific commands
     </span>Module {
@@ -1579,6 +1708,9 @@
         </span><span class="attr">#[clap(long)]
         </span>arg: Vec&lt;ffi::OsString&gt;,
     },
+
+    <span class="attr">#[clap(subcommand)]
+    </span>Ng(ng::ClientNg),
 }
 
 <span class="attr">#[derive(Clone)]
@@ -1669,7 +1801,7 @@
                 <span class="kw">let </span>api = Arc::new(WsFederationApi::from_connect_info(<span class="kw-2">&amp;</span>[connect_obj.clone()]))
                     <span class="kw">as </span>Arc&lt;<span class="kw">dyn </span>IFederationApi + Send + Sync + <span class="lifetime">&#39;static</span>&gt;;
                 <span class="kw">let </span>cfg: ClientConfig = api
-                    .download_client_config(<span class="kw-2">&amp;</span>connect_obj, <span class="self">self</span>.module_gens.to_common())
+                    .download_client_config(<span class="kw-2">&amp;</span>connect_obj)
                     .<span class="kw">await
                     </span>.map_err_cli_msg(
                         CliErrorKind::NetworkError,
@@ -1678,7 +1810,10 @@
                 std::fs::create_dir_all(cli.workdir()<span class="question-mark">?</span>)
                     .map_err_cli_msg(CliErrorKind::IOError, <span class="string">&quot;failed to create config directory&quot;</span>)<span class="question-mark">?</span>;
                 <span class="kw">let </span>cfg_path = cli.workdir()<span class="question-mark">?</span>.join(<span class="string">&quot;client.json&quot;</span>);
-                <span class="kw">let </span>writer = std::fs::File::create(cfg_path)
+                <span class="kw">let </span>writer = std::fs::File::options()
+                    .create_new(<span class="bool-val">true</span>)
+                    .write(<span class="bool-val">true</span>)
+                    .open(cfg_path)
                     .map_err_cli_msg(CliErrorKind::IOError, <span class="string">&quot;couldn&#39;t create config.json&quot;</span>)<span class="question-mark">?</span>;
                 serde_json::to_writer_pretty(writer, <span class="kw-2">&amp;</span>cfg)
                     .map_err_cli_msg(CliErrorKind::IOError, <span class="string">&quot;couldn&#39;t write config&quot;</span>)<span class="question-mark">?</span>;
@@ -1796,19 +1931,15 @@
                 ),
             Command::Info =&gt; {
                 <span class="kw">let </span>client = cli.build_client(<span class="kw-2">&amp;</span><span class="self">self</span>.module_gens).<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="kw">let </span>notes = client.notes().<span class="kw">await</span>;
-                <span class="kw">let </span>details_vec = notes
-                    .iter()
-                    .map(|(amount, notes)| (amount.to_owned(), notes.len()))
-                    .collect();
+                <span class="kw">let </span>summary = client.summary().<span class="kw">await</span>;
 
                 <span class="prelude-val">Ok</span>(CliOutput::Info {
-                    federation_id: client.config().as_ref().federation_id.clone(),
+                    federation_id: client.config().as_ref().federation_id,
                     network: client.wallet_client().config.network,
                     meta: client.config().<span class="number">0</span>.meta,
-                    total_amount: (notes.total_amount()),
-                    total_num_notes: (notes.count_items()),
-                    details: (details_vec),
+                    total_amount: summary.total_amount(),
+                    total_num_notes: summary.count_items(),
+                    details: summary.iter().collect(),
                 })
             }
             Command::PegOut { address, amount } =&gt; {
@@ -2024,26 +2155,8 @@
                     transaction: (<span class="macro">format!</span>(<span class="string">&quot;{tx:?}&quot;</span>)),
                 })
             }
-            Command::SignalUpgrade {
-                password,
-                salt_path,
-                our_id,
-            } =&gt; {
-                <span class="kw">let </span>salt = fs::read_to_string(salt_path)
-                    .map_err_cli_msg(CliErrorKind::IOError, <span class="string">&quot;Unable to open salt file&quot;</span>)<span class="question-mark">?</span>;
-                <span class="kw">let </span>auth = ApiAuth(get_password_hash(<span class="kw-2">&amp;</span>password, <span class="kw-2">&amp;</span>salt).map_err_cli_io()<span class="question-mark">?</span>);
-                <span class="kw">let </span>url = cli
-                    .build_client(<span class="kw-2">&amp;</span><span class="self">self</span>.module_gens)
-                    .<span class="kw">await</span><span class="question-mark">?
-                    </span>.config()
-                    .as_ref()
-                    .api_endpoints
-                    .get(<span class="kw-2">&amp;</span>our_id)
-                    .expect(<span class="string">&quot;Endpoint exists&quot;</span>)
-                    .url
-                    .clone();
-                <span class="kw">let </span>auth_api = WsAdminClient::new(url, our_id, auth);
-                auth_api.signal_upgrade().<span class="kw">await</span><span class="question-mark">?</span>;
+            Command::SignalUpgrade =&gt; {
+                cli.admin_client().<span class="kw">await</span><span class="question-mark">?</span>.signal_upgrade().<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(CliOutput::SignalUpgrade)
             }
             Command::EpochCount =&gt; {
@@ -2056,10 +2169,37 @@
                     .<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(CliOutput::EpochCount { count })
             }
+            Command::LastEpoch =&gt; {
+                <span class="kw">let </span>cfg = cli.load_config()<span class="question-mark">?</span>;
+                <span class="kw">let </span>decoders = cli.load_decoders(<span class="kw-2">&amp;</span>cfg, <span class="kw-2">&amp;</span><span class="self">self</span>.module_gens);
+                <span class="kw">let </span>client = cli.admin_client().<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="kw">let </span>last_epoch = client
+                    .fetch_last_epoch_history(cfg.<span class="number">0</span>.epoch_pk, <span class="kw-2">&amp;</span>decoders)
+                    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+                <span class="kw">let </span>hex_outcome = last_epoch.consensus_encode_to_hex().map_err_cli_io()<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(CliOutput::LastEpoch { hex_outcome })
+            }
+            Command::ForceEpoch { hex_outcome } =&gt; {
+                <span class="kw">let </span>cfg = cli.load_config()<span class="question-mark">?</span>;
+                <span class="kw">let </span>decoders = cli.load_decoders(<span class="kw-2">&amp;</span>cfg, <span class="kw-2">&amp;</span><span class="self">self</span>.module_gens);
+                <span class="kw">let </span>outcome: SignedEpochOutcome = Decodable::consensus_decode_hex(
+                    <span class="kw-2">&amp;</span>hex_outcome,
+                    <span class="kw-2">&amp;</span>decoders,
+                )
+                .map_err_cli_msg(CliErrorKind::SerializationError, <span class="string">&quot;failed to decode outcome&quot;</span>)<span class="question-mark">?</span>;
+                <span class="kw">let </span>client = cli.admin_client().<span class="kw">await</span><span class="question-mark">?</span>;
+                client
+                    .force_process_epoch(SerdeEpochHistory::from(<span class="kw-2">&amp;</span>outcome))
+                    .<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(CliOutput::ForceEpoch)
+            }
             Command::Module { id, arg } =&gt; {
                 <span class="kw">let </span>cfg = cli.load_config()<span class="question-mark">?</span>;
                 <span class="kw">let </span>decoders = cli.load_decoders(<span class="kw-2">&amp;</span>cfg, <span class="kw-2">&amp;</span><span class="self">self</span>.module_gens);
                 <span class="kw">let </span>db = cli.load_db(<span class="kw-2">&amp;</span>decoders)<span class="question-mark">?</span>;
+                <span class="kw">let </span>root_secret = get_client_root_secret(<span class="kw-2">&amp;</span>db).<span class="kw">await</span>;
+
                 <span class="kw">let </span>(id, module_cfg) = <span class="kw">match </span>id {
                     ModuleSelector::Id(id) =&gt; (
                         id,
@@ -2077,13 +2217,27 @@
                     <span class="self">self</span>.module_gens.get(module_cfg.kind()).unwrap(<span class="comment">/* already checked */</span>);
 
                 <span class="kw">let </span>module = module_gen
-                    .init(module_cfg, db, id)
+                    .init(
+                        module_cfg,
+                        db.clone(),
+                        id,
+                        root_secret.child_key(ChildId(id <span class="kw">as </span>u64)),
+                        Notifier::new(db),
+                    )
                     .<span class="kw">await
                     </span>.map_err_cli_msg(CliErrorKind::GeneralFailure, <span class="string">&quot;Loading module failed&quot;</span>)<span class="question-mark">?</span>;
 
                 <span class="prelude-val">Ok</span>(CliOutput::Raw(
                     module
                         .handle_cli_command(<span class="kw-2">&amp;</span>arg)
+                        .<span class="kw">await
+                        </span>.map_err_cli_msg(CliErrorKind::GeneralFailure, <span class="string">&quot;failure&quot;</span>)<span class="question-mark">?</span>,
+                ))
+            }
+            Command::Ng(command) =&gt; {
+                <span class="kw">let </span>cfg = cli.load_config()<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(CliOutput::Raw(
+                    ng::handle_ng_command(command, cfg.<span class="number">0</span>, cli.load_rocks_db().unwrap())
                         .<span class="kw">await
                         </span>.map_err_cli_msg(CliErrorKind::GeneralFailure, <span class="string">&quot;failure&quot;</span>)<span class="question-mark">?</span>,
                 ))

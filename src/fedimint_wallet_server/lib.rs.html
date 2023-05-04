@@ -2042,6 +2042,25 @@
 <a href="#2042" id="2042">2042</a>
 <a href="#2043" id="2043">2043</a>
 <a href="#2044" id="2044">2044</a>
+<a href="#2045" id="2045">2045</a>
+<a href="#2046" id="2046">2046</a>
+<a href="#2047" id="2047">2047</a>
+<a href="#2048" id="2048">2048</a>
+<a href="#2049" id="2049">2049</a>
+<a href="#2050" id="2050">2050</a>
+<a href="#2051" id="2051">2051</a>
+<a href="#2052" id="2052">2052</a>
+<a href="#2053" id="2053">2053</a>
+<a href="#2054" id="2054">2054</a>
+<a href="#2055" id="2055">2055</a>
+<a href="#2056" id="2056">2056</a>
+<a href="#2057" id="2057">2057</a>
+<a href="#2058" id="2058">2058</a>
+<a href="#2059" id="2059">2059</a>
+<a href="#2060" id="2060">2060</a>
+<a href="#2061" id="2061">2061</a>
+<a href="#2062" id="2062">2062</a>
+<a href="#2063" id="2063">2063</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap};
 <span class="kw">use </span>std::convert::{Infallible, TryInto};
 <span class="kw">use </span>std::ffi::{OsStr, OsString};
@@ -2049,6 +2068,7 @@
 <span class="attr">#[cfg(not(target_family = <span class="string">&quot;wasm&quot;</span>))]
 </span><span class="kw">use </span>std::time::Duration;
 
+<span class="kw">use </span>anyhow::{bail, format_err};
 <span class="kw">use </span>bitcoin::hashes::{sha256, Hash <span class="kw">as </span>BitcoinHash, HashEngine, Hmac, HmacEngine};
 <span class="kw">use </span>bitcoin::policy::DEFAULT_MIN_RELAY_TX_FEE;
 <span class="kw">use </span>bitcoin::secp256k1::{All, Secp256k1, Verification};
@@ -2073,20 +2093,19 @@
     FM_ELECTRUM_RPC_ENV, FM_ESPLORA_RPC_ENV,
 };
 <span class="kw">use </span>fedimint_core::config::{
-    ConfigGenModuleParams, DkgResult, ModuleConfigResponse, ModuleGenParams, ServerModuleConfig,
-    TypedServerModuleConfig, TypedServerModuleConsensusConfig,
+    ClientModuleConfig, ConfigGenModuleParams, DkgResult, ModuleGenParams, ServerModuleConfig,
+    ServerModuleConsensusConfig, TypedServerModuleConfig, TypedServerModuleConsensusConfig,
 };
 <span class="kw">use </span>fedimint_core::db::{
     Database, DatabaseTransaction, DatabaseVersion, ModuleDatabaseTransaction,
 };
 <span class="kw">use </span>fedimint_core::encoding::{Decodable, Encodable};
-<span class="kw">use </span>fedimint_core::module::__reexports::serde_json;
 <span class="kw">use </span>fedimint_core::module::audit::Audit;
 <span class="kw">use </span>fedimint_core::module::interconnect::ModuleInterconect;
 <span class="kw">use </span>fedimint_core::module::{
-    api_endpoint, ApiEndpoint, ApiVersion, ConsensusProposal, CoreConsensusVersion,
-    ExtendsCommonModuleGen, InputMeta, IntoModuleError, ModuleConsensusVersion, ModuleError,
-    PeerHandle, ServerModuleGen, TransactionItemAmount,
+    api_endpoint, ApiEndpoint, ConsensusProposal, CoreConsensusVersion, ExtendsCommonModuleGen,
+    InputMeta, IntoModuleError, ModuleConsensusVersion, ModuleError, PeerHandle, ServerModuleGen,
+    SupportedModuleApiVersions, TransactionItemAmount,
 };
 <span class="kw">use </span>fedimint_core::server::DynServerModule;
 <span class="attr">#[cfg(not(target_family = <span class="string">&quot;wasm&quot;</span>))]
@@ -2098,7 +2117,7 @@
 };
 <span class="kw">use </span>fedimint_server::config::distributedgen::PeerHandleOps;
 <span class="kw">pub use </span>fedimint_wallet_common <span class="kw">as </span>common;
-<span class="kw">use </span>fedimint_wallet_common::config::WalletConfig;
+<span class="kw">use </span>fedimint_wallet_common::config::{WalletClientConfig, WalletConfig};
 <span class="kw">use </span>fedimint_wallet_common::db::{
     BlockHashKey, BlockHashKeyPrefix, PegOutBitcoinTransaction, PegOutBitcoinTransactionPrefix,
     PegOutTxSignatureCI, PegOutTxSignatureCIPrefix, PendingTransactionKey,
@@ -2222,21 +2241,41 @@
         <span class="prelude-val">Ok</span>(wallet_cfg.to_erased())
     }
 
-    <span class="kw">fn </span>to_config_response(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        config: serde_json::Value,
-    ) -&gt; anyhow::Result&lt;ModuleConfigResponse&gt; {
-        <span class="kw">let </span>config = serde_json::from_value::&lt;WalletConfigConsensus&gt;(config)<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(ModuleConfigResponse {
-            client: config.to_client_config(),
-            consensus_hash: config.consensus_hash()<span class="question-mark">?</span>,
-        })
-    }
-
     <span class="kw">fn </span>validate_config(<span class="kw-2">&amp;</span><span class="self">self</span>, identity: <span class="kw-2">&amp;</span>PeerId, config: ServerModuleConfig) -&gt; anyhow::Result&lt;()&gt; {
-        config.to_typed::&lt;WalletConfig&gt;()<span class="question-mark">?</span>.validate_config(identity)
+        <span class="kw">let </span>config = config.to_typed::&lt;WalletConfig&gt;()<span class="question-mark">?</span>;
+        <span class="kw">let </span>pubkey = secp256k1::PublicKey::from_secret_key_global(<span class="kw-2">&amp;</span>config.private.peg_in_key);
+
+        <span class="kw">if </span>config
+            .consensus
+            .peer_peg_in_keys
+            .get(identity)
+            .ok_or_else(|| <span class="macro">format_err!</span>(<span class="string">&quot;Secret key doesn&#39;t match any public key&quot;</span>))<span class="question-mark">?
+            </span>!= <span class="kw-2">&amp;</span>CompressedPublicKey::new(pubkey)
+        {
+            <span class="macro">bail!</span>(<span class="string">&quot; Bitcoin wallet private key doesn&#39;t match multisig pubkey&quot;</span>);
+        }
+
+        <span class="prelude-val">Ok</span>(())
     }
+
+    <span class="kw">fn </span>get_client_config(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        config: <span class="kw-2">&amp;</span>ServerModuleConsensusConfig,
+    ) -&gt; anyhow::Result&lt;ClientModuleConfig&gt; {
+        <span class="kw">let </span>config = WalletConfigConsensus::from_erased(config)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(ClientModuleConfig::from_typed(
+            config.kind(),
+            config.version(),
+            <span class="kw-2">&amp;</span>WalletClientConfig {
+                peg_in_descriptor: config.peg_in_descriptor.clone(),
+                network: config.network,
+                fee_consensus: config.fee_consensus.clone(),
+                finality_delay: config.finality_delay,
+            },
+        )
+        .expect(<span class="string">&quot;Serialization can&#39;t fail&quot;</span>))
+    }
+
     <span class="kw">async fn </span>dump_database(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         dbtx: <span class="kw-2">&amp;mut </span>ModuleDatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;,
@@ -2320,11 +2359,8 @@
     <span class="kw">type </span>Gen = WalletGen;
     <span class="kw">type </span>VerificationCache = WalletVerificationCache;
 
-    <span class="kw">fn </span>versions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (ModuleConsensusVersion, <span class="kw-2">&amp;</span>[ApiVersion]) {
-        (
-            ModuleConsensusVersion(<span class="number">0</span>),
-            <span class="kw-2">&amp;</span>[ApiVersion { major: <span class="number">0</span>, minor: <span class="number">0 </span>}],
-        )
+    <span class="kw">fn </span>supported_api_versions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SupportedModuleApiVersions {
+        SupportedModuleApiVersions::from_raw(<span class="number">0</span>, <span class="number">0</span>, <span class="kw-2">&amp;</span>[(<span class="number">0</span>, <span class="number">0</span>)])
     }
 
     <span class="kw">async fn </span>await_consensus_proposal(<span class="kw-2">&amp;</span><span class="self">self</span>, dbtx: <span class="kw-2">&amp;mut </span>ModuleDatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;) {
@@ -2654,13 +2690,13 @@
     <span class="kw">fn </span>api_endpoints(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;ApiEndpoint&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="macro">vec!</span>[
             <span class="macro">api_endpoint! </span>{
-                <span class="string">&quot;/block_height&quot;</span>,
+                <span class="string">&quot;block_height&quot;</span>,
                 <span class="kw">async </span>|module: <span class="kw-2">&amp;</span>Wallet, context, _params: ()| -&gt; u32 {
                     <span class="prelude-val">Ok</span>(module.consensus_height(<span class="kw-2">&amp;mut </span>context.dbtx()).<span class="kw">await</span>.unwrap_or(<span class="number">0</span>))
                 }
             },
             <span class="macro">api_endpoint! </span>{
-                <span class="string">&quot;/peg_out_fees&quot;</span>,
+                <span class="string">&quot;peg_out_fees&quot;</span>,
                 <span class="kw">async </span>|module: <span class="kw-2">&amp;</span>Wallet, context, params: (Address, u64)| -&gt; <span class="prelude-ty">Option</span>&lt;PegOutFees&gt; {
                     <span class="kw">let </span>(address, sats) = params;
                     <span class="kw">let </span>consensus = module.current_round_consensus(<span class="kw-2">&amp;mut </span>context.dbtx()).<span class="kw">await</span>.unwrap();
@@ -3787,9 +3823,9 @@
     <span class="kw">use </span>fedimint_core::core::LEGACY_HARDCODED_INSTANCE_ID_WALLET;
     <span class="kw">use </span>fedimint_core::db::{apply_migrations, DatabaseTransaction};
     <span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
-    <span class="kw">use </span>fedimint_core::module::DynServerModuleGen;
+    <span class="kw">use </span>fedimint_core::module::{CommonModuleGen, DynServerModuleGen};
     <span class="kw">use </span>fedimint_core::{BitcoinHash, Feerate, OutPoint, ServerModule, TransactionId};
-    <span class="kw">use </span>fedimint_testing::{prepare_snapshot, validate_migrations, BYTE_20, BYTE_32};
+    <span class="kw">use </span>fedimint_testing::db::{prepare_snapshot, validate_migrations, BYTE_20, BYTE_32};
     <span class="kw">use </span>fedimint_wallet_common::db::{
         BlockHashKey, BlockHashKeyPrefix, DbKeyPrefix, PegOutBitcoinTransaction,
         PegOutBitcoinTransactionPrefix, PegOutTxSignatureCI, PegOutTxSignatureCIPrefix,
@@ -3798,7 +3834,7 @@
     };
     <span class="kw">use </span>fedimint_wallet_common::{
         PegOutFees, PendingTransaction, Rbf, RoundConsensus, SpendableUTXO, UnsignedTransaction,
-        WalletOutputOutcome,
+        WalletCommonGen, WalletOutputOutcome,
     };
     <span class="kw">use </span>futures::StreamExt;
     <span class="kw">use </span>rand::rngs::OsRng;
@@ -3969,6 +4005,7 @@
             },
             ModuleDecoderRegistry::from_iter([(
                 LEGACY_HARDCODED_INSTANCE_ID_WALLET,
+                WalletCommonGen::KIND,
                 &lt;Wallet <span class="kw">as </span>ServerModule&gt;::decoder(),
             )]),
         )
@@ -4080,6 +4117,7 @@
             },
             ModuleDecoderRegistry::from_iter([(
                 LEGACY_HARDCODED_INSTANCE_ID_WALLET,
+                WalletCommonGen::KIND,
                 &lt;Wallet <span class="kw">as </span>ServerModule&gt;::decoder(),
             )]),
         )

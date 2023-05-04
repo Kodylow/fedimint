@@ -849,15 +849,45 @@
 <a href="#849" id="849">849</a>
 <a href="#850" id="850">850</a>
 <a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap};
-<span class="kw">use </span>std::fs;
 <span class="kw">use </span>std::net::SocketAddr;
 <span class="kw">use </span>std::path::Path;
 <span class="kw">use </span>std::time::Duration;
+<span class="kw">use </span>std::{env, fs};
 
 <span class="kw">use </span>anyhow::{bail, format_err};
-<span class="kw">use </span>bitcoin::hashes::sha256;
-<span class="kw">use </span>bitcoin::hashes::sha256::HashEngine;
 <span class="kw">use </span>fedimint_aead::{encrypted_read, get_encryption_key, get_password_hash};
 <span class="kw">use </span>fedimint_core::admin_client::{
     ConfigGenParamsConsensus, ConfigGenParamsRequest, PeerServerParams,
@@ -866,13 +896,17 @@
 <span class="kw">use </span>fedimint_core::cancellable::Cancelled;
 <span class="kw">pub use </span>fedimint_core::config::<span class="kw-2">*</span>;
 <span class="kw">use </span>fedimint_core::config::{
-    ClientConfig, ConfigResponse, DkgPeerMsg, FederationId, JsonWithKind, ModuleConfigResponse,
-    PeerUrl, ServerModuleConfig, ServerModuleGenRegistry, TypedServerModuleConfig,
+    ClientConfig, ClientConfigResponse, DkgPeerMsg, FederationId, JsonWithKind, PeerUrl,
+    ServerModuleConfig, ServerModuleGenRegistry, TypedServerModuleConfig,
 };
 <span class="kw">use </span>fedimint_core::core::{
     ModuleInstanceId, ModuleKind, MODULE_INSTANCE_ID_DKG_DONE, MODULE_INSTANCE_ID_GLOBAL,
 };
-<span class="kw">use </span>fedimint_core::module::{ApiAuth, DynServerModuleGen, PeerHandle};
+<span class="kw">use </span>fedimint_core::module::registry::ServerModuleRegistry;
+<span class="kw">use </span>fedimint_core::module::{
+    ApiAuth, ApiVersion, CoreConsensusVersion, DynServerModuleGen, PeerHandle,
+    SupportedApiVersionsSummary, SupportedCoreApiVersions,
+};
 <span class="kw">use </span>fedimint_core::net::peers::{IMuxPeerConnections, IPeerConnections, PeerConnections};
 <span class="kw">use </span>fedimint_core::task::{timeout, Elapsed, TaskGroup};
 <span class="kw">use </span>fedimint_core::{timing, PeerId};
@@ -891,7 +925,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::config::distributedgen::{DkgRunner, ThresholdKeys};
 <span class="kw">use </span><span class="kw">crate</span>::config::io::{parse_peer_params, CODE_VERSION, SALT_FILE, TLS_CERT, TLS_PK};
 <span class="kw">use </span><span class="kw">crate</span>::fedimint_core::encoding::Encodable;
-<span class="kw">use </span><span class="kw">crate</span>::fedimint_core::{BitcoinHash, NumPeers};
+<span class="kw">use </span><span class="kw">crate</span>::fedimint_core::NumPeers;
 <span class="kw">use </span><span class="kw">crate</span>::multiplexed::PeerConnectionMultiplexer;
 <span class="kw">use </span><span class="kw">crate</span>::net::connect::{Connector, TlsConfig};
 <span class="kw">use </span><span class="kw">crate</span>::net::peers::{DelayCalculator, NetworkConfig};
@@ -901,8 +935,11 @@
 <span class="kw">pub mod </span>distributedgen;
 <span class="kw">pub mod </span>io;
 
-<span class="doccomment">/// The maximum open connections the API can handle
+<span class="doccomment">/// The default maximum open connections the API can handle
 </span><span class="kw">const </span>DEFAULT_MAX_CLIENT_CONNECTIONS: u32 = <span class="number">1000</span>;
+
+<span class="doccomment">/// The env var for maximum open connections the API can handle
+</span><span class="kw">const </span>ENV_MAX_CLIENT_CONNECTIONS: <span class="kw-2">&amp;</span>str = <span class="string">&quot;FM_MAX_CLIENT_CONNECTIONS&quot;</span>;
 
 <span class="doccomment">/// How many times a config download token can be used by a client
 </span><span class="kw">const </span>DEFAULT_CONFIG_DOWNLOAD_LIMIT: u64 = <span class="number">100</span>;
@@ -924,6 +961,18 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
     ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (ModuleInstanceId, <span class="kw-2">&amp;</span>ModuleKind)&gt; + <span class="lifetime">&#39;_ </span>{
         <span class="self">self</span>.consensus.iter_module_instances()
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>supported_api_versions_summary(
+        modules: <span class="kw-2">&amp;</span>ServerModuleRegistry,
+    ) -&gt; SupportedApiVersionsSummary {
+        SupportedApiVersionsSummary {
+            core: <span class="self">Self</span>::supported_api_versions(),
+            modules: modules
+                .iter_modules()
+                .map(|(id, <span class="kw">_</span>, module)| (id, module.supported_api_versions()))
+                .collect(),
+        }
     }
 }
 
@@ -951,6 +1000,8 @@
 </span><span class="kw">pub struct </span>ServerConfigConsensus {
     <span class="doccomment">/// The version of the binary code running
     </span><span class="kw">pub </span>code_version: String,
+    <span class="doccomment">/// Agreed on core consensus version
+    </span><span class="kw">pub </span>version: CoreConsensusVersion,
     <span class="doccomment">/// Public keys authenticating members of the federation and the configs
     </span><span class="attr">#[serde(with = <span class="string">&quot;serde_binary_human_readable&quot;</span>)]
     </span><span class="kw">pub </span>auth_pk_set: hbbft::crypto::PublicKeySet,
@@ -966,8 +1017,10 @@
     </span><span class="attr">#[serde(with = <span class="string">&quot;serde_tls_cert_map&quot;</span>)]
     </span><span class="kw">pub </span>tls_certs: BTreeMap&lt;PeerId, rustls::Certificate&gt;,
     <span class="doccomment">/// All configuration that needs to be the same for modules
-    </span><span class="attr">#[encodable_ignore]
-    </span><span class="kw">pub </span>modules: BTreeMap&lt;ModuleInstanceId, JsonWithKind&gt;,
+    </span><span class="kw">pub </span>modules: BTreeMap&lt;ModuleInstanceId, ServerModuleConsensusConfig&gt;,
+    <span class="attr">#[encodable_ignore]
+    </span><span class="doccomment">/// Human readable representation of [`Self::modules`]
+    </span><span class="kw">pub </span>modules_json: BTreeMap&lt;ModuleInstanceId, JsonWithKind&gt;,
     <span class="doccomment">/// Additional config the federation wants to transmit to the clients
     </span><span class="kw">pub </span>meta: BTreeMap&lt;String, String&gt;,
 }
@@ -1006,63 +1059,62 @@
     <span class="kw">pub fn </span>iter_module_instances(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
     ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (ModuleInstanceId, <span class="kw-2">&amp;</span>ModuleKind)&gt; + <span class="lifetime">&#39;_ </span>{
-        <span class="self">self</span>.modules.iter().map(|(k, v)| (<span class="kw-2">*</span>k, v.kind()))
+        <span class="self">self</span>.modules.iter().map(|(k, v)| (<span class="kw-2">*</span>k, <span class="kw-2">&amp;</span>v.kind))
     }
 
-    <span class="doccomment">/// encodes the fields into a sha256 hash for comparison
-    /// TODO use the derive macro to automatically pick up new fields here
-    </span><span class="kw">pub fn </span>try_to_config_response(
+    <span class="kw">pub fn </span>try_to_config_response(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        module_config_gens: <span class="kw-2">&amp;</span>ServerModuleGenRegistry,
-    ) -&gt; anyhow::Result&lt;ConfigResponse&gt; {
-        <span class="kw">let </span>modules: BTreeMap&lt;ModuleInstanceId, ModuleConfigResponse&gt; = <span class="self">self
-            </span>.modules
-            .iter()
-            .map(|(module_instance_id, v)| {
-                <span class="kw">let </span>kind = v.kind();
-                <span class="prelude-val">Ok</span>((
-                    <span class="kw-2">*</span>module_instance_id,
-                    module_config_gens
-                        .get(kind)
-                        .ok_or_else(|| <span class="macro">format_err!</span>(<span class="string">&quot;module config gen not found: {kind}&quot;</span>))<span class="question-mark">?
-                        </span>.to_config_response(v.value().clone())<span class="question-mark">?</span>,
-                ))
-            })
-            .collect::&lt;anyhow::Result&lt;<span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
+        <span class="comment">// TODO: remove
+        </span>module_config_gens: <span class="kw-2">&amp;</span>ServerModuleGenRegistry,
+    ) -&gt; anyhow::Result&lt;ClientConfigResponse&gt; {
+        <span class="prelude-val">Ok</span>(ClientConfigResponse {
+            client_config: <span class="self">self</span>.to_client_config(module_config_gens)<span class="question-mark">?</span>,
+            signature: <span class="prelude-val">None</span>,
+        })
+    }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>engine = HashEngine::default();
-        <span class="self">self</span>.consensus_encode(<span class="kw-2">&amp;mut </span>engine)<span class="question-mark">?</span>;
-        <span class="kw">for </span>(k, v) <span class="kw">in </span>modules.iter() {
-            k.consensus_encode(<span class="kw-2">&amp;mut </span>engine)<span class="question-mark">?</span>;
-            v.consensus_hash.consensus_encode(<span class="kw-2">&amp;mut </span>engine)<span class="question-mark">?</span>;
-        }
-        <span class="kw">let </span>consensus_hash = sha256::Hash::from_engine(engine);
-
+    <span class="kw">fn </span>to_client_config(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        module_config_gens: <span class="kw-2">&amp;</span>ModuleGenRegistry&lt;DynServerModuleGen&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ClientConfig, anyhow::Error&gt; {
         <span class="kw">let </span>client = ClientConfig {
             federation_id: FederationId(<span class="self">self</span>.auth_pk_set.public_key()),
             epoch_pk: <span class="self">self</span>.epoch_pk_set.public_key(),
             api_endpoints: <span class="self">self</span>.api_endpoints.clone(),
-            modules: modules.into_iter().map(|(k, v)| (k, v.client)).collect(),
+            modules: <span class="self">self
+                </span>.modules
+                .iter()
+                .map(|(k, v)| {
+                    <span class="kw">let </span>gen = module_config_gens
+                        .get(<span class="kw-2">&amp;</span>v.kind)
+                        .ok_or_else(|| <span class="macro">format_err!</span>(<span class="string">&quot;Module gen kind={} not found&quot;</span>, v.kind))<span class="question-mark">?</span>;
+                    <span class="prelude-val">Ok</span>((<span class="kw-2">*</span>k, gen.get_client_config(v)<span class="question-mark">?</span>))
+                })
+                .collect::&lt;anyhow::Result&lt;BTreeMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>,
             meta: <span class="self">self</span>.meta.clone(),
         };
-
-        <span class="prelude-val">Ok</span>(ConfigResponse {
-            client,
-            consensus_hash,
-            client_hash_signature: <span class="prelude-val">None</span>,
-        })
+        <span class="prelude-val">Ok</span>(client)
     }
 
     <span class="kw">pub fn </span>to_config_response(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         module_config_gens: <span class="kw-2">&amp;</span>ServerModuleGenRegistry,
-    ) -&gt; ConfigResponse {
+    ) -&gt; ClientConfigResponse {
         <span class="self">self</span>.try_to_config_response(module_config_gens)
             .expect(<span class="string">&quot;configuration mismatch&quot;</span>)
     }
 }
 
+<span class="kw">pub const </span>CORE_CONSENSUS_VERSION: CoreConsensusVersion = CoreConsensusVersion(<span class="number">0</span>);
+
 <span class="kw">impl </span>ServerConfig {
+    <span class="doccomment">/// Api versions supported by this server
+    </span><span class="kw">pub fn </span>supported_api_versions() -&gt; SupportedCoreApiVersions {
+        SupportedCoreApiVersions {
+            consensus: CORE_CONSENSUS_VERSION,
+            api: <span class="macro">vec!</span>[ApiVersion { major: <span class="number">0</span>, minor: <span class="number">0 </span>}],
+        }
+    }
     <span class="doccomment">/// Creates a new config from the results of a trusted or distributed key
     /// setup
     </span><span class="kw">pub fn </span>from(
@@ -1093,12 +1145,14 @@
         };
         <span class="kw">let </span>consensus = ServerConfigConsensus {
             code_version: CODE_VERSION.to_string(),
+            version: CORE_CONSENSUS_VERSION,
             auth_pk_set: auth_keys.public_key_set,
             hbbft_pk_set: hbbft_keys.public_key_set,
             epoch_pk_set: epoch_keys.public_key_set,
             api_endpoints: params.api_urls(),
             tls_certs: params.tls_certs(),
             modules: Default::default(),
+            modules_json: Default::default(),
             meta: params.consensus.requested.meta,
         };
         <span class="kw">let </span><span class="kw-2">mut </span>cfg = <span class="self">Self </span>{
@@ -1130,11 +1184,13 @@
                 local,
                 private,
                 consensus,
+                consensus_json,
             } = config;
 
             <span class="self">self</span>.local.modules.insert(name, local);
             <span class="self">self</span>.private.modules.insert(name, private);
             <span class="self">self</span>.consensus.modules.insert(name, consensus);
+            <span class="self">self</span>.consensus.modules_json.insert(name, consensus_json);
         }
     }
 
@@ -1145,8 +1201,14 @@
     ) -&gt; anyhow::Result&lt;T&gt; {
         <span class="kw">let </span>local = <span class="self">Self</span>::get_module_cfg_by_instance_id(<span class="kw-2">&amp;</span><span class="self">self</span>.local.modules, id)<span class="question-mark">?</span>;
         <span class="kw">let </span>private = <span class="self">Self</span>::get_module_cfg_by_instance_id(<span class="kw-2">&amp;</span><span class="self">self</span>.private.modules, id)<span class="question-mark">?</span>;
-        <span class="kw">let </span>consensus = <span class="self">Self</span>::get_module_cfg_by_instance_id(<span class="kw-2">&amp;</span><span class="self">self</span>.consensus.modules, id)<span class="question-mark">?</span>;
-        <span class="kw">let </span>module = ServerModuleConfig::from(local, private, consensus);
+        <span class="kw">let </span>consensus = <span class="self">self
+            </span>.consensus
+            .modules
+            .get(<span class="kw-2">&amp;</span>id)
+            .ok_or_else(|| <span class="macro">format_err!</span>(<span class="string">&quot;Module {id} not found&quot;</span>))<span class="question-mark">?
+            </span>.clone();
+        <span class="kw">let </span>consensus_json = <span class="self">Self</span>::get_module_cfg_by_instance_id(<span class="kw-2">&amp;</span><span class="self">self</span>.consensus.modules_json, id)<span class="question-mark">?</span>;
+        <span class="kw">let </span>module = ServerModuleConfig::from(local, private, consensus, consensus_json);
 
         module.to_typed()
     }
@@ -1159,17 +1221,28 @@
             </span>.consensus
             .modules
             .iter()
-            .find(|(<span class="kw">_</span>, v)| v.is_kind(<span class="kw-2">&amp;</span>kind))
+            .find(|(<span class="kw">_</span>, v)| v.kind == kind)
             .ok_or_else(|| <span class="macro">format_err!</span>(<span class="string">&quot;Module {kind} not found&quot;</span>))<span class="question-mark">?
             </span>.<span class="number">0</span>)
     }
 
-    <span class="doccomment">/// Constructs a module config by name
+    <span class="doccomment">/// Constructs a module config by id
     </span><span class="kw">pub fn </span>get_module_config(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ModuleInstanceId) -&gt; anyhow::Result&lt;ServerModuleConfig&gt; {
         <span class="kw">let </span>local = <span class="self">Self</span>::get_module_cfg_by_instance_id(<span class="kw-2">&amp;</span><span class="self">self</span>.local.modules, id)<span class="question-mark">?</span>;
         <span class="kw">let </span>private = <span class="self">Self</span>::get_module_cfg_by_instance_id(<span class="kw-2">&amp;</span><span class="self">self</span>.private.modules, id)<span class="question-mark">?</span>;
-        <span class="kw">let </span>consensus = <span class="self">Self</span>::get_module_cfg_by_instance_id(<span class="kw-2">&amp;</span><span class="self">self</span>.consensus.modules, id)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(ServerModuleConfig::from(local, private, consensus))
+        <span class="kw">let </span>consensus = <span class="self">self
+            </span>.consensus
+            .modules
+            .get(<span class="kw-2">&amp;</span>id)
+            .ok_or_else(|| <span class="macro">format_err!</span>(<span class="string">&quot;Module {id} not found&quot;</span>))<span class="question-mark">?
+            </span>.clone();
+        <span class="kw">let </span>consensus_json = <span class="self">Self</span>::get_module_cfg_by_instance_id(<span class="kw-2">&amp;</span><span class="self">self</span>.consensus.modules_json, id)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(ServerModuleConfig::from(
+            local,
+            private,
+            consensus,
+            consensus_json,
+        ))
     }
 
     <span class="kw">fn </span>get_module_cfg_by_instance_id(
@@ -1210,7 +1283,7 @@
             </span>.consensus
             .modules
             .iter()
-            .map(|(id, config)| <span class="prelude-val">Ok</span>((<span class="kw-2">*</span>id, config.kind())))
+            .map(|(id, config)| <span class="prelude-val">Ok</span>((<span class="kw-2">*</span>id, config.kind.clone())))
             .collect::&lt;anyhow::Result&lt;BTreeSet&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?
             </span>.iter()
         {
@@ -1225,7 +1298,7 @@
 
     <span class="kw">pub fn </span>trusted_dealer_gen(
         params: <span class="kw-2">&amp;</span>HashMap&lt;PeerId, ConfigGenParams&gt;,
-        registry: BTreeMap&lt;u16, (ModuleKind, DynServerModuleGen)&gt;,
+        registry: ServerModuleGenRegistry,
     ) -&gt; BTreeMap&lt;PeerId, <span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>rng = OsRng;
         <span class="kw">let </span>peer0 = <span class="kw-2">&amp;</span>params[<span class="kw-2">&amp;</span>PeerId::from(<span class="number">0</span>)];
@@ -1237,23 +1310,15 @@
         <span class="kw">let </span>authinfo = NetworkInfo::generate_map(peer0.peer_ids(), <span class="kw-2">&amp;mut </span>rng)
             .expect(<span class="string">&quot;Could not generate HBBFT netinfo&quot;</span>);
 
-        <span class="kw">let </span>null_config_gen = ConfigGenModuleParams::null();
-
-        <span class="comment">// We assume user wants one module instance for every module kind
-        </span><span class="kw">let </span>module_configs: BTreeMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt; = registry
-            .into_iter()
-            .map(|(module_id, (kind, gen))| {
+        <span class="kw">let </span>modules = peer0.consensus.requested.modules.iter_modules();
+        <span class="kw">let </span>module_configs: BTreeMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt; = modules
+            .map(|(module_id, kind, module_params)| {
                 (
                     module_id,
-                    gen.trusted_dealer_gen(
-                        <span class="kw-2">&amp;</span>peer0.peer_ids(),
-                        peer0
-                            .consensus
-                            .requested
-                            .modules
-                            .get(<span class="kw-2">&amp;</span>kind)
-                            .unwrap_or(<span class="kw-2">&amp;</span>null_config_gen),
-                    ),
+                    registry
+                        .get(kind)
+                        .expect(<span class="string">&quot;Module not registered&quot;</span>)
+                        .trusted_dealer_gen(<span class="kw-2">&amp;</span>peer0.peer_ids(), module_params),
                 )
             })
             .collect();
@@ -1289,7 +1354,7 @@
     <span class="doccomment">/// Runs the distributed key gen algorithm
     </span><span class="kw">pub async fn </span>distributed_gen(
         params: <span class="kw-2">&amp;</span>ConfigGenParams,
-        registry: BTreeMap&lt;u16, (ModuleKind, DynServerModuleGen)&gt;,
+        registry: ServerModuleGenRegistry,
         delay_calculator: DelayCalculator,
         task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
     ) -&gt; DkgResult&lt;<span class="self">Self</span>&gt; {
@@ -1331,27 +1396,16 @@
         <span class="kw">let </span>epoch_keys = keys[<span class="kw-2">&amp;</span>KeyType::Epoch].threshold_crypto();
 
         <span class="kw">let </span><span class="kw-2">mut </span>module_cfgs: BTreeMap&lt;ModuleInstanceId, ServerModuleConfig&gt; = Default::default();
-
-        <span class="comment">// NOTE: Currently we do not implement user-assisted module-kind to
-        // module-instance-id assignment We assume that user wants one instance
-        // of each module that was compiled in. This is how things were
-        // initially, where we consider &quot;module as a code&quot; as &quot;module as an instance at
-        // runtime&quot;
-        </span><span class="kw">let </span>null_config_gen = ConfigGenModuleParams::null();
-        <span class="kw">for </span>(module_instance_id, (kind, gen)) <span class="kw">in </span>registry {
+        <span class="kw">let </span>modules = params.consensus.requested.modules.iter_modules();
+        <span class="kw">for </span>(module_instance_id, kind, module_params) <span class="kw">in </span>modules {
             <span class="kw">let </span>dkg = PeerHandle::new(<span class="kw-2">&amp;</span>connections, module_instance_id, <span class="kw-2">*</span>our_id, peers.clone());
             module_cfgs.insert(
                 module_instance_id,
-                gen.distributed_gen(
-                    <span class="kw-2">&amp;</span>dkg,
-                    params
-                        .consensus
-                        .requested
-                        .modules
-                        .get(<span class="kw-2">&amp;</span>kind)
-                        .unwrap_or(<span class="kw-2">&amp;</span>null_config_gen),
-                )
-                .<span class="kw">await</span><span class="question-mark">?</span>,
+                registry
+                    .get(kind)
+                    .expect(<span class="string">&quot;Module not registered&quot;</span>)
+                    .distributed_gen(<span class="kw-2">&amp;</span>dkg, module_params)
+                    .<span class="kw">await</span><span class="question-mark">?</span>,
             );
         }
 
@@ -1562,6 +1616,7 @@
     }
 
     <span class="doccomment">/// Generates the parameters necessary for running server config generation
+    </span><span class="comment">// TODO: Move into testing once new config gen UI is written
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub fn </span>new(
         api_auth: ApiAuth,
@@ -1582,6 +1637,7 @@
                 p2p_bind,
                 api_bind,
                 download_token_limit,
+                max_connections: max_connections(),
             },
             consensus: ConfigGenParamsConsensus {
                 peers,
@@ -1594,6 +1650,14 @@
     }
 }
 
+<span class="comment">// TODO: Remove once new config gen UI is written
+</span><span class="kw">pub fn </span>max_connections() -&gt; u32 {
+    env::var(ENV_MAX_CLIENT_CONNECTIONS)
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(DEFAULT_MAX_CLIENT_CONNECTIONS)
+}
+
 <span class="kw">pub async fn </span>connect&lt;T&gt;(
     network: NetworkConfig,
     certs: TlsConfig,
@@ -1604,9 +1668,9 @@
     </span>T: std::fmt::Debug + Clone + Serialize + DeserializeOwned + Unpin + Send + Sync + <span class="lifetime">&#39;static</span>,
 {
     <span class="kw">let </span>connector = TlsTcpConnector::new(certs, network.identity).into_dyn();
-    ReconnectPeerConnections::new(network, delay_calculator, connector, task_group)
-        .<span class="kw">await
-        </span>.into_dyn()
+    <span class="kw">let </span>(connections, <span class="kw">_</span>) =
+        ReconnectPeerConnections::new(network, delay_calculator, connector, task_group).<span class="kw">await</span>;
+    connections.into_dyn()
 }
 
 <span class="kw">pub fn </span>gen_cert_and_key(

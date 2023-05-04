@@ -686,21 +686,15 @@
 <a href="#686" id="686">686</a>
 <a href="#687" id="687">687</a>
 <a href="#688" id="688">688</a>
-<a href="#689" id="689">689</a>
-<a href="#690" id="690">690</a>
-<a href="#691" id="691">691</a>
-<a href="#692" id="692">692</a>
-<a href="#693" id="693">693</a>
-<a href="#694" id="694">694</a>
-<a href="#695" id="695">695</a>
 </pre><pre class="rust"><code><span class="attr">#![allow(clippy::let_unit_value)]
 
 </span><span class="kw">pub mod </span>debug;
 <span class="kw">pub mod </span>interconnect;
+<span class="kw">pub mod </span>server;
+
 <span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 <span class="kw">use </span>std::iter::FromIterator;
 
-<span class="kw">use </span>anyhow::format_err;
 <span class="kw">use </span>fedimint_core::config::ServerModuleGenRegistry;
 <span class="kw">use </span>fedimint_core::core::ModuleInstanceId;
 <span class="kw">use </span>fedimint_core::db::{Database, DatabaseTransaction};
@@ -765,6 +759,7 @@
 </span><span class="kw">pub enum </span>ApiEvent {
     Transaction(Transaction),
     UpgradeSignal,
+    ForceProcessOutcome(EpochOutcome),
 }
 
 <span class="comment">// TODO: we should make other fields private and get rid of this
@@ -1004,7 +999,7 @@
             </span>.save_epoch_history(outcome.clone(), dbtx, <span class="kw-2">&amp;mut </span>drop_peers, rejected_txs)
             .<span class="kw">await</span>;
 
-        <span class="kw">for </span>(module_key, module) <span class="kw">in </span><span class="self">self</span>.modules.iter_modules() {
+        <span class="kw">for </span>(module_key, <span class="kw">_</span>, module) <span class="kw">in </span><span class="self">self</span>.modules.iter_modules() {
             <span class="kw">let </span>module_drop_peers = module
                 .end_consensus_epoch(consensus_peers, <span class="kw-2">&amp;mut </span>dbtx.with_module_prefix(module_key))
                 .<span class="kw">await</span>;
@@ -1028,9 +1023,9 @@
     ) {
         <span class="kw">let </span>config = <span class="self">self</span>.api.get_config_with_sig(<span class="kw-2">&amp;mut </span>dbtx.get_isolated()).<span class="kw">await</span>;
 
-        <span class="kw">if </span>config.client_hash_signature.is_none() {
-            <span class="kw">let </span>maybe_client_hash = config.client.consensus_hash(<span class="kw-2">&amp;</span><span class="self">self</span>.module_inits.to_common());
-            <span class="kw">let </span>client_hash = maybe_client_hash.expect(<span class="string">&quot;hashes&quot;</span>);
+        <span class="kw">if </span>config.signature.is_none() {
+            <span class="kw">let </span>maybe_client_hash = config.client_config.consensus_hash();
+            <span class="kw">let </span>client_hash = maybe_client_hash;
             <span class="kw">let </span>peers: Vec&lt;PeerId&gt; = outcome.contributions.keys().cloned().collect();
             <span class="kw">let </span><span class="kw-2">mut </span>contributing_peers = HashSet::new();
             <span class="kw">let </span>pks = <span class="self">self</span>.cfg.consensus.auth_pk_set.clone();
@@ -1100,23 +1095,6 @@
             .is_some()
     }
 
-    <span class="doccomment">/// Called to remove the upgrade items after the upgrade is complete
-    </span><span class="kw">pub async fn </span>remove_upgrade_items(<span class="kw-2">&amp;</span><span class="self">self</span>, epoch: u64) -&gt; anyhow::Result&lt;()&gt; {
-        <span class="kw">let </span>last_epoch = <span class="self">self</span>.api.get_epoch_count().<span class="kw">await</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="self">self</span>.db.begin_transaction().<span class="kw">await</span>;
-        <span class="kw">if </span>last_epoch == epoch {
-            tx.remove_entry(<span class="kw-2">&amp;</span>ConsensusUpgradeKey).<span class="kw">await</span>;
-            tx.commit_tx().<span class="kw">await</span>;
-            <span class="prelude-val">Ok</span>(())
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                <span class="string">&quot;Wrong upgrade epoch {}, last epoch was {}&quot;</span>,
-                epoch,
-                last_epoch
-            ))
-        }
-    }
-
     <span class="kw">async fn </span>save_epoch_history&lt;<span class="lifetime">&#39;a</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         outcome: HbbftConsensusOutcome,
@@ -1174,7 +1152,7 @@
         <span class="kw">let </span>proposal_futures = <span class="self">self
             </span>.modules
             .iter_modules()
-            .map(|(module_instance_id, module)| {
+            .map(|(module_instance_id, _kind, module)| {
                 Box::pin(<span class="kw">async move </span>{
                     <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self</span>.db.begin_transaction().<span class="kw">await</span>;
                     <span class="kw">let </span><span class="kw-2">mut </span>module_dbtx = dbtx.with_module_prefix(module_instance_id);
@@ -1183,7 +1161,11 @@
             })
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        select_all(proposal_futures).<span class="kw">await</span>;
+        <span class="kw">if </span>!proposal_futures.is_empty() {
+            select_all(proposal_futures).<span class="kw">await</span>;
+        } <span class="kw">else </span>{
+            std::future::pending().<span class="kw">await
+        </span>}
     }
 
     <span class="kw">pub async fn </span>get_consensus_proposal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ConsensusProposal {
@@ -1200,14 +1182,15 @@
             </span>.api_event_cache
             .iter()
             .cloned()
-            .map(|event| <span class="kw">match </span>event {
-                ApiEvent::Transaction(tx) =&gt; ConsensusItem::Transaction(tx),
-                ApiEvent::UpgradeSignal =&gt; ConsensusItem::ConsensusUpgrade(ConsensusUpgrade),
+            .filter_map(|event| <span class="kw">match </span>event {
+                ApiEvent::Transaction(tx) =&gt; <span class="prelude-val">Some</span>(ConsensusItem::Transaction(tx)),
+                ApiEvent::UpgradeSignal =&gt; <span class="prelude-val">Some</span>(ConsensusItem::ConsensusUpgrade(ConsensusUpgrade)),
+                ApiEvent::ForceProcessOutcome(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
             })
             .collect();
         <span class="kw">let </span><span class="kw-2">mut </span>force_new_epoch = <span class="bool-val">false</span>;
 
-        <span class="kw">for </span>(instance_id, module) <span class="kw">in </span><span class="self">self</span>.modules.iter_modules() {
+        <span class="kw">for </span>(instance_id, <span class="kw">_</span>, module) <span class="kw">in </span><span class="self">self</span>.modules.iter_modules() {
             <span class="kw">let </span>consensus_proposal = module
                 .consensus_proposal(<span class="kw-2">&amp;mut </span>dbtx.with_module_prefix(instance_id), instance_id)
                 .<span class="kw">await</span>;
@@ -1233,10 +1216,13 @@
         <span class="comment">// Add a signature share for the client config hash if we don&#39;t have it signed
         // yet
         </span><span class="kw">let </span>client = <span class="self">self</span>.api.get_config_with_sig(<span class="kw-2">&amp;mut </span>dbtx.get_isolated()).<span class="kw">await</span>;
-        <span class="kw">if </span>client.client_hash_signature.is_none() {
-            <span class="kw">let </span>maybe_client_hash = client.client.consensus_hash(<span class="kw-2">&amp;</span><span class="self">self</span>.module_inits.to_common());
-            <span class="kw">let </span>client_hash = maybe_client_hash.expect(<span class="string">&quot;Client config hashes&quot;</span>);
-            <span class="kw">let </span>sig = <span class="self">self</span>.cfg.private.auth_sks.<span class="number">0</span>.sign(client_hash);
+        <span class="kw">if </span>client.signature.is_none() {
+            <span class="kw">let </span>sig = <span class="self">self
+                </span>.cfg
+                .private
+                .auth_sks
+                .<span class="number">0
+                </span>.sign(client.client_config.consensus_hash());
             <span class="kw">let </span>item = ConsensusItem::ClientConfigSignatureShare(SerdeSignatureShare(sig));
             items.push(item);
         }
@@ -1334,7 +1320,7 @@
     <span class="kw">pub async fn </span>audit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Audit {
         <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self</span>.db.begin_transaction().<span class="kw">await</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>audit = Audit::default();
-        <span class="kw">for </span>(module_instance_id, module) <span class="kw">in </span><span class="self">self</span>.modules.iter_modules() {
+        <span class="kw">for </span>(module_instance_id, <span class="kw">_</span>, module) <span class="kw">in </span><span class="self">self</span>.modules.iter_modules() {
             module
                 .audit(<span class="kw-2">&amp;mut </span>dbtx.with_module_prefix(module_instance_id), <span class="kw-2">&amp;mut </span>audit)
                 .<span class="kw">await
