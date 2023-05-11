@@ -679,9 +679,6 @@
 <a href="#679" id="679">679</a>
 <a href="#680" id="680">680</a>
 <a href="#681" id="681">681</a>
-<a href="#682" id="682">682</a>
-<a href="#683" id="683">683</a>
-<a href="#684" id="684">684</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::cmp::min;
 <span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 <span class="kw">use </span>std::os::unix::ffi::OsStrExt;
@@ -902,7 +899,7 @@
 
         <span class="comment">// Build API that can handle requests
         </span><span class="kw">let </span>(api_sender, api_receiver) = mpsc::channel(TRANSACTION_BUFFER_SIZE);
-        <span class="kw">let </span>client_cfg = cfg.consensus.to_config_response(<span class="kw-2">&amp;</span>module_inits);
+        <span class="kw">let </span>client_cfg = cfg.consensus.to_client_config(<span class="kw-2">&amp;</span>module_inits)<span class="question-mark">?</span>;
         <span class="kw">let </span>modules = ModuleRegistry::from(modules);
 
         <span class="kw">let </span>latest_contribution_by_peer: Arc&lt;RwLock&lt;LatestContributionByPeer&gt;&gt; = Default::default();
@@ -949,12 +946,7 @@
 
     <span class="doccomment">/// Loop `run_conensus_epoch` until shut down
     </span><span class="kw">pub async fn </span>run_consensus(<span class="kw-2">mut </span><span class="self">self</span>, task_handle: TaskHandle) -&gt; anyhow::Result&lt;()&gt; {
-        <span class="kw">let </span>our_hash = <span class="self">self
-            </span>.cfg
-            .consensus
-            .to_config_response(<span class="kw-2">&amp;</span><span class="self">self</span>.consensus.module_inits)
-            .client_config
-            .consensus_hash();
+        <span class="kw">let </span>our_hash = <span class="self">self</span>.cfg.consensus.consensus_hash();
 
         <span class="comment">// Confirm our hash matches with peers
         </span><span class="kw">loop </span>{
@@ -1128,9 +1120,11 @@
     ) -&gt; anyhow::Result&lt;Vec&lt;HbbftConsensusOutcome&gt;&gt; {
         <span class="comment">// for testing federations with one peer
         </span><span class="kw">if </span><span class="self">self</span>.cfg.local.p2p_endpoints.len() == <span class="number">1 </span>{
-            <span class="macro">tokio::select! </span>{
-              <span class="kw">_ </span>= Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.api_receiver).peek() =&gt; (),
-              () = <span class="self">self</span>.consensus.await_consensus_proposal() =&gt; (),
+            <span class="kw">if </span><span class="self">self</span>.hbbft.next_epoch() &gt; <span class="number">0 </span>{
+                <span class="macro">tokio::select! </span>{
+                    <span class="kw">_ </span>= Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.api_receiver).peek() =&gt; (),
+                    () = <span class="self">self</span>.consensus.await_consensus_proposal() =&gt; (),
+                }
             }
             <span class="kw">let </span>proposal = <span class="self">self</span>.process_events_then_propose(override_proposal).<span class="kw">await</span>;
             <span class="kw">let </span>epoch = <span class="self">self</span>.hbbft.epoch();

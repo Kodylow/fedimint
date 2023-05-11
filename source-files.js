@@ -1,7 +1,8 @@
 var sourcesIndex = JSON.parse('{\
 "dbtool":["",[],["dump.rs","main.rs"]],\
-"devimint":["",[],["federation.rs","lib.rs","util.rs"]],\
+"devimint":["",[],["external.rs","federation.rs","lib.rs","util.rs","vars.rs"]],\
 "distributedgen":["",[],["distributedgen.rs"]],\
+"faucet":["",[],["faucet.rs"]],\
 "fedimint_aead":["",[],["lib.rs"]],\
 "fedimint_bitcoind":["",[],["bitcoincore_rpc.rs","lib.rs"]],\
 "fedimint_build":["",[],["lib.rs"]],\
@@ -24,10 +25,11 @@ var sourcesIndex = JSON.parse('{\
 "fedimint_rocksdb":["",[],["lib.rs"]],\
 "fedimint_server":["",[["config",[],["api.rs","distributedgen.rs","io.rs","mod.rs"]],["consensus",[],["debug.rs","interconnect.rs","mod.rs","server.rs"]],["net",[],["api.rs","connect.rs","framed.rs","mod.rs","peers.rs","queue.rs"]]],["db.rs","lib.rs","multiplexed.rs"]],\
 "fedimint_sqlite":["",[],["lib.rs"]],\
-"fedimint_testing":["",[["btc",[],["mock.rs","mod.rs","real.rs"]],["ln",[],["mock.rs","mod.rs","real.rs"]]],["db.rs","federation.rs","fixtures.rs","lib.rs"]],\
+"fedimint_testing":["",[["btc",[],["mock.rs","mod.rs","real.rs"]],["ln",[],["mock.rs","mod.rs","real.rs"]]],["db.rs","federation.rs","fixtures.rs","gateway.rs","lib.rs"]],\
 "fedimint_wallet_client":["",[],["api.rs","lib.rs"]],\
 "fedimint_wallet_common":["",[],["config.rs","db.rs","keys.rs","lib.rs","tweakable.rs","txoproof.rs"]],\
 "fedimint_wallet_server":["",[],["lib.rs"]],\
+"fedimint_wallet_tests":["",[],["lib.rs"]],\
 "fedimintd":["",[],["distributed_gen.rs","fedimintd.rs","lib.rs","ui.rs"]],\
 "gateway_cli":["",[],["main.rs"]],\
 "gateway_cln_extension":["",[],["cln_extension.rs"]],\

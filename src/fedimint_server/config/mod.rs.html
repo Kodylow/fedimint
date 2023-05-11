@@ -866,21 +866,6 @@
 <a href="#866" id="866">866</a>
 <a href="#867" id="867">867</a>
 <a href="#868" id="868">868</a>
-<a href="#869" id="869">869</a>
-<a href="#870" id="870">870</a>
-<a href="#871" id="871">871</a>
-<a href="#872" id="872">872</a>
-<a href="#873" id="873">873</a>
-<a href="#874" id="874">874</a>
-<a href="#875" id="875">875</a>
-<a href="#876" id="876">876</a>
-<a href="#877" id="877">877</a>
-<a href="#878" id="878">878</a>
-<a href="#879" id="879">879</a>
-<a href="#880" id="880">880</a>
-<a href="#881" id="881">881</a>
-<a href="#882" id="882">882</a>
-<a href="#883" id="883">883</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap};
 <span class="kw">use </span>std::net::SocketAddr;
 <span class="kw">use </span>std::path::Path;
@@ -896,12 +881,10 @@
 <span class="kw">use </span>fedimint_core::cancellable::Cancelled;
 <span class="kw">pub use </span>fedimint_core::config::<span class="kw-2">*</span>;
 <span class="kw">use </span>fedimint_core::config::{
-    ClientConfig, ClientConfigResponse, DkgPeerMsg, FederationId, JsonWithKind, PeerUrl,
-    ServerModuleConfig, ServerModuleGenRegistry, TypedServerModuleConfig,
+    ClientConfig, DkgPeerMsg, FederationId, JsonWithKind, PeerUrl, ServerModuleConfig,
+    ServerModuleGenRegistry, TypedServerModuleConfig,
 };
-<span class="kw">use </span>fedimint_core::core::{
-    ModuleInstanceId, ModuleKind, MODULE_INSTANCE_ID_DKG_DONE, MODULE_INSTANCE_ID_GLOBAL,
-};
+<span class="kw">use </span>fedimint_core::core::{ModuleInstanceId, ModuleKind, MODULE_INSTANCE_ID_GLOBAL};
 <span class="kw">use </span>fedimint_core::module::registry::ServerModuleRegistry;
 <span class="kw">use </span>fedimint_core::module::{
     ApiAuth, ApiVersion, CoreConsensusVersion, DynServerModuleGen, PeerHandle,
@@ -911,6 +894,7 @@
 <span class="kw">use </span>fedimint_core::task::{timeout, Elapsed, TaskGroup};
 <span class="kw">use </span>fedimint_core::{timing, PeerId};
 <span class="kw">use </span>fedimint_logging::{LOG_NET_PEER, LOG_NET_PEER_DKG};
+<span class="kw">use </span>futures::future::join_all;
 <span class="kw">use </span>hbbft::crypto::serde_impl::SerdeSecret;
 <span class="kw">use </span>hbbft::NetworkInfo;
 <span class="kw">use </span>itertools::Itertools;
@@ -940,9 +924,6 @@
 
 <span class="doccomment">/// The env var for maximum open connections the API can handle
 </span><span class="kw">const </span>ENV_MAX_CLIENT_CONNECTIONS: <span class="kw-2">&amp;</span>str = <span class="string">&quot;FM_MAX_CLIENT_CONNECTIONS&quot;</span>;
-
-<span class="doccomment">/// How many times a config download token can be used by a client
-</span><span class="kw">const </span>DEFAULT_CONFIG_DOWNLOAD_LIMIT: u64 = <span class="number">100</span>;
 
 <span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
 </span><span class="doccomment">/// All the serializable configuration for the fedimint server
@@ -1019,6 +1000,7 @@
     <span class="doccomment">/// All configuration that needs to be the same for modules
     </span><span class="kw">pub </span>modules: BTreeMap&lt;ModuleInstanceId, ServerModuleConsensusConfig&gt;,
     <span class="attr">#[encodable_ignore]
+    </span><span class="comment">// FIXME: Make modules encodable or we will not check module keys
     </span><span class="doccomment">/// Human readable representation of [`Self::modules`]
     </span><span class="kw">pub </span>modules_json: BTreeMap&lt;ModuleInstanceId, JsonWithKind&gt;,
     <span class="doccomment">/// Additional config the federation wants to transmit to the clients
@@ -1062,18 +1044,7 @@
         <span class="self">self</span>.modules.iter().map(|(k, v)| (<span class="kw-2">*</span>k, <span class="kw-2">&amp;</span>v.kind))
     }
 
-    <span class="kw">pub fn </span>try_to_config_response(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="comment">// TODO: remove
-        </span>module_config_gens: <span class="kw-2">&amp;</span>ServerModuleGenRegistry,
-    ) -&gt; anyhow::Result&lt;ClientConfigResponse&gt; {
-        <span class="prelude-val">Ok</span>(ClientConfigResponse {
-            client_config: <span class="self">self</span>.to_client_config(module_config_gens)<span class="question-mark">?</span>,
-            signature: <span class="prelude-val">None</span>,
-        })
-    }
-
-    <span class="kw">fn </span>to_client_config(
+    <span class="kw">pub fn </span>to_client_config(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         module_config_gens: <span class="kw-2">&amp;</span>ModuleGenRegistry&lt;DynServerModuleGen&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ClientConfig, anyhow::Error&gt; {
@@ -1094,14 +1065,6 @@
             meta: <span class="self">self</span>.meta.clone(),
         };
         <span class="prelude-val">Ok</span>(client)
-    }
-
-    <span class="kw">pub fn </span>to_config_response(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        module_config_gens: <span class="kw-2">&amp;</span>ServerModuleGenRegistry,
-    ) -&gt; ClientConfigResponse {
-        <span class="self">self</span>.try_to_config_response(module_config_gens)
-            .expect(<span class="string">&quot;configuration mismatch&quot;</span>)
     }
 }
 
@@ -1367,7 +1330,6 @@
         )
         .<span class="kw">await</span>;
         <span class="kw">let </span>connections = PeerConnectionMultiplexer::new(server_conn).into_dyn();
-        <span class="kw">let </span><span class="kw-2">mut </span>rng = OsRng;
 
         <span class="kw">let </span>peers = <span class="kw-2">&amp;</span>params.peer_ids();
         <span class="kw">let </span>our_id = <span class="kw-2">&amp;</span>params.local.our_id;
@@ -1388,25 +1350,28 @@
         dkg.add(KeyType::Epoch, peers.threshold());
 
         <span class="comment">// run DKG for epoch and hbbft keys
-        </span><span class="kw">let </span>keys = dkg
-            .run_g1(MODULE_INSTANCE_ID_GLOBAL, <span class="kw-2">&amp;</span>connections, <span class="kw-2">&amp;mut </span>rng)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
+        </span><span class="kw">let </span>keys = dkg.run_g1(MODULE_INSTANCE_ID_GLOBAL, <span class="kw-2">&amp;</span>connections).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>auth_keys = keys[<span class="kw-2">&amp;</span>KeyType::Auth].threshold_crypto();
         <span class="kw">let </span>hbbft_keys = keys[<span class="kw-2">&amp;</span>KeyType::Hbbft].threshold_crypto();
         <span class="kw">let </span>epoch_keys = keys[<span class="kw-2">&amp;</span>KeyType::Epoch].threshold_crypto();
 
         <span class="kw">let </span><span class="kw-2">mut </span>module_cfgs: BTreeMap&lt;ModuleInstanceId, ServerModuleConfig&gt; = Default::default();
         <span class="kw">let </span>modules = params.consensus.requested.modules.iter_modules();
-        <span class="kw">for </span>(module_instance_id, kind, module_params) <span class="kw">in </span>modules {
+        <span class="kw">let </span>modules_runner = modules.map(|(module_instance_id, kind, module_params)| {
             <span class="kw">let </span>dkg = PeerHandle::new(<span class="kw-2">&amp;</span>connections, module_instance_id, <span class="kw-2">*</span>our_id, peers.clone());
-            module_cfgs.insert(
-                module_instance_id,
-                registry
+            <span class="kw">let </span>registry = registry.clone();
+
+            <span class="kw">async move </span>{
+                <span class="kw">let </span>result = registry
                     .get(kind)
                     .expect(<span class="string">&quot;Module not registered&quot;</span>)
                     .distributed_gen(<span class="kw-2">&amp;</span>dkg, module_params)
-                    .<span class="kw">await</span><span class="question-mark">?</span>,
-            );
+                    .<span class="kw">await</span>;
+                (module_instance_id, result)
+            }
+        });
+        <span class="kw">for </span>(module_instance_id, config) <span class="kw">in </span>join_all(modules_runner).<span class="kw">await </span>{
+            module_cfgs.insert(module_instance_id, config<span class="question-mark">?</span>);
         }
 
         <span class="macro">info!</span>(
@@ -1416,8 +1381,13 @@
         <span class="comment">// Note: Since our outgoing buffers are asynchronous, we don&#39;t actually know
         // if other peers received our message, just because we received theirs.
         // That&#39;s why we need to do a one last best effort sync.
-        </span>connections
-            .send(peers, MODULE_INSTANCE_ID_DKG_DONE, DkgPeerMsg::Done)
+        </span><span class="kw">let </span>dkg_done = <span class="string">&quot;DKG DONE&quot;</span>.to_string();
+        connections
+            .send(
+                peers,
+                (MODULE_INSTANCE_ID_GLOBAL, dkg_done.clone()),
+                DkgPeerMsg::Done,
+            )
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="macro">info!</span>(
@@ -1428,7 +1398,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>done_peers = BTreeSet::from([<span class="kw-2">*</span>our_id]);
 
             <span class="kw">while </span>done_peers.len() &lt; peers.len() {
-                <span class="kw">match </span>connections.receive(MODULE_INSTANCE_ID_DKG_DONE).<span class="kw">await </span>{
+                <span class="kw">match </span>connections.receive((MODULE_INSTANCE_ID_GLOBAL, dkg_done.clone())).<span class="kw">await </span>{
                     <span class="prelude-val">Ok</span>((peer_id, DkgPeerMsg::Done)) =&gt; {
                         <span class="macro">info!</span>(
                             target: LOG_NET_PEER_DKG,
@@ -1610,7 +1580,7 @@
             our_id,
             peers,
             federation_name,
-            <span class="prelude-val">Some</span>(DEFAULT_CONFIG_DOWNLOAD_LIMIT),
+            <span class="prelude-val">None</span>,
             module_params,
         ))
     }

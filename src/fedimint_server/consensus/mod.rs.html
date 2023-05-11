@@ -686,6 +686,7 @@
 <a href="#686" id="686">686</a>
 <a href="#687" id="687">687</a>
 <a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
 </pre><pre class="rust"><code><span class="attr">#![allow(clippy::let_unit_value)]
 
 </span><span class="kw">pub mod </span>debug;
@@ -1021,11 +1022,13 @@
         outcome: <span class="kw-2">&amp;</span>HbbftConsensusOutcome,
         drop_peers: <span class="kw-2">&amp;mut </span>Vec&lt;PeerId&gt;,
     ) {
-        <span class="kw">let </span>config = <span class="self">self</span>.api.get_config_with_sig(<span class="kw-2">&amp;mut </span>dbtx.get_isolated()).<span class="kw">await</span>;
+        <span class="kw">let </span>sig = dbtx
+            .get_isolated()
+            .get_value(<span class="kw-2">&amp;</span>ClientConfigSignatureKey)
+            .<span class="kw">await</span>;
 
-        <span class="kw">if </span>config.signature.is_none() {
-            <span class="kw">let </span>maybe_client_hash = config.client_config.consensus_hash();
-            <span class="kw">let </span>client_hash = maybe_client_hash;
+        <span class="kw">if </span>sig.is_none() {
+            <span class="kw">let </span>client_hash = <span class="self">self</span>.api.client_cfg.consensus_hash();
             <span class="kw">let </span>peers: Vec&lt;PeerId&gt; = outcome.contributions.keys().cloned().collect();
             <span class="kw">let </span><span class="kw-2">mut </span>contributing_peers = HashSet::new();
             <span class="kw">let </span>pks = <span class="self">self</span>.cfg.consensus.auth_pk_set.clone();
@@ -1215,15 +1218,14 @@
 
         <span class="comment">// Add a signature share for the client config hash if we don&#39;t have it signed
         // yet
-        </span><span class="kw">let </span>client = <span class="self">self</span>.api.get_config_with_sig(<span class="kw-2">&amp;mut </span>dbtx.get_isolated()).<span class="kw">await</span>;
-        <span class="kw">if </span>client.signature.is_none() {
-            <span class="kw">let </span>sig = <span class="self">self
-                </span>.cfg
-                .private
-                .auth_sks
-                .<span class="number">0
-                </span>.sign(client.client_config.consensus_hash());
-            <span class="kw">let </span>item = ConsensusItem::ClientConfigSignatureShare(SerdeSignatureShare(sig));
+        </span><span class="kw">let </span>sig = dbtx
+            .get_isolated()
+            .get_value(<span class="kw-2">&amp;</span>ClientConfigSignatureKey)
+            .<span class="kw">await</span>;
+        <span class="kw">if </span>sig.is_none() {
+            <span class="kw">let </span>hash = <span class="self">self</span>.api.client_cfg.consensus_hash();
+            <span class="kw">let </span>share = <span class="self">self</span>.cfg.private.auth_sks.<span class="number">0</span>.sign(hash);
+            <span class="kw">let </span>item = ConsensusItem::ClientConfigSignatureShare(SerdeSignatureShare(share));
             items.push(item);
         }
 
