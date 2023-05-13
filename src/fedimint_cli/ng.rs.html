@@ -258,19 +258,20 @@
 <a href="#258" id="258">258</a>
 <a href="#259" id="259">259</a>
 <a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::ffi;
 <span class="kw">use </span>std::str::FromStr;
 <span class="kw">use </span>std::time::Duration;
 
 <span class="kw">use </span>bitcoin::secp256k1;
-<span class="kw">use </span>bitcoin_hashes::hex::ToHex;
 <span class="kw">use </span>clap::Subcommand;
+<span class="kw">use </span>fedimint_client::sm::OperationId;
 <span class="kw">use </span>fedimint_client::Client;
 <span class="kw">use </span>fedimint_core::config::ClientConfig;
-<span class="kw">use </span>fedimint_core::core::{ModuleInstanceId, ModuleKind, LEGACY_HARDCODED_INSTANCE_ID_MINT};
+<span class="kw">use </span>fedimint_core::core::{ModuleInstanceId, ModuleKind};
 <span class="kw">use </span>fedimint_core::encoding::Decodable;
 <span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
-<span class="kw">use </span>fedimint_core::{Amount, ParseAmountError, TieredMulti, TieredSummary};
+<span class="kw">use </span>fedimint_core::{Amount, OutPoint, ParseAmountError, TieredMulti, TieredSummary};
 <span class="kw">use </span>fedimint_ln_client::{LightningClientExt, LnPayState, LnReceiveState};
 <span class="kw">use </span>fedimint_mint_client::{MintClientExt, MintClientModule, SpendableNote};
 <span class="kw">use </span>futures::StreamExt;
@@ -405,7 +406,7 @@
         ClientNg::LnPay { bolt11 } =&gt; {
             client.select_active_gateway().<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let </span>operation_id = client
+            <span class="kw">let </span>(operation_id, txid) = client
                 .pay_bolt11_invoice(config.federation_id, bolt11)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -414,8 +415,11 @@
             <span class="kw">while let </span><span class="prelude-val">Some</span>(update) = updates.next().<span class="kw">await </span>{
                 <span class="kw">match </span>update {
                     LnPayState::Success { preimage } =&gt; {
+                        client
+                            .await_mint_change(operation_id, OutPoint { txid, out_idx: <span class="number">1 </span>})
+                            .<span class="kw">await</span><span class="question-mark">?</span>;
                         <span class="kw">return </span><span class="prelude-val">Ok</span>(serde_json::to_value(PayInvoiceResponse {
-                            operation_id: operation_id.to_hex(),
+                            operation_id,
                             preimage,
                         })
                         .unwrap());
@@ -476,9 +480,7 @@
 }
 
 <span class="kw">async fn </span>get_note_summary(client: <span class="kw-2">&amp;</span>Client) -&gt; anyhow::Result&lt;serde_json::Value&gt; {
-    <span class="kw">let </span>mint_client = client
-        .get_module_client::&lt;MintClientModule&gt;(LEGACY_HARDCODED_INSTANCE_ID_MINT)
-        .unwrap();
+    <span class="kw">let </span>(mint_client, <span class="kw">_</span>) = client.get_first_module::&lt;MintClientModule&gt;(<span class="kw-2">&amp;</span>fedimint_mint_client::KIND);
     <span class="kw">let </span>summary = mint_client
         .get_wallet_summary(<span class="kw-2">&amp;mut </span>client.db().begin_transaction().<span class="kw">await</span>.with_module_prefix(<span class="number">1</span>))
         .<span class="kw">await</span>;
@@ -515,7 +517,7 @@
 
 <span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
 </span><span class="kw">struct </span>PayInvoiceResponse {
-    operation_id: String,
+    operation_id: OperationId,
     preimage: String,
 }
 </code></pre></div>

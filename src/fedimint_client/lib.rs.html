@@ -1210,6 +1210,32 @@
 <a href="#1210" id="1210">1210</a>
 <a href="#1211" id="1211">1211</a>
 <a href="#1212" id="1212">1212</a>
+<a href="#1213" id="1213">1213</a>
+<a href="#1214" id="1214">1214</a>
+<a href="#1215" id="1215">1215</a>
+<a href="#1216" id="1216">1216</a>
+<a href="#1217" id="1217">1217</a>
+<a href="#1218" id="1218">1218</a>
+<a href="#1219" id="1219">1219</a>
+<a href="#1220" id="1220">1220</a>
+<a href="#1221" id="1221">1221</a>
+<a href="#1222" id="1222">1222</a>
+<a href="#1223" id="1223">1223</a>
+<a href="#1224" id="1224">1224</a>
+<a href="#1225" id="1225">1225</a>
+<a href="#1226" id="1226">1226</a>
+<a href="#1227" id="1227">1227</a>
+<a href="#1228" id="1228">1228</a>
+<a href="#1229" id="1229">1229</a>
+<a href="#1230" id="1230">1230</a>
+<a href="#1231" id="1231">1231</a>
+<a href="#1232" id="1232">1232</a>
+<a href="#1233" id="1233">1233</a>
+<a href="#1234" id="1234">1234</a>
+<a href="#1235" id="1235">1235</a>
+<a href="#1236" id="1236">1236</a>
+<a href="#1237" id="1237">1237</a>
+<a href="#1238" id="1238">1238</a>
 </pre><pre class="rust"><code><span class="doccomment">//! # Client library for fedimintd
 //!
 //! This library provides a client interface to build module clients that can be
@@ -1299,11 +1325,12 @@
     apply, async_trait_maybe_send, dyn_newtype_define, maybe_add_send_sync, Amount, TransactionId,
 };
 <span class="kw">pub use </span>fedimint_derive_secret <span class="kw">as </span>derivable_secret;
-<span class="kw">use </span>fedimint_derive_secret::{ChildId, DerivableSecret};
+<span class="kw">use </span>fedimint_derive_secret::DerivableSecret;
 <span class="kw">use </span>futures::StreamExt;
 <span class="kw">use </span>rand::distributions::{Distribution, Standard};
 <span class="kw">use </span>rand::{thread_rng, Rng};
 <span class="kw">use </span>secp256k1_zkp::Secp256k1;
+<span class="kw">use </span>secret::DeriveableSecretClientExt;
 <span class="kw">use </span>serde::de::DeserializeOwned;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
@@ -1326,7 +1353,7 @@
 };
 <span class="kw">use </span><span class="kw">crate</span>::transaction::{
     tx_submission_sm_decoder, ClientInput, ClientOutput, TransactionBuilder,
-    TransactionBuilderBalance, TxSubmissionContext, TxSubmissionStates,
+    TransactionBuilderBalance, TxSubmissionContext, TxSubmissionError, TxSubmissionStates,
     TRANSACTION_SUBMISSION_MODULE_INSTANCE,
 };
 
@@ -1338,6 +1365,9 @@
 </span><span class="kw">pub mod </span>sm;
 <span class="doccomment">/// Structs and interfaces to construct Fedimint transactions
 </span><span class="kw">pub mod </span>transaction;
+
+<span class="doccomment">/// Secret handling &amp; derivation
+</span><span class="kw">pub mod </span>secret;
 
 <span class="kw">pub type </span>InstancelessDynClientInput = ClientInput&lt;
     Box&lt;<span class="macro">maybe_add_send_sync!</span>(<span class="kw">dyn </span>IInput + <span class="lifetime">&#39;static</span>)&gt;,
@@ -1351,10 +1381,15 @@
 
 <span class="attr">#[apply(<span class="macro">async_trait_maybe_send!</span>)]
 </span><span class="kw">pub trait </span>IGlobalClientContext: Debug + MaybeSend + MaybeSync + <span class="lifetime">&#39;static </span>{
+    <span class="doccomment">/// Returned a reference client&#39;s module API client, so that module-specific
+    /// calls can be made
+    </span><span class="kw">fn </span>module_api(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DynFederationApi;
+
     <span class="doccomment">/// Returns a reference to the client&#39;s federation API client. The provided
     /// interface [`IFederationApi`] typically does not provide the necessary
     /// functionality, for this extension traits like
     /// [`fedimint_core::api::GlobalFederationApi`] have to be used.
+    </span><span class="comment">// TODO: Could be removed in favor of client() except for testing
     </span><span class="kw">fn </span>api(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>IFederationApi + <span class="lifetime">&#39;static</span>);
 
     <span class="doccomment">/// This function is mostly meant for internal use, you are probably looking
@@ -1394,7 +1429,8 @@
 }
 
 <span class="kw">impl </span>DynGlobalClientContext {
-    <span class="kw">pub async fn </span>await_tx_rejected(<span class="kw-2">&amp;</span><span class="self">self</span>, operation_id: OperationId, txid: TransactionId) {
+    <span class="comment">// TODO: Remove in favor of `await_tx_accepted`
+    </span><span class="kw">pub async fn </span>await_tx_rejected(<span class="kw-2">&amp;</span><span class="self">self</span>, operation_id: OperationId, txid: TransactionId) {
         <span class="kw">let </span>update_stream = <span class="self">self</span>.transaction_update_stream(operation_id).<span class="kw">await</span>;
 
         <span class="kw">let </span>query_txid = txid;
@@ -1413,22 +1449,16 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         operation_id: OperationId,
         txid: TransactionId,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), TxSubmissionError&gt; {
         <span class="kw">let </span>update_stream = <span class="self">self</span>.transaction_update_stream(operation_id).<span class="kw">await</span>;
 
         <span class="kw">let </span>query_txid = txid;
         update_stream
             .filter_map(|tx_update| {
                 std::future::ready(<span class="kw">match </span>tx_update.state {
-                    TxSubmissionStates::Accepted { txid: event_txid }
-                        <span class="kw">if </span>event_txid == query_txid =&gt;
-                    {
-                        <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(()))
-                    }
-                    TxSubmissionStates::Rejected { txid: event_txid }
-                        <span class="kw">if </span>event_txid == query_txid =&gt;
-                    {
-                        <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(()))
+                    TxSubmissionStates::Accepted { txid } <span class="kw">if </span>txid == query_txid =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(())),
+                    TxSubmissionStates::Rejected { txid, error } <span class="kw">if </span>txid == query_txid =&gt; {
+                        <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(error))
                     }
                     <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
                 })
@@ -1559,6 +1589,10 @@
 
 <span class="attr">#[apply(<span class="macro">async_trait_maybe_send!</span>)]
 </span><span class="kw">impl </span>IGlobalClientContext <span class="kw">for </span>ModuleGlobalClientContext {
+    <span class="kw">fn </span>module_api(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DynFederationApi {
+        <span class="self">self</span>.api().with_module(<span class="self">self</span>.module_instance_id)
+    }
+
     <span class="kw">fn </span>api(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>IFederationApi + <span class="lifetime">&#39;static</span>) {
         <span class="self">self</span>.client.api.as_ref()
     }
@@ -1812,20 +1846,27 @@
             .<span class="kw">await
     </span>}
 
-    <span class="doccomment">/// Returns a reference to a typed module client instance. Returns an error
-    /// if the instance isn&#39;t registered or the module kind doesn&#39;t match.
-    </span><span class="kw">pub fn </span>get_module_client&lt;M: ClientModule&gt;(
+    <span class="doccomment">/// Returns a reference to a typed module client instance by kind
+    </span><span class="kw">pub fn </span>get_first_module&lt;M: ClientModule&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        instance_id: ModuleInstanceId,
-    ) -&gt; anyhow::Result&lt;<span class="kw-2">&amp;</span>M&gt; {
-        <span class="kw">let </span>module = <span class="self">self
+        module_kind: <span class="kw-2">&amp;</span>ModuleKind,
+    ) -&gt; (<span class="kw-2">&amp;</span>M, ClientModuleInstance) {
+        <span class="kw">let </span>id = <span class="self">self
+            </span>.get_first_instance(module_kind)
+            .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">&quot;No modules found of kind {module_kind}&quot;</span>));
+        <span class="kw">let </span>module: <span class="kw-2">&amp;</span>M = <span class="self">self
             </span>.inner
-            .try_get_module(instance_id)
-            .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;Unknown module instance {}&quot;</span>, instance_id))<span class="question-mark">?</span>;
-        module
+            .try_get_module(id)
+            .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">&quot;Unknown module instance {id}&quot;</span>))
             .as_any()
             .downcast_ref::&lt;M&gt;()
-            .ok_or_else(|| <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Module is not of type {}&quot;</span>, std::any::type_name::&lt;M&gt;()))
+            .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">&quot;Module is not of type {}&quot;</span>, std::any::type_name::&lt;M&gt;()));
+        <span class="kw">let </span>instance = ClientModuleInstance {
+            id,
+            db: <span class="self">self</span>.db().new_isolated(id),
+            api: <span class="self">self</span>.api().with_module(id),
+        };
+        (module, instance)
     }
 
     <span class="kw">pub fn </span>get_module_client_dyn(
@@ -1863,6 +1904,16 @@
             .find(|(<span class="kw">_</span>, kind, _module)| <span class="kw-2">*</span>kind == module_kind)
             .map(|(instance_id, <span class="kw">_</span>, <span class="kw">_</span>)| instance_id)
     }
+}
+
+<span class="doccomment">/// Resources particular to a module instance
+</span><span class="kw">pub struct </span>ClientModuleInstance {
+    <span class="doccomment">/// Instance id of the module
+    </span><span class="kw">pub </span>id: ModuleInstanceId,
+    <span class="doccomment">/// Module-specific DB
+    </span><span class="kw">pub </span>db: Database,
+    <span class="doccomment">/// Module-specific API
+    </span><span class="kw">pub </span>api: DynFederationApi,
 }
 
 <span class="kw">struct </span>ClientInner {
@@ -2069,15 +2120,16 @@
 <span class="kw">impl </span>TransactionUpdates {
     <span class="doccomment">/// Waits for the transaction to be accepted or rejected as part of the
     /// operation to which the `TransactionUpdates` object is subscribed.
-    </span><span class="kw">pub async fn </span>await_tx_accepted(<span class="self">self</span>, txid: TransactionId) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
+    </span><span class="kw">pub async fn </span>await_tx_accepted(
+        <span class="self">self</span>,
+        await_txid: TransactionId,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), TxSubmissionError&gt; {
         <span class="self">self</span>.update_stream
             .filter_map(|tx_update| {
                 std::future::ready(<span class="kw">match </span>tx_update.state {
-                    TxSubmissionStates::Accepted { txid: event_txid } <span class="kw">if </span>event_txid == txid =&gt; {
-                        <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(()))
-                    }
-                    TxSubmissionStates::Rejected { txid: event_txid } <span class="kw">if </span>event_txid == txid =&gt; {
-                        <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(()))
+                    TxSubmissionStates::Accepted { txid } <span class="kw">if </span>txid == await_txid =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(())),
+                    TxSubmissionStates::Rejected { txid, error } <span class="kw">if </span>txid == await_txid =&gt; {
+                        <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(error))
                     }
                     <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
                 })
@@ -2202,7 +2254,7 @@
                             module_config,
                             db.clone(),
                             module_instance,
-                            root_secret.child_key(ChildId(module_instance <span class="kw">as </span>u64)),
+                            root_secret.derive_module_secret(module_instance),
                             notifier.clone(),
                         )
                         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -2221,7 +2273,7 @@
                             // keys were derived using *module kind*-specific derivation paths.
                             // Since the new client has to support multiple, segregated modules of
                             // the same kind we have to use the instance id instead.
-                            </span>root_secret.child_key(ChildId(module_instance <span class="kw">as </span>u64)),
+                            </span>root_secret.derive_module_secret(module_instance),
                             notifier.clone(),
                         )
                         .<span class="kw">await</span><span class="question-mark">?</span>;

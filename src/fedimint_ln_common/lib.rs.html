@@ -314,7 +314,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::contracts::incoming::OfferId;
 <span class="kw">use </span><span class="kw">crate</span>::contracts::{Contract, ContractId, ContractOutcome, Preimage, PreimageDecryptionShare};
 
-<span class="kw">const </span>KIND: ModuleKind = ModuleKind::from_static_str(<span class="string">&quot;ln&quot;</span>);
+<span class="kw">pub const </span>KIND: ModuleKind = ModuleKind::from_static_str(<span class="string">&quot;ln&quot;</span>);
 <span class="kw">const </span>CONSENSUS_VERSION: ModuleConsensusVersion = ModuleConsensusVersion(<span class="number">0</span>);
 
 <span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]

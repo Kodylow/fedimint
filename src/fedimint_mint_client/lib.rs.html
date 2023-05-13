@@ -1179,6 +1179,40 @@
 <a href="#1179" id="1179">1179</a>
 <a href="#1180" id="1180">1180</a>
 <a href="#1181" id="1181">1181</a>
+<a href="#1182" id="1182">1182</a>
+<a href="#1183" id="1183">1183</a>
+<a href="#1184" id="1184">1184</a>
+<a href="#1185" id="1185">1185</a>
+<a href="#1186" id="1186">1186</a>
+<a href="#1187" id="1187">1187</a>
+<a href="#1188" id="1188">1188</a>
+<a href="#1189" id="1189">1189</a>
+<a href="#1190" id="1190">1190</a>
+<a href="#1191" id="1191">1191</a>
+<a href="#1192" id="1192">1192</a>
+<a href="#1193" id="1193">1193</a>
+<a href="#1194" id="1194">1194</a>
+<a href="#1195" id="1195">1195</a>
+<a href="#1196" id="1196">1196</a>
+<a href="#1197" id="1197">1197</a>
+<a href="#1198" id="1198">1198</a>
+<a href="#1199" id="1199">1199</a>
+<a href="#1200" id="1200">1200</a>
+<a href="#1201" id="1201">1201</a>
+<a href="#1202" id="1202">1202</a>
+<a href="#1203" id="1203">1203</a>
+<a href="#1204" id="1204">1204</a>
+<a href="#1205" id="1205">1205</a>
+<a href="#1206" id="1206">1206</a>
+<a href="#1207" id="1207">1207</a>
+<a href="#1208" id="1208">1208</a>
+<a href="#1209" id="1209">1209</a>
+<a href="#1210" id="1210">1210</a>
+<a href="#1211" id="1211">1211</a>
+<a href="#1212" id="1212">1212</a>
+<a href="#1213" id="1213">1213</a>
+<a href="#1214" id="1214">1214</a>
+<a href="#1215" id="1215">1215</a>
 </pre><pre class="rust"><code><span class="doccomment">/// Database keys used throughout the mint client module
 </span><span class="kw">mod </span>db;
 <span class="doccomment">/// State machines for mint inputs
@@ -1205,6 +1239,7 @@
 <span class="kw">use </span>fedimint_client::sm::{Context, DynState, ModuleNotifier, OperationId, State, StateTransition};
 <span class="kw">use </span>fedimint_client::transaction::{ClientInput, ClientOutput, TransactionBuilder};
 <span class="kw">use </span>fedimint_client::{sm_enum_variant_translation, Client, DynGlobalClientContext};
+<span class="kw">use </span>fedimint_core::api::GlobalFederationApi;
 <span class="kw">use </span>fedimint_core::core::{Decoder, IntoDynInstance, ModuleInstanceId};
 <span class="kw">use </span>fedimint_core::db::{AutocommitError, Database, ModuleDatabaseTransaction};
 <span class="kw">use </span>fedimint_core::encoding::{Decodable, Encodable};
@@ -1212,6 +1247,7 @@
 <span class="kw">use </span>fedimint_core::module::{
     CommonModuleGen, ExtendsCommonModuleGen, ModuleCommon, TransactionItemAmount,
 };
+<span class="kw">use </span>fedimint_core::outcome::TransactionStatus;
 <span class="kw">use </span>fedimint_core::util::{BoxStream, NextOrPending};
 <span class="kw">use </span>fedimint_core::{
     apply, async_trait_maybe_send, Amount, OutPoint, Tiered, TieredMulti, TieredSummary,
@@ -1296,11 +1332,23 @@
         operation_id: OperationId,
         refund_txid: TransactionId,
     ) -&gt; anyhow::Result&lt;()&gt;;
+
+    <span class="comment">// TODO: This function needs to be generalized to await any primary module
+    // change
+    </span><span class="kw">async fn </span>await_mint_change(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        operation_id: OperationId,
+        out_point: OutPoint,
+    ) -&gt; anyhow::Result&lt;()&gt;;
+
+    <span class="doccomment">/// Returns the total value of our notes
+    </span><span class="comment">// TODO: Make getting total asserts part of the core client
+    </span><span class="kw">async fn </span>total_amount(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Amount;
 }
 
 <span class="doccomment">/// The high-level state of a reissue operation started with
 /// [`MintClientExt::reissue_external_notes`].
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq)]
 </span><span class="kw">pub enum </span>ReissueExternalNotesState {
     <span class="doccomment">/// The operation has been created and is waiting to be accepted by the
     /// federation.
@@ -1316,6 +1364,7 @@
 
 <span class="doccomment">/// The high-level state of a raw e-cash spend operation started with
 /// [`MintClientExt::spend_notes`].
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq)]
 </span><span class="kw">pub enum </span>SpendOOBState {
     <span class="doccomment">/// The e-cash has been selected and given to the caller
     </span>Created,
@@ -1345,19 +1394,17 @@
         notes: TieredMulti&lt;SpendableNote&gt;,
         extra_meta: M,
     ) -&gt; anyhow::Result&lt;OperationId&gt; {
-        <span class="kw">let </span>(mint_client_instance, mint_client) = mint_client(<span class="self">self</span>);
+        <span class="kw">let </span>(mint, instance) = <span class="self">self</span>.get_first_module::&lt;MintClientModule&gt;(<span class="kw-2">&amp;</span>KIND);
 
-        <span class="kw">let </span>operation_id: OperationId = notes.consensus_hash().into_inner();
+        <span class="kw">let </span>operation_id = OperationId(notes.consensus_hash().into_inner());
         <span class="kw">if </span><span class="self">self</span>.get_operation(operation_id).<span class="kw">await</span>.is_some() {
             <span class="macro">bail!</span>(<span class="string">&quot;We already reissued these notes&quot;</span>);
         }
 
         <span class="kw">let </span>amount = notes.total_amount();
-        <span class="kw">let </span>mint_input = mint_client
-            .create_input_from_notes(operation_id, notes)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>mint_input = mint.create_input_from_notes(operation_id, notes).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span>tx = TransactionBuilder::new().with_input(mint_input.into_dyn(mint_client_instance));
+        <span class="kw">let </span>tx = TransactionBuilder::new().with_input(mint_input.into_dyn(instance.id));
 
         <span class="kw">let </span>extra_meta = serde_json::to_value(extra_meta)
             .expect(<span class="string">&quot;MintClientExt::reissue_external_notes extra_meta is serializable&quot;</span>);
@@ -1386,29 +1433,49 @@
         operation_id: OperationId,
         txid: TransactionId,
     ) -&gt; anyhow::Result&lt;()&gt; {
-        <span class="kw">let </span>(<span class="kw">_</span>, mint_client) = mint_client(<span class="self">self</span>);
+        <span class="kw">let </span>(mint, _instance) = <span class="self">self</span>.get_first_module::&lt;MintClientModule&gt;(<span class="kw-2">&amp;</span>KIND);
         <span class="kw">let </span>out_point = OutPoint { txid, out_idx: <span class="number">0 </span>};
-        mint_client
-            .await_output_finalized(operation_id, out_point)
-            .<span class="kw">await
+        mint.await_output_finalized(operation_id, out_point).<span class="kw">await
     </span>}
+
+    <span class="kw">async fn </span>await_mint_change(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        operation_id: OperationId,
+        out_point: OutPoint,
+    ) -&gt; anyhow::Result&lt;()&gt; {
+        <span class="kw">let </span>tx_outcome = <span class="self">self</span>.api().await_tx_outcome(<span class="kw-2">&amp;</span>out_point.txid).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">if let </span>TransactionStatus::Accepted {
+            epoch: _epoch,
+            outputs,
+        } = tx_outcome
+        {
+            <span class="kw">if </span>out_point.out_idx &lt; outputs.len() <span class="kw">as </span>u64 {
+                <span class="kw">let </span>(mint, _instance) = <span class="self">self</span>.get_first_module::&lt;MintClientModule&gt;(<span class="kw-2">&amp;</span>KIND);
+                <span class="kw">return </span>mint.await_output_finalized(operation_id, out_point).<span class="kw">await</span>;
+            } <span class="kw">else </span>{
+                <span class="comment">// No change on this transaction
+                </span><span class="kw">return </span><span class="prelude-val">Ok</span>(());
+            }
+        }
+
+        <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Transaction was not accepted&quot;</span>))
+    }
 
     <span class="kw">async fn </span>subscribe_reissue_external_notes_updates(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         operation_id: OperationId,
     ) -&gt; anyhow::Result&lt;BoxStream&lt;ReissueExternalNotesState&gt;&gt; {
+        <span class="kw">let </span>(mint, _instance) = <span class="self">self</span>.get_first_module::&lt;MintClientModule&gt;(<span class="kw-2">&amp;</span>KIND);
         <span class="kw">let </span>out_point = <span class="kw">match </span>mint_operation(<span class="self">self</span>, operation_id).<span class="kw">await</span><span class="question-mark">?</span>.variant {
             MintMetaVariants::Reissuance { out_point } =&gt; out_point,
             <span class="kw">_ </span>=&gt; <span class="macro">bail!</span>(<span class="string">&quot;Operation is not a reissuance&quot;</span>),
         };
 
-        <span class="kw">let </span>(<span class="kw">_</span>, mint_client) = mint_client(<span class="self">self</span>);
-
         <span class="kw">let </span>tx_accepted_future = <span class="self">self
             </span>.transaction_updates(operation_id)
             .<span class="kw">await
             </span>.await_tx_accepted(out_point.txid);
-        <span class="kw">let </span>output_finalized_future = mint_client.await_output_finalized(operation_id, out_point);
+        <span class="kw">let </span>output_finalized_future = mint.await_output_finalized(operation_id, out_point);
 
         <span class="prelude-val">Ok</span>(Box::pin(<span class="macro">stream! </span>{
             <span class="kw">yield </span>ReissueExternalNotesState::Created;
@@ -1417,8 +1484,8 @@
                 <span class="prelude-val">Ok</span>(()) =&gt; {
                     <span class="kw">yield </span>ReissueExternalNotesState::Issuing;
                 },
-                <span class="prelude-val">Err</span>(()) =&gt; {
-                    <span class="kw">yield </span>ReissueExternalNotesState::Failed(<span class="string">&quot;Transaction not accepted&quot;</span>.to_string());
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    <span class="kw">yield </span>ReissueExternalNotesState::Failed(<span class="macro">format!</span>(<span class="string">&quot;Transaction not accepted {e:?}&quot;</span>));
                 }
             }
 
@@ -1439,7 +1506,7 @@
         try_cancel_after: Duration,
         extra_meta: M,
     ) -&gt; anyhow::Result&lt;(OperationId, TieredMulti&lt;SpendableNote&gt;)&gt; {
-        <span class="kw">let </span>(mint_client_instance, mint_client) = mint_client(<span class="self">self</span>);
+        <span class="kw">let </span>(mint, instance) = <span class="self">self</span>.get_first_module::&lt;MintClientModule&gt;(<span class="kw-2">&amp;</span>KIND);
         <span class="kw">let </span>extra_meta = serde_json::to_value(extra_meta)
             .expect(<span class="string">&quot;MintClientExt::spend_notes extra_meta is serializable&quot;</span>);
 
@@ -1448,9 +1515,9 @@
                 <span class="kw">move </span>|dbtx| {
                     <span class="kw">let </span>extra_meta = extra_meta.clone();
                     Box::pin(<span class="kw">async move </span>{
-                        <span class="kw">let </span>(operation_id, states, notes) = mint_client
+                        <span class="kw">let </span>(operation_id, states, notes) = mint
                             .spend_notes_oob(
-                                <span class="kw-2">&amp;mut </span>dbtx.with_module_prefix(mint_client_instance),
+                                <span class="kw-2">&amp;mut </span>dbtx.with_module_prefix(instance.id),
                                 min_amount,
                                 try_cancel_after,
                             )
@@ -1458,7 +1525,7 @@
 
                         <span class="kw">let </span>dyn_states = states
                             .into_iter()
-                            .map(|s| s.into_dyn(mint_client_instance))
+                            .map(|s| s.into_dyn(instance.id))
                             .collect();
 
                         <span class="self">self</span>.add_state_machines(dbtx, dyn_states).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1491,16 +1558,17 @@
     }
 
     <span class="kw">async fn </span>try_cancel_spend_notes(<span class="kw-2">&amp;</span><span class="self">self</span>, operation_id: OperationId) {
-        <span class="kw">let </span>(<span class="kw">_</span>, mint_client) = mint_client(<span class="self">self</span>);
+        <span class="kw">let </span>(mint, _instance) = <span class="self">self</span>.get_first_module::&lt;MintClientModule&gt;(<span class="kw-2">&amp;</span>KIND);
 
         <span class="comment">// TODO: make robust by writing to the DB, this can fail
-        </span><span class="kw">let _ </span>= mint_client.cancel_oob_payment_bc.send(operation_id);
+        </span><span class="kw">let _ </span>= mint.cancel_oob_payment_bc.send(operation_id);
     }
 
     <span class="kw">async fn </span>subscribe_spend_notes_updates(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         operation_id: OperationId,
     ) -&gt; anyhow::Result&lt;BoxStream&lt;SpendOOBState&gt;&gt; {
+        <span class="kw">let </span>(mint, _instance) = <span class="self">self</span>.get_first_module::&lt;MintClientModule&gt;(<span class="kw-2">&amp;</span>KIND);
         <span class="kw">if </span>!<span class="macro">matches!</span>(
             mint_operation(<span class="self">self</span>, operation_id).<span class="kw">await</span><span class="question-mark">?</span>.variant,
             MintMetaVariants::SpendOOB { .. }
@@ -1509,7 +1577,7 @@
         };
 
         <span class="kw">let </span>tx_subscription = <span class="self">self</span>.transaction_updates(operation_id).<span class="kw">await</span>;
-        <span class="kw">let </span>refund_future = mint_client(<span class="self">self</span>).<span class="number">1</span>.await_spend_oob_refund(operation_id);
+        <span class="kw">let </span>refund_future = mint.await_spend_oob_refund(operation_id);
 
         <span class="comment">// TODO: check if operation exists and is a spend operation
         </span><span class="prelude-val">Ok</span>(Box::pin(<span class="macro">stream! </span>{
@@ -1522,7 +1590,7 @@
                     <span class="prelude-val">Ok</span>(()) =&gt; {
                         <span class="kw">yield </span>SpendOOBState::UserCanceledSuccess;
                     },
-                    <span class="prelude-val">Err</span>(()) =&gt; {
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                         <span class="kw">yield </span>SpendOOBState::UserCanceledFailure;
                     }
                 }
@@ -1531,25 +1599,25 @@
                     <span class="prelude-val">Ok</span>(()) =&gt; {
                         <span class="kw">yield </span>SpendOOBState::Refunded;
                     },
-                    <span class="prelude-val">Err</span>(()) =&gt; {
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                         <span class="kw">yield </span>SpendOOBState::Success;
                     }
                 }
             }
         }))
     }
-}
 
-<span class="kw">fn </span>mint_client(client: <span class="kw-2">&amp;</span>Client) -&gt; (ModuleInstanceId, <span class="kw-2">&amp;</span>MintClientModule) {
-    <span class="kw">let </span>mint_client_instance = client
-        .get_first_instance(<span class="kw-2">&amp;</span>MintCommonGen::KIND)
-        .expect(<span class="string">&quot;No mint module attached to client&quot;</span>);
-
-    <span class="kw">let </span>mint_client = client
-        .get_module_client::&lt;MintClientModule&gt;(mint_client_instance)
-        .expect(<span class="string">&quot;Instance ID exists, we just fetched it&quot;</span>);
-
-    (mint_client_instance, mint_client)
+    <span class="kw">async fn </span>total_amount(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Amount {
+        <span class="kw">let </span>(_mint, instance) = <span class="self">self</span>.get_first_module::&lt;MintClientModule&gt;(<span class="kw-2">&amp;</span>KIND);
+        <span class="kw">let </span><span class="kw-2">mut </span>dbtx = instance.db.begin_transaction().<span class="kw">await</span>;
+        dbtx.find_by_prefix(<span class="kw-2">&amp;</span>NoteKeyPrefix)
+            .<span class="kw">await
+            </span>.fold(
+                Amount::ZERO,
+                |acc, (key, _note)| <span class="kw">async move </span>{ acc + key.amount },
+            )
+            .<span class="kw">await
+    </span>}
 }
 
 <span class="kw">async fn </span>mint_operation(client: <span class="kw-2">&amp;</span>Client, operation_id: OperationId) -&gt; anyhow::Result&lt;MintMeta&gt; {
@@ -1931,7 +1999,7 @@
     )&gt; {
         <span class="kw">let </span>spendable_selected_notes = <span class="self">Self</span>::select_notes(dbtx, min_amount).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span>operation_id = spendable_selected_notes.consensus_hash().into_inner();
+        <span class="kw">let </span>operation_id = OperationId(spendable_selected_notes.consensus_hash().into_inner());
 
         <span class="kw">for </span>(amount, note) <span class="kw">in </span>spendable_selected_notes.iter_items() {
             dbtx.remove_entry(<span class="kw-2">&amp;</span>NoteKey {
@@ -2015,7 +2083,7 @@
         amount: Amount,
         note_idx: NoteIndex,
     ) -&gt; DerivableSecret {
-        <span class="macro">assert_eq!</span>(secret.level(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(secret.level(), <span class="number">2</span>);
         <span class="macro">debug!</span>(<span class="question-mark">?</span>secret, %amount, %note_idx, <span class="string">&quot;Deriving new mint note&quot;</span>);
         secret
             .child_key(MINT_E_CASH_TYPE_CHILD_ID) <span class="comment">// TODO: cache
