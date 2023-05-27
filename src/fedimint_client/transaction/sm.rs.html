@@ -470,6 +470,23 @@
 <a href="#470" id="470">470</a>
 <a href="#471" id="471">471</a>
 <a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
 </pre><pre class="rust"><code><span class="doccomment">//! State machine for submitting transactions
 
 </span><span class="kw">use </span>std::time::{Duration, SystemTime};
@@ -480,7 +497,7 @@
 <span class="kw">use </span>fedimint_core::outcome::TransactionStatus;
 <span class="kw">use </span>fedimint_core::time::now;
 <span class="kw">use </span>fedimint_core::transaction::Transaction;
-<span class="kw">use </span>fedimint_core::TransactionId;
+<span class="kw">use </span>fedimint_core::{task, TransactionId};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>thiserror::Error;
 <span class="kw">use </span>tracing::warn;
@@ -684,7 +701,7 @@
                 }
             }
         }
-        tokio::time::sleep(FETCH_INTERVAL).<span class="kw">await</span>;
+        task::sleep(FETCH_INTERVAL).<span class="kw">await</span>;
     }
 }
 
@@ -702,20 +719,23 @@
     <span class="kw">use </span>std::time::{Duration, SystemTime};
 
     <span class="kw">use </span>async_trait::async_trait;
-    <span class="kw">use </span>fedimint_core::api::{DynFederationApi, IFederationApi, JsonRpcResult};
+    <span class="kw">use </span>fedimint_core::api::{
+        DynGlobalApi, DynModuleApi, IFederationApi, IGlobalFederationApi, JsonRpcResult,
+    };
+    <span class="kw">use </span>fedimint_core::config::ClientConfig;
     <span class="kw">use </span>fedimint_core::core::{IntoDynInstance, ModuleInstanceId, ModuleKind};
     <span class="kw">use </span>fedimint_core::db::mem_impl::MemDatabase;
     <span class="kw">use </span>fedimint_core::db::Database;
     <span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
     <span class="kw">use </span>fedimint_core::module::ApiRequestErased;
-    <span class="kw">use </span>fedimint_core::task::TaskGroup;
+    <span class="kw">use </span>fedimint_core::task::{sleep, TaskGroup};
     <span class="kw">use </span>fedimint_core::transaction::SerdeTransaction;
     <span class="kw">use </span>fedimint_core::util::BoxStream;
-    <span class="kw">use </span>fedimint_core::{maybe_add_send_sync, PeerId, TransactionId};
+    <span class="kw">use </span>fedimint_core::{maybe_add_send_sync, OutPoint, PeerId, TransactionId};
     <span class="kw">use </span>rand::thread_rng;
     <span class="kw">use </span>serde_json::Value;
     <span class="kw">use </span>tokio::sync::Mutex;
-    <span class="kw">use </span>tokio::time::{sleep, timeout};
+    <span class="kw">use </span>tokio::time::timeout;
 
     <span class="kw">use </span><span class="kw">crate</span>::sm::{ClientSMDatabaseTransaction, Executor, Notifier, OperationId, OperationState};
     <span class="kw">use </span><span class="kw">crate</span>::transaction::{
@@ -727,20 +747,22 @@
         InstancelessDynClientOutput,
     };
 
-    <span class="attr">#[derive(Debug)]
+    <span class="attr">#[derive(Debug, Clone)]
     </span><span class="kw">struct </span>FakeApiClient {
-        txns: Mutex&lt;Vec&lt;TransactionId&gt;&gt;,
+        txns: Arc&lt;Mutex&lt;Vec&lt;TransactionId&gt;&gt;&gt;,
         fake_peers: BTreeSet&lt;PeerId&gt;,
     }
 
     <span class="kw">impl </span>Default <span class="kw">for </span>FakeApiClient {
         <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
             FakeApiClient {
-                txns: Mutex::new(<span class="macro">vec!</span>[]),
+                txns: Arc::new(Mutex::new(<span class="macro">vec!</span>[])),
                 fake_peers: <span class="macro">vec!</span>[PeerId::from(<span class="number">0</span>)].into_iter().collect(),
             }
         }
     }
+
+    <span class="kw">impl </span>IGlobalFederationApi <span class="kw">for </span>FakeApiClient {}
 
     <span class="attr">#[async_trait]
     </span><span class="kw">impl </span>IFederationApi <span class="kw">for </span>FakeApiClient {
@@ -748,7 +770,7 @@
             <span class="kw-2">&amp;</span><span class="self">self</span>.fake_peers
         }
 
-        <span class="kw">fn </span>with_module(<span class="kw-2">&amp;</span><span class="self">self</span>, _id: ModuleInstanceId) -&gt; DynFederationApi {
+        <span class="kw">fn </span>with_module(<span class="kw-2">&amp;</span><span class="self">self</span>, _id: ModuleInstanceId) -&gt; DynModuleApi {
             <span class="macro">unimplemented!</span>()
         }
 
@@ -798,6 +820,8 @@
 
     <span class="kw">struct </span>FakeGlobalContext {
         api: FakeApiClient,
+        <span class="doccomment">/// Clone of API wrapped as dyn API (avoids a lot of casting)
+        </span>dyn_api: DynGlobalApi,
         executor: Executor&lt;DynGlobalClientContext&gt;,
     }
 
@@ -838,11 +862,19 @@
 
     <span class="attr">#[async_trait]
     </span><span class="kw">impl </span>IGlobalClientContext <span class="kw">for </span>FakeGlobalContext {
-        <span class="kw">fn </span>api(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>IFederationApi + <span class="lifetime">&#39;static</span>) {
-            <span class="kw-2">&amp;</span><span class="self">self</span>.api
+        <span class="kw">fn </span>api(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DynGlobalApi {
+            <span class="kw-2">&amp;</span><span class="self">self</span>.dyn_api
         }
 
-        <span class="kw">fn </span>module_api(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DynFederationApi {
+        <span class="kw">fn </span>client_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ClientConfig {
+            <span class="macro">unimplemented!</span>()
+        }
+
+        <span class="kw">fn </span>decoders(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ModuleDecoderRegistry {
+            <span class="macro">unimplemented!</span>()
+        }
+
+        <span class="kw">fn </span>module_api(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DynModuleApi {
             <span class="macro">unimplemented!</span>()
         }
 
@@ -850,7 +882,7 @@
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             _dbtx: <span class="kw-2">&amp;mut </span>ClientSMDatabaseTransaction&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt;,
             _input: InstancelessDynClientInput,
-        ) -&gt; TransactionId {
+        ) -&gt; (TransactionId, <span class="prelude-ty">Option</span>&lt;OutPoint&gt;) {
             <span class="macro">unimplemented!</span>()
         }
 
@@ -858,7 +890,7 @@
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             _dbtx: <span class="kw-2">&amp;mut </span>ClientSMDatabaseTransaction&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt;,
             _output: InstancelessDynClientOutput,
-        ) -&gt; anyhow::Result&lt;TransactionId&gt; {
+        ) -&gt; anyhow::Result&lt;(TransactionId, <span class="prelude-ty">Option</span>&lt;OutPoint&gt;)&gt; {
             <span class="macro">unimplemented!</span>()
         }
 
@@ -904,8 +936,10 @@
             .build(db.clone(), Notifier::new(db.clone()))
             .<span class="kw">await</span>;
 
+        <span class="kw">let </span>fake_api = FakeApiClient::default();
         <span class="kw">let </span>context = Arc::new(FakeGlobalContext {
-            api: Default::default(),
+            api: fake_api.clone(),
+            dyn_api: DynGlobalApi::from(fake_api),
             executor: executor.clone(),
         });
         <span class="kw">let </span>dyn_context = DynGlobalClientContext::from(context.clone());

@@ -1434,8 +1434,9 @@
 <a href="#1434" id="1434">1434</a>
 <a href="#1435" id="1435">1435</a>
 <a href="#1436" id="1436">1436</a>
+<a href="#1437" id="1437">1437</a>
+<a href="#1438" id="1438">1438</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap};
-<span class="kw">use </span>std::ffi::OsString;
 <span class="kw">use </span>std::iter::FromIterator;
 <span class="kw">use </span>std::ops::Sub;
 
@@ -1446,7 +1447,6 @@
 };
 <span class="kw">use </span>fedimint_core::db::{Database, DatabaseVersion, ModuleDatabaseTransaction};
 <span class="kw">use </span>fedimint_core::module::audit::Audit;
-<span class="kw">use </span>fedimint_core::module::interconnect::ModuleInterconect;
 <span class="kw">use </span>fedimint_core::module::{
     api_endpoint, ApiEndpoint, ApiError, ConsensusProposal, CoreConsensusVersion,
     ExtendsCommonModuleGen, InputMeta, IntoModuleError, ModuleConsensusVersion, ModuleError,
@@ -1461,8 +1461,8 @@
 };
 <span class="kw">pub use </span>fedimint_mint_common <span class="kw">as </span>common;
 <span class="kw">use </span>fedimint_mint_common::config::{
-    FeeConsensus, MintClientConfig, MintConfig, MintConfigConsensus, MintConfigPrivate,
-    MintGenParams,
+    FeeConsensus, MintClientConfig, MintConfig, MintConfigConsensus, MintConfigLocal,
+    MintConfigPrivate, MintGenParams,
 };
 <span class="kw">use </span>fedimint_mint_common::db::{
     DbKeyPrefix, ECashUserBackupSnapshot, EcashBackupKey, EcashBackupKeyPrefix, MintAuditItemKey,
@@ -1500,6 +1500,7 @@
 
 <span class="attr">#[apply(<span class="macro">async_trait_maybe_send!</span>)]
 </span><span class="kw">impl </span>ServerModuleGen <span class="kw">for </span>MintGen {
+    <span class="kw">type </span>Params = MintGenParams;
     <span class="kw">const </span>DATABASE_VERSION: DatabaseVersion = DatabaseVersion(<span class="number">0</span>);
 
     <span class="kw">fn </span>versions(<span class="kw-2">&amp;</span><span class="self">self</span>, _core: CoreConsensusVersion) -&gt; <span class="kw-2">&amp;</span>[ModuleConsensusVersion] {
@@ -1510,7 +1511,6 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         cfg: ServerModuleConfig,
         _db: Database,
-        _env: <span class="kw-2">&amp;</span>BTreeMap&lt;OsString, OsString&gt;,
         _task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
     ) -&gt; anyhow::Result&lt;DynServerModule&gt; {
         <span class="prelude-val">Ok</span>(Mint::new(cfg.to_typed()<span class="question-mark">?</span>).into())
@@ -1521,11 +1521,10 @@
         peers: <span class="kw-2">&amp;</span>[PeerId],
         params: <span class="kw-2">&amp;</span>ConfigGenModuleParams,
     ) -&gt; BTreeMap&lt;PeerId, ServerModuleConfig&gt; {
-        <span class="kw">let </span>params = params
-            .to_typed::&lt;MintGenParams&gt;()
-            .expect(<span class="string">&quot;Invalid mint params&quot;</span>);
+        <span class="kw">let </span>params = <span class="self">self</span>.parse_params(params).unwrap();
 
         <span class="kw">let </span>tbs_keys = params
+            .consensus
             .mint_amounts
             .iter()
             .map(|<span class="kw-2">&amp;</span>amount| {
@@ -1538,11 +1537,13 @@
             .iter()
             .map(|<span class="kw-2">&amp;</span>peer| {
                 <span class="kw">let </span>config = MintConfig {
+                    local: MintConfigLocal,
                     consensus: MintConfigConsensus {
                         peer_tbs_pks: peers
                             .iter()
                             .map(|<span class="kw-2">&amp;</span>key_peer| {
                                 <span class="kw">let </span>keys = params
+                                    .consensus
                                     .mint_amounts
                                     .iter()
                                     .map(|amount| {
@@ -1557,6 +1558,7 @@
                     },
                     private: MintConfigPrivate {
                         tbs_sks: params
+                            .consensus
                             .mint_amounts
                             .iter()
                             .map(|amount| (<span class="kw-2">*</span>amount, tbs_keys[amount].<span class="number">2</span>[peer.to_usize()]))
@@ -1578,11 +1580,11 @@
         peers: <span class="kw-2">&amp;</span>PeerHandle,
         params: <span class="kw-2">&amp;</span>ConfigGenModuleParams,
     ) -&gt; DkgResult&lt;ServerModuleConfig&gt; {
-        <span class="kw">let </span>params = params
-            .to_typed::&lt;MintGenParams&gt;()
-            .expect(<span class="string">&quot;Invalid mint gen params&quot;</span>);
+        <span class="kw">let </span>params = <span class="self">self</span>.parse_params(params).unwrap();
 
-        <span class="kw">let </span>g2 = peers.run_dkg_multi_g2(params.mint_amounts.to_vec()).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>g2 = peers
+            .run_dkg_multi_g2(params.consensus.mint_amounts.to_vec())
+            .<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let </span>amounts_keys = g2
             .into_iter()
@@ -1590,6 +1592,7 @@
             .collect::&lt;HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;();
 
         <span class="kw">let </span>server = MintConfig {
+            local: MintConfigLocal,
             private: MintConfigPrivate {
                 tbs_sks: amounts_keys
                     .iter()
@@ -1838,7 +1841,6 @@
 
     <span class="kw">async fn </span>validate_input&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        _interconnect: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ModuleInterconect,
         dbtx: <span class="kw-2">&amp;mut </span>ModuleDatabaseTransaction&lt;<span class="lifetime">&#39;b</span>&gt;,
         verification_cache: <span class="kw-2">&amp;</span><span class="self">Self</span>::VerificationCache,
         input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>MintInput,
@@ -1873,14 +1875,11 @@
 
     <span class="kw">async fn </span>apply_input&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;c</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        interconnect: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>ModuleInterconect,
         dbtx: <span class="kw-2">&amp;mut </span>ModuleDatabaseTransaction&lt;<span class="lifetime">&#39;c</span>&gt;,
         input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>MintInput,
         cache: <span class="kw-2">&amp;</span><span class="self">Self</span>::VerificationCache,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;InputMeta, ModuleError&gt; {
-        <span class="kw">let </span>meta = <span class="self">self
-            </span>.validate_input(interconnect, dbtx, cache, input)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>meta = <span class="self">self</span>.validate_input(dbtx, cache, input).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">for </span>(amount, note) <span class="kw">in </span>input.iter_items() {
             <span class="kw">let </span>key = NonceKey(note.<span class="number">0</span>);
@@ -2423,9 +2422,10 @@
     <span class="kw">use </span>fedimint_mint_common::config::{FeeConsensus, MintClientConfig};
     <span class="kw">use </span>tbs::{blind_message, unblind_signature, verify, AggregatePublicKey, BlindingKey, Message};
 
+    <span class="kw">use </span><span class="kw">crate</span>::common::config::MintGenParamsConsensus;
     <span class="kw">use crate</span>::{
-        BlindNonce, CombineError, Mint, MintConfig, MintConfigConsensus, MintConfigPrivate,
-        MintGen, MintGenParams, PeerErrorType,
+        BlindNonce, CombineError, Mint, MintConfig, MintConfigConsensus, MintConfigLocal,
+        MintConfigPrivate, MintGen, MintGenParams, PeerErrorType,
     };
 
     <span class="kw">const </span>THRESHOLD: usize = <span class="number">1</span>;
@@ -2436,7 +2436,10 @@
         <span class="kw">let </span>mint_cfg = MintGen.trusted_dealer_gen(
             <span class="kw-2">&amp;</span>peers,
             <span class="kw-2">&amp;</span>ConfigGenModuleParams::from_typed(MintGenParams {
-                mint_amounts: <span class="macro">vec!</span>[Amount::from_sats(<span class="number">1</span>)],
+                local: Default::default(),
+                consensus: MintGenParamsConsensus {
+                    mint_amounts: <span class="macro">vec!</span>[Amount::from_sats(<span class="number">1</span>)],
+                },
             })
             .unwrap(),
         );
@@ -2614,6 +2617,7 @@
         <span class="kw">let </span>(mint_server_cfg2, <span class="kw">_</span>) = build_configs();
 
         Mint::new(MintConfig {
+            local: MintConfigLocal,
             consensus: MintConfigConsensus {
                 peer_tbs_pks: mint_server_cfg2[<span class="number">0</span>]
                     .to_typed::&lt;MintConfig&gt;()

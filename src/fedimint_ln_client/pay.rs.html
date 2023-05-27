@@ -496,22 +496,6 @@
 <a href="#496" id="496">496</a>
 <a href="#497" id="497">497</a>
 <a href="#498" id="498">498</a>
-<a href="#499" id="499">499</a>
-<a href="#500" id="500">500</a>
-<a href="#501" id="501">501</a>
-<a href="#502" id="502">502</a>
-<a href="#503" id="503">503</a>
-<a href="#504" id="504">504</a>
-<a href="#505" id="505">505</a>
-<a href="#506" id="506">506</a>
-<a href="#507" id="507">507</a>
-<a href="#508" id="508">508</a>
-<a href="#509" id="509">509</a>
-<a href="#510" id="510">510</a>
-<a href="#511" id="511">511</a>
-<a href="#512" id="512">512</a>
-<a href="#513" id="513">513</a>
-<a href="#514" id="514">514</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>std::time::Duration;
 
@@ -523,11 +507,10 @@
 <span class="kw">use </span>fedimint_core::core::Decoder;
 <span class="kw">use </span>fedimint_core::encoding::{Decodable, Encodable};
 <span class="kw">use </span>fedimint_core::task::sleep;
-<span class="kw">use </span>fedimint_core::{Amount, OutPoint, TransactionId};
-<span class="kw">use </span>fedimint_ln_common::contracts::outgoing::OutgoingContract;
-<span class="kw">use </span>fedimint_ln_common::contracts::{ContractId, IdentifiableContract, Preimage};
+<span class="kw">use </span>fedimint_core::{OutPoint, TransactionId};
+<span class="kw">use </span>fedimint_ln_common::contracts::outgoing::OutgoingContractData;
+<span class="kw">use </span>fedimint_ln_common::contracts::ContractId;
 <span class="kw">use </span>fedimint_ln_common::{LightningGateway, LightningInput, LightningOutputOutcome};
-<span class="kw">use </span>fedimint_wallet_client::api::WalletFederationApi;
 <span class="kw">use </span>futures::future;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>thiserror::Error;
@@ -706,10 +689,13 @@
     gateway: LightningGateway,
 }
 
-<span class="attr">#[derive(Error, Debug, Serialize, Deserialize)]
-</span><span class="kw">enum </span>GatewayPayError {
-    <span class="attr">#[error(<span class="string">&quot;Lightning Gateway failed to pay invoice&quot;</span>)]
-    </span>GatewayInternalError,
+<span class="attr">#[derive(Error, Debug, Serialize, Deserialize, Encodable, Decodable, Clone, Eq, PartialEq)]
+</span><span class="kw">pub enum </span>GatewayPayError {
+    <span class="attr">#[error(<span class="string">&quot;Lightning Gateway failed to pay invoice. ErrorCode: {error_code:?} ErrorMessage: {error_message}&quot;</span>)]
+    </span>GatewayInternalError {
+        error_code: <span class="prelude-ty">Option</span>&lt;u16&gt;,
+        error_message: String,
+    },
     <span class="attr">#[error(<span class="string">&quot;OutgoingContract was not created in the federation&quot;</span>)]
     </span>OutgoingContractError,
 }
@@ -752,16 +738,26 @@
             .json(<span class="kw-2">&amp;</span>payload)
             .send()
             .<span class="kw">await
-            </span>.map_err(|<span class="kw">_</span>| GatewayPayError::GatewayInternalError)<span class="question-mark">?</span>;
+            </span>.map_err(|e| GatewayPayError::GatewayInternalError {
+                error_code: <span class="prelude-val">None</span>,
+                error_message: e.to_string(),
+            })<span class="question-mark">?</span>;
 
         <span class="kw">if </span>!response.status().is_success() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(GatewayPayError::GatewayInternalError);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(GatewayPayError::GatewayInternalError {
+                error_code: <span class="prelude-val">Some</span>(response.status().as_u16()),
+                error_message: response.status().to_string(),
+            });
         }
 
-        <span class="kw">let </span>preimage = response
-            .text()
-            .<span class="kw">await
-            </span>.map_err(|<span class="kw">_</span>| GatewayPayError::GatewayInternalError)<span class="question-mark">?</span>;
+        <span class="kw">let </span>preimage =
+            response
+                .text()
+                .<span class="kw">await
+                </span>.map_err(|<span class="kw">_</span>| GatewayPayError::GatewayInternalError {
+                    error_code: <span class="prelude-val">None</span>,
+                    error_message: <span class="string">&quot;Error retrieving preimage from response&quot;</span>.to_string(),
+                })<span class="question-mark">?</span>;
         <span class="kw">let </span>length = preimage.len();
         <span class="prelude-val">Ok</span>(preimage[<span class="number">1</span>..length - <span class="number">1</span>].to_string())
     }
@@ -778,7 +774,7 @@
                 common: old_state.common,
                 state: LightningPayStates::Success(preimage),
             },
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+            <span class="prelude-val">Err</span>(e) =&gt; {
                 <span class="kw">let </span>contract = global_context
                     .module_api()
                     .get_outgoing_contract(contract_id)
@@ -800,6 +796,7 @@
                     state: LightningPayStates::Refundable(LightningPayRefundable {
                         contract_id,
                         block_timelock: timelock,
+                        error: e,
                     }),
                 }
             }
@@ -811,6 +808,7 @@
 </span><span class="kw">pub struct </span>LightningPayRefundable {
     contract_id: ContractId,
     <span class="kw">pub </span>block_timelock: u32,
+    <span class="kw">pub </span>error: GatewayPayError,
 }
 
 <span class="kw">impl </span>LightningPayRefundable {
@@ -874,7 +872,7 @@
             </span>state_machines: Arc::new(|<span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">vec!</span>[]),
         };
 
-        <span class="kw">let </span>refund_txid = global_context.claim_input(dbtx, refund_client_input).<span class="kw">await</span>;
+        <span class="kw">let </span>(refund_txid, <span class="kw">_</span>) = global_context.claim_input(dbtx, refund_client_input).<span class="kw">await</span>;
 
         LightningPayStateMachine {
             common: old_state.common,
@@ -909,9 +907,9 @@
                 .module_api()
                 .fetch_consensus_block_height()
                 .<span class="kw">await
-                </span>.map_err(|<span class="kw">_</span>| <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;ApiError&quot;</span>));
+                </span>.map_err(|e| <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;ApiError: {e:?}&quot;</span>));
 
-            <span class="kw">if let </span><span class="prelude-val">Ok</span>(current_block_height) = consensus_block_height {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(current_block_height)) = consensus_block_height {
                 <span class="kw">if </span>timelock <span class="kw">as </span>u64 &lt;= current_block_height {
                     <span class="kw">return</span>;
                 }
@@ -993,36 +991,6 @@
         <span class="self">Self </span>{
             contract_id,
             federation_id,
-        }
-    }
-}
-
-<span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Encodable, Decodable, Serialize)]
-</span><span class="kw">pub struct </span>OutgoingContractData {
-    <span class="kw">pub </span>recovery_key: bitcoin::KeyPair,
-    <span class="kw">pub </span>contract_account: OutgoingContractAccount,
-}
-
-<span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Encodable, Decodable, Serialize)]
-</span><span class="kw">pub struct </span>OutgoingContractAccount {
-    <span class="kw">pub </span>amount: Amount,
-    <span class="kw">pub </span>contract: OutgoingContract,
-}
-
-<span class="kw">impl </span>OutgoingContractAccount {
-    <span class="kw">pub fn </span>claim(<span class="kw-2">&amp;</span><span class="self">self</span>, preimage: Preimage) -&gt; LightningInput {
-        LightningInput {
-            contract_id: <span class="self">self</span>.contract.contract_id(),
-            amount: <span class="self">self</span>.amount,
-            witness: <span class="prelude-val">Some</span>(preimage),
-        }
-    }
-
-    <span class="kw">pub fn </span>refund(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LightningInput {
-        LightningInput {
-            contract_id: <span class="self">self</span>.contract.contract_id(),
-            amount: <span class="self">self</span>.amount,
-            witness: <span class="prelude-val">None</span>,
         }
     }
 }

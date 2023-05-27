@@ -188,16 +188,17 @@
 <a href="#188" id="188">188</a>
 <a href="#189" id="189">189</a>
 <a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, HashMap};
 
 <span class="kw">use </span>fedimint_client::module::gen::ClientModuleGenRegistry;
+<span class="kw">use </span>fedimint_client::secret::PlainRootSecretStrategy;
 <span class="kw">use </span>fedimint_client::{Client, ClientBuilder};
-<span class="kw">use </span>fedimint_core::admin_client::{
-    ConfigGenParamsConsensus, ConfigGenParamsRequest, PeerServerParams,
-};
+<span class="kw">use </span>fedimint_core::admin_client::{ConfigGenParamsConsensus, PeerServerParams};
 <span class="kw">use </span>fedimint_core::api::WsClientConnectInfo;
 <span class="kw">use </span>fedimint_core::config::{
-    ServerModuleGenParamsRegistry, ServerModuleGenRegistry, META_FEDERATION_NAME_KEY,
+    ClientConfig, ServerModuleGenParamsRegistry, ServerModuleGenRegistry, META_FEDERATION_NAME_KEY,
 };
 <span class="kw">use </span>fedimint_core::core::ModuleInstanceId;
 <span class="kw">use </span>fedimint_core::db::mem_impl::MemDatabase;
@@ -237,13 +238,18 @@
             .to_client_config(<span class="kw-2">&amp;</span><span class="self">self</span>.server_gen)
             .unwrap();
 
+        <span class="self">self</span>.new_client_with_config(client_config).<span class="kw">await
+    </span>}
+
+    <span class="doccomment">/// Create a client with a custom config
+    </span><span class="kw">pub async fn </span>new_client_with_config(<span class="kw-2">&amp;</span><span class="self">self</span>, client_config: ClientConfig) -&gt; Client {
         <span class="kw">let </span><span class="kw-2">mut </span>client_builder = ClientBuilder::default();
         client_builder.with_module_gens(<span class="self">self</span>.client_gen.clone());
         client_builder.with_primary_module(<span class="self">self</span>.primary_client);
         client_builder.with_config(client_config);
         client_builder.with_database(MemDatabase::new());
         client_builder
-            .build(<span class="kw-2">&amp;mut </span><span class="self">self</span>.task.make_subgroup().<span class="kw">await</span>)
+            .build::&lt;PlainRootSecretStrategy&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>.task.make_subgroup().<span class="kw">await</span>)
             .<span class="kw">await
             </span>.expect(<span class="string">&quot;Failed to build client&quot;</span>)
     }
@@ -312,7 +318,7 @@
 <span class="doccomment">/// Creates the config gen params for each peer
 ///
 /// Uses peers * 2 ports offset from `base_port`
-</span><span class="kw">fn </span>local_config_gen_params(
+</span><span class="kw">pub fn </span>local_config_gen_params(
     peers: <span class="kw-2">&amp;</span>[PeerId],
     base_port: u16,
     server_config_gen: ServerModuleGenParamsRegistry,
@@ -333,7 +339,7 @@
         .iter()
         .map(|peer| {
             <span class="kw">let </span>peer_port = base_port + u16::from(<span class="kw-2">*</span>peer) * <span class="number">2</span>;
-            <span class="kw">let </span>p2p_url = <span class="macro">format!</span>(<span class="string">&quot;ws://127.0.0.1:{peer_port}&quot;</span>);
+            <span class="kw">let </span>p2p_url = <span class="macro">format!</span>(<span class="string">&quot;fedimint://127.0.0.1:{peer_port}&quot;</span>);
             <span class="kw">let </span>api_url = <span class="macro">format!</span>(<span class="string">&quot;ws://127.0.0.1:{}&quot;</span>, peer_port + <span class="number">1</span>);
 
             <span class="kw">let </span>params: PeerServerParams = PeerServerParams {
@@ -357,7 +363,7 @@
                 local: ConfigGenParamsLocal {
                     our_id: <span class="kw-2">*</span>peer,
                     our_private_key: tls_keys[peer].<span class="number">1</span>.clone(),
-                    api_auth: ApiAuth(<span class="string">&quot;unused&quot;</span>.to_string()),
+                    api_auth: ApiAuth(<span class="macro">format!</span>(<span class="string">&quot;pass{}&quot;</span>, peer.to_usize())),
                     p2p_bind: p2p_bind.parse().expect(<span class="string">&quot;Valid address&quot;</span>),
                     api_bind: api_bind.parse().expect(<span class="string">&quot;Valid address&quot;</span>),
                     download_token_limit: <span class="prelude-val">None</span>,
@@ -365,13 +371,11 @@
                 },
                 consensus: ConfigGenParamsConsensus {
                     peers: connections.clone(),
-                    requested: ConfigGenParamsRequest {
-                        meta: BTreeMap::from([(
-                            META_FEDERATION_NAME_KEY.to_owned(),
-                            <span class="string">&quot;federation_name&quot;</span>.to_string(),
-                        )]),
-                        modules: server_config_gen.clone(),
-                    },
+                    meta: BTreeMap::from([(
+                        META_FEDERATION_NAME_KEY.to_owned(),
+                        <span class="string">&quot;federation_name&quot;</span>.to_string(),
+                    )]),
+                    modules: server_config_gen.clone(),
                 },
             };
             <span class="prelude-val">Ok</span>((<span class="kw-2">*</span>peer, params))

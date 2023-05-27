@@ -1077,11 +1077,14 @@
 <a href="#1077" id="1077">1077</a>
 <a href="#1078" id="1078">1078</a>
 <a href="#1079" id="1079">1079</a>
+<a href="#1080" id="1080">1080</a>
+<a href="#1081" id="1081">1081</a>
+<a href="#1082" id="1082">1082</a>
+<a href="#1083" id="1083">1083</a>
+<a href="#1084" id="1084">1084</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>audit;
-<span class="kw">pub mod </span>interconnect;
 <span class="kw">pub mod </span>registry;
 <span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
-<span class="kw">use </span>std::ffi::OsString;
 <span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::marker::PhantomData;
 <span class="kw">use </span>std::pin::Pin;
@@ -1095,7 +1098,7 @@
 <span class="kw">use </span>tracing::instrument;
 
 <span class="kw">use </span><span class="kw">crate</span>::config::{
-    ClientModuleConfig, ConfigGenModuleParams, DkgPeerMsg, ServerModuleConfig,
+    ClientModuleConfig, ConfigGenModuleParams, DkgPeerMsg, ModuleGenParams, ServerModuleConfig,
     ServerModuleConsensusConfig,
 };
 <span class="kw">use </span><span class="kw">crate</span>::core::{
@@ -1108,7 +1111,6 @@
 };
 <span class="kw">use </span><span class="kw">crate</span>::encoding::{Decodable, DecodeError, Encodable};
 <span class="kw">use </span><span class="kw">crate</span>::module::audit::Audit;
-<span class="kw">use </span><span class="kw">crate</span>::module::interconnect::ModuleInterconect;
 <span class="kw">use </span><span class="kw">crate</span>::net::peers::MuxPeerConnections;
 <span class="kw">use </span><span class="kw">crate</span>::server::{DynServerModule, VerificationCache};
 <span class="kw">use </span><span class="kw">crate</span>::task::{MaybeSend, TaskGroup};
@@ -1524,7 +1526,6 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         cfg: ServerModuleConfig,
         db: Database,
-        env: <span class="kw-2">&amp;</span>BTreeMap&lt;OsString, OsString&gt;,
         task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
     ) -&gt; anyhow::Result&lt;DynServerModule&gt;;
 
@@ -1532,6 +1533,8 @@
     /// database before the module is initialized. The `MigrationMap` is
     /// indexed on the from version.
     </span><span class="kw">fn </span>get_database_migrations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MigrationMap;
+
+    <span class="kw">fn </span>validate_params(<span class="kw-2">&amp;</span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>ConfigGenModuleParams) -&gt; anyhow::Result&lt;()&gt;;
 
     <span class="kw">fn </span>trusted_dealer_gen(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -1706,6 +1709,8 @@
 /// `WalletConfigGenerator`, or `LightningConfigGenerator` structs.
 </span><span class="attr">#[apply(<span class="macro">async_trait_maybe_send!</span>)]
 </span><span class="kw">pub trait </span>ServerModuleGen: ExtendsCommonModuleGen + Sized {
+    <span class="kw">type </span>Params: ModuleGenParams;
+
     <span class="doccomment">/// This represents the module&#39;s database version that the current code is
     /// compatible with. It is important to increment this value whenever a
     /// key or a value that is persisted to the database within the module
@@ -1737,7 +1742,6 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         cfg: ServerModuleConfig,
         db: Database,
-        env: <span class="kw-2">&amp;</span>BTreeMap&lt;OsString, OsString&gt;,
         task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
     ) -&gt; anyhow::Result&lt;DynServerModule&gt;;
 
@@ -1746,6 +1750,10 @@
     /// indexed on the from version.
     </span><span class="kw">fn </span>get_database_migrations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MigrationMap {
         MigrationMap::new()
+    }
+
+    <span class="kw">fn </span>parse_params(<span class="kw-2">&amp;</span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>ConfigGenModuleParams) -&gt; anyhow::Result&lt;<span class="self">Self</span>::Params&gt; {
+        params.to_typed::&lt;<span class="self">Self</span>::Params&gt;()
     }
 
     <span class="kw">fn </span>trusted_dealer_gen(
@@ -1792,14 +1800,18 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         cfg: ServerModuleConfig,
         db: Database,
-        env: <span class="kw-2">&amp;</span>BTreeMap&lt;OsString, OsString&gt;,
         task_group: <span class="kw-2">&amp;mut </span>TaskGroup,
     ) -&gt; anyhow::Result&lt;DynServerModule&gt; {
-        &lt;<span class="self">Self </span><span class="kw">as </span>ServerModuleGen&gt;::init(<span class="self">self</span>, cfg, db, env, task_group).<span class="kw">await
+        &lt;<span class="self">Self </span><span class="kw">as </span>ServerModuleGen&gt;::init(<span class="self">self</span>, cfg, db, task_group).<span class="kw">await
     </span>}
 
     <span class="kw">fn </span>get_database_migrations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MigrationMap {
         &lt;<span class="self">Self </span><span class="kw">as </span>ServerModuleGen&gt;::get_database_migrations(<span class="self">self</span>)
+    }
+
+    <span class="kw">fn </span>validate_params(<span class="kw-2">&amp;</span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>ConfigGenModuleParams) -&gt; anyhow::Result&lt;()&gt; {
+        &lt;<span class="self">Self </span><span class="kw">as </span>ServerModuleGen&gt;::parse_params(<span class="self">self</span>, params)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>trusted_dealer_gen(
@@ -1986,7 +1998,6 @@
     /// them and merely generate a warning.
     </span><span class="kw">async fn </span>validate_input&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        interconnect: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ModuleInterconect,
         dbtx: <span class="kw-2">&amp;mut </span>ModuleDatabaseTransaction&lt;<span class="lifetime">&#39;b</span>&gt;,
         verification_cache: <span class="kw-2">&amp;</span><span class="self">Self</span>::VerificationCache,
         input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>&lt;<span class="self">Self</span>::Common <span class="kw">as </span>ModuleCommon&gt;::Input,
@@ -2002,7 +2013,6 @@
     /// once all transactions have been processed.
     </span><span class="kw">async fn </span>apply_input&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;c</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        interconnect: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>ModuleInterconect,
         dbtx: <span class="kw-2">&amp;mut </span>ModuleDatabaseTransaction&lt;<span class="lifetime">&#39;c</span>&gt;,
         input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>&lt;<span class="self">Self</span>::Common <span class="kw">as </span>ModuleCommon&gt;::Input,
         verification_cache: <span class="kw-2">&amp;</span><span class="self">Self</span>::VerificationCache,
