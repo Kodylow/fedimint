@@ -287,6 +287,17 @@
 <a href="#287" id="287">287</a>
 <a href="#288" id="288">288</a>
 <a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
 <span class="kw">use </span>anyhow::{anyhow, Context};
@@ -335,7 +346,7 @@
         <span class="kw">let </span>decoders = module_decode_stubs();
         <span class="kw">let </span>db = Database::new(MemDatabase::new(), module_decode_stubs());
         <span class="kw">let </span>module_gens = ClientModuleGenRegistry::from(<span class="macro">vec!</span>[
-            DynClientModuleGen::from(WalletClientGen),
+            DynClientModuleGen::from(WalletClientGen::default()),
             DynClientModuleGen::from(MintClientGen),
             DynClientModuleGen::from(LightningClientGen),
         ]);
@@ -396,6 +407,22 @@
         <span class="prelude-val">Ok</span>(())
     }
 
+    <span class="kw">pub async fn </span>pegin_ng(<span class="kw-2">&amp;</span><span class="self">self</span>, amt: u64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>deposit = <span class="macro">cmd!</span>(<span class="self">self</span>, <span class="string">&quot;ng&quot;</span>, <span class="string">&quot;deposit-address&quot;</span>).out_json().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>deposit_address = deposit[<span class="string">&quot;address&quot;</span>].as_str().unwrap();
+        <span class="kw">let </span>deposit_operation_id = deposit[<span class="string">&quot;operation_id&quot;</span>].as_str().unwrap();
+
+        <span class="self">self</span>.bitcoind
+            .send_to(deposit_address.to_owned(), amt)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="self">self</span>.bitcoind.mine_blocks(<span class="number">100</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="macro">cmd!</span>(<span class="self">self</span>, <span class="string">&quot;ng&quot;</span>, <span class="string">&quot;await-deposit&quot;</span>, deposit_operation_id)
+            .run()
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
+
     <span class="kw">pub async fn </span>pegin_gateway(<span class="kw-2">&amp;</span><span class="self">self</span>, amt: u64, gw_cln: <span class="kw-2">&amp;</span>Gatewayd) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>fed_id = <span class="self">self</span>.federation_id().<span class="kw">await</span>;
         <span class="kw">let </span>pegin_addr = <span class="macro">cmd!</span>(gw_cln, <span class="string">&quot;address&quot;</span>, <span class="string">&quot;--federation-id={fed_id}&quot;</span>)
@@ -404,23 +431,18 @@
             </span>.as_str()
             .context(<span class="string">&quot;address must be a string&quot;</span>)<span class="question-mark">?
             </span>.to_owned();
-        <span class="kw">let </span>txid = <span class="self">self</span>.bitcoind.send_to(pegin_addr, amt).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="self">self</span>.bitcoind.mine_blocks(<span class="number">11</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="self">self</span>.await_block_sync().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>(txout_proof, raw_tx) = <span class="macro">tokio::try_join!</span>(
-            <span class="self">self</span>.bitcoind.get_txout_proof(<span class="kw-2">&amp;</span>txid),
-            <span class="self">self</span>.bitcoind.get_raw_transaction(<span class="kw-2">&amp;</span>txid),
-        )<span class="question-mark">?</span>;
-        <span class="macro">cmd!</span>(
-            gw_cln,
-            <span class="string">&quot;deposit&quot;</span>,
-            <span class="string">&quot;--federation-id={fed_id}&quot;</span>,
-            <span class="string">&quot;--txout-proof={txout_proof}&quot;</span>,
-            <span class="string">&quot;--transaction={raw_tx}&quot;
-        </span>)
-        .run()
+        <span class="self">self</span>.bitcoind.send_to(pegin_addr, amt).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="self">self</span>.bitcoind.mine_blocks(<span class="number">21</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        poll(<span class="string">&quot;gateway pegin&quot;</span>, || <span class="kw">async </span>{
+            <span class="kw">let </span>gateway_balance = <span class="macro">cmd!</span>(gw_cln, <span class="string">&quot;balance&quot;</span>, <span class="string">&quot;--federation-id={fed_id}&quot;</span>)
+                .out_json()
+                .<span class="kw">await</span><span class="question-mark">?
+                </span>.as_u64()
+                .unwrap();
+
+            <span class="prelude-val">Ok</span>(gateway_balance == (amt * <span class="number">1000</span>))
+        })
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="macro">cmd!</span>(<span class="self">self</span>, <span class="string">&quot;fetch&quot;</span>).run().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 

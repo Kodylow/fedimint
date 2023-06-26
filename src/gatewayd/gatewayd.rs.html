@@ -129,82 +129,30 @@
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
 <a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::net::SocketAddr;
 <span class="kw">use </span>std::path::PathBuf;
 <span class="kw">use </span>std::process::exit;
-<span class="kw">use </span>std::str::FromStr;
-<span class="kw">use </span>std::time::Duration;
 
 <span class="kw">use </span>clap::Parser;
-<span class="kw">use </span>fedimint_client::module::gen::{ClientModuleGenRegistry, DynClientModuleGen};
-<span class="kw">use </span>fedimint_client_legacy::modules::ln::{LightningClientGen, LightningModuleTypes};
-<span class="kw">use </span>fedimint_client_legacy::modules::mint::{MintClientGen, MintModuleTypes};
-<span class="kw">use </span>fedimint_client_legacy::modules::wallet::{
-    WalletClientGen, WalletCommonGen, WalletModuleTypes,
-};
 <span class="kw">use </span>fedimint_core::core::{
     LEGACY_HARDCODED_INSTANCE_ID_LN, LEGACY_HARDCODED_INSTANCE_ID_MINT,
     LEGACY_HARDCODED_INSTANCE_ID_WALLET,
 };
+<span class="kw">use </span>fedimint_core::db::Database;
 <span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
 <span class="kw">use </span>fedimint_core::module::{CommonModuleGen, ModuleCommon};
-<span class="kw">use </span>fedimint_core::task::TaskGroup;
 <span class="kw">use </span>fedimint_ln_client::LightningCommonGen;
+<span class="kw">use </span>fedimint_ln_common::config::GatewayFee;
+<span class="kw">use </span>fedimint_ln_common::LightningModuleTypes;
 <span class="kw">use </span>fedimint_logging::TracingSetup;
-<span class="kw">use </span>fedimint_mint_client::MintCommonGen;
-<span class="kw">use </span>lightning::routing::gossip::RoutingFees;
-<span class="kw">use </span>ln_gateway::client::{DynGatewayClientBuilder, RocksDbFactory, StandardGatewayClientBuilder};
-<span class="kw">use </span>ln_gateway::{Gateway, LightningMode, DEFAULT_FEES};
-<span class="kw">use </span>tracing::{error, info};
+<span class="kw">use </span>fedimint_mint_client::{MintCommonGen, MintModuleTypes};
+<span class="kw">use </span>fedimint_wallet_client::{WalletCommonGen, WalletModuleTypes};
+<span class="kw">use </span>ln_gateway::client::StandardGatewayClientBuilder;
+<span class="kw">use </span>ln_gateway::{Gateway, GatewayError, LightningMode, DEFAULT_FEES};
+<span class="kw">use </span>tracing::info;
 <span class="kw">use </span>url::Url;
 
-<span class="kw">const </span>SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(<span class="number">10</span>);
+<span class="kw">const </span>DB_FILE: <span class="kw-2">&amp;</span>str = <span class="string">&quot;gatewayd.db&quot;</span>;
 
 <span class="attr">#[derive(Parser)]
 </span><span class="kw">pub struct </span>GatewayOpts {
@@ -267,11 +215,7 @@
     );
 
     <span class="comment">// Create federation client builder
-    </span><span class="kw">let </span>client_builder: DynGatewayClientBuilder =
-        StandardGatewayClientBuilder::new(data_dir.clone(), RocksDbFactory.into(), api_addr).into();
-
-    <span class="comment">// Create task group for controlled shutdown of the gateway
-    </span><span class="kw">let </span>task_group = TaskGroup::new();
+    </span><span class="kw">let </span>client_builder = StandardGatewayClientBuilder::new(data_dir.clone());
 
     <span class="comment">// Create module decoder registry
     </span><span class="kw">let </span>decoders = ModuleDecoderRegistry::from_iter([
@@ -292,21 +236,19 @@
         ),
     ]);
 
-    <span class="comment">// Create module generator registry
-    </span><span class="kw">let </span>module_gens = ClientModuleGenRegistry::from(<span class="macro">vec!</span>[
-        DynClientModuleGen::from(WalletClientGen),
-        DynClientModuleGen::from(MintClientGen),
-        DynClientModuleGen::from(LightningClientGen),
-    ]);
+    <span class="kw">let </span>gatewayd_db = Database::new(
+        fedimint_rocksdb::RocksDb::open(data_dir.join(DB_FILE))
+            .map_err(|<span class="kw">_</span>| GatewayError::DatabaseError)<span class="question-mark">?</span>,
+        decoders.clone(),
+    );
 
     <span class="comment">// Create gateway instance
     </span><span class="kw">let </span>gateway = Gateway::new(
         mode,
         client_builder,
-        decoders,
-        module_gens,
-        task_group.make_subgroup().<span class="kw">await</span>,
         fees.unwrap_or(GatewayFee(DEFAULT_FEES)).<span class="number">0</span>,
+        gatewayd_db,
+        api_addr,
     )
     .<span class="kw">await
     </span>.unwrap_or_else(|e| {
@@ -314,43 +256,9 @@
         exit(<span class="number">1</span>)
     });
 
-    gateway.spawn_webserver(listen, password).<span class="kw">await</span>;
-    <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = gateway.run(task_group.make_handle()).<span class="kw">await </span>{
-        task_group.shutdown_join_all(<span class="prelude-val">Some</span>(SHUTDOWN_TIMEOUT)).<span class="kw">await</span><span class="question-mark">?</span>;
-
-        <span class="macro">error!</span>(<span class="string">&quot;Gateway stopped with error: {}&quot;</span>, e);
-        <span class="kw">return </span><span class="prelude-val">Err</span>(e.into());
-    }
+    gateway.spawn_blocking_webserver(listen, password).<span class="kw">await</span>;
 
     <span class="prelude-val">Ok</span>(())
-}
-
-<span class="doccomment">/// Gateway routing fees
-</span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>GatewayFee(RoutingFees);
-
-<span class="kw">impl </span>FromStr <span class="kw">for </span>GatewayFee {
-    <span class="kw">type </span><span class="prelude-val">Err </span>= anyhow::Error;
-
-    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>parts = s.split(<span class="string">&#39;,&#39;</span>);
-        <span class="kw">let </span>base_msat = parts
-            .next()
-            .ok_or_else(|| <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;missing base fee in millisatoshis&quot;</span>))<span class="question-mark">?
-            </span>.parse()<span class="question-mark">?</span>;
-        <span class="kw">let </span>proportional_millionths = parts
-            .next()
-            .ok_or_else(|| {
-                <span class="macro">anyhow::anyhow!</span>(
-                    <span class="string">&quot;missing liquidity based fee as proportional millionths of routed amount&quot;
-                </span>)
-            })<span class="question-mark">?
-            </span>.parse()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(GatewayFee(RoutingFees {
-            base_msat,
-            proportional_millionths,
-        }))
-    }
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gatewayd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (f3126500f 2023-02-02)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
