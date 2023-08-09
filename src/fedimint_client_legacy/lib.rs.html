@@ -1718,6 +1718,18 @@
 <a href="#1718" id="1718">1718</a>
 <a href="#1719" id="1719">1719</a>
 <a href="#1720" id="1720">1720</a>
+<a href="#1721" id="1721">1721</a>
+<a href="#1722" id="1722">1722</a>
+<a href="#1723" id="1723">1723</a>
+<a href="#1724" id="1724">1724</a>
+<a href="#1725" id="1725">1725</a>
+<a href="#1726" id="1726">1726</a>
+<a href="#1727" id="1727">1727</a>
+<a href="#1728" id="1728">1728</a>
+<a href="#1729" id="1729">1729</a>
+<a href="#1730" id="1730">1730</a>
+<a href="#1731" id="1731">1731</a>
+<a href="#1732" id="1732">1732</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>api;
 <span class="kw">pub mod </span>db;
 <span class="kw">pub mod </span>ln;
@@ -1760,7 +1772,7 @@
 <span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
 <span class="kw">use </span>fedimint_core::module::{CommonModuleGen, ModuleCommon};
 <span class="kw">use </span>fedimint_core::outcome::TransactionStatus;
-<span class="kw">use </span>fedimint_core::task::{<span class="self">self</span>, sleep};
+<span class="kw">use </span>fedimint_core::task::{<span class="self">self</span>, sleep, MaybeSend};
 <span class="kw">use </span>fedimint_core::tiered::InvalidAmountTierError;
 <span class="kw">use </span>fedimint_core::txoproof::TxOutProof;
 <span class="kw">use </span>fedimint_core::{Amount, OutPoint, TieredMulti, TieredSummary, TransactionId};
@@ -1867,15 +1879,17 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         route_hints: Vec&lt;modules::ln::route_hints::RouteHint&gt;,
         time_to_live: Duration,
+        gateway_id: secp256k1::PublicKey,
     ) -&gt; LightningGateway {
         LightningGateway {
             mint_channel_id: <span class="self">self</span>.mint_channel_id,
-            gateway_pub_key: <span class="self">self</span>.redeem_key.x_only_public_key().<span class="number">0</span>,
+            gateway_redeem_key: <span class="self">self</span>.redeem_key.x_only_public_key().<span class="number">0</span>,
             node_pub_key: <span class="self">self</span>.node_pub_key,
             api: <span class="self">self</span>.api.clone(),
             route_hints,
             valid_until: fedimint_core::time::now() + time_to_live,
             fees: <span class="self">self</span>.fees,
+            gateway_id,
         }
     }
 }
@@ -1953,7 +1967,7 @@
 
 <span class="comment">// TODO: `get_module` is parsing `serde_json::Value` every time, which is not
 // best for performance
-</span><span class="kw">impl</span>&lt;T: AsRef&lt;ClientConfig&gt; + Clone + Send&gt; Client&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;T: AsRef&lt;ClientConfig&gt; + Clone + MaybeSend&gt; Client&lt;T&gt; {
     <span class="kw">pub fn </span>db(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Database {
         <span class="kw-2">&amp;</span><span class="self">self</span>.context.db
     }
@@ -1965,7 +1979,8 @@
                 .as_ref()
                 .get_first_module_by_kind::&lt;LightningClientConfig&gt;(<span class="string">&quot;ln&quot;</span>)
                 .expect(<span class="string">&quot;needs lightning module client config&quot;</span>)
-                .<span class="number">1</span>,
+                .<span class="number">1
+                </span>.clone(),
             context: <span class="self">self</span>.context.clone(),
         }
     }
@@ -1977,7 +1992,8 @@
                 .as_ref()
                 .get_first_module_by_kind::&lt;MintClientConfig&gt;(<span class="string">&quot;mint&quot;</span>)
                 .expect(<span class="string">&quot;needs mint module client config&quot;</span>)
-                .<span class="number">1</span>,
+                .<span class="number">1
+                </span>.clone(),
             epoch_pk: <span class="self">self</span>.config.as_ref().epoch_pk,
             context: <span class="self">self</span>.context.clone(),
             secret: <span class="self">Self</span>::mint_secret_static(<span class="kw-2">&amp;</span><span class="self">self</span>.root_secret),
@@ -1991,7 +2007,8 @@
                 .as_ref()
                 .get_first_module_by_kind::&lt;WalletClientConfig&gt;(<span class="string">&quot;wallet&quot;</span>)
                 .expect(<span class="string">&quot;needs wallet module client config&quot;</span>)
-                .<span class="number">1</span>,
+                .<span class="number">1
+                </span>.clone(),
 
             context: <span class="self">self</span>.context.clone(),
         }
@@ -1999,6 +2016,10 @@
 
     <span class="kw">pub fn </span>config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; T {
         <span class="self">self</span>.config.clone()
+    }
+
+    <span class="kw">pub fn </span>config_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.config
     }
 
     <span class="kw">pub async fn </span>new(
@@ -2438,20 +2459,20 @@
         <span class="self">self</span>.reissue(notes_to_reissue, rng).<span class="kw">await
     </span>}
 
-    <span class="kw">pub async fn </span>await_consensus_block_height(
+    <span class="kw">pub async fn </span>await_consensus_block_count(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        block_height: u64,
+        block_count: u64,
     ) -&gt; std::result::Result&lt;u64, task::Elapsed&gt; {
         task::timeout(Duration::from_secs(<span class="number">30</span>), <span class="kw">async </span>{
-            <span class="self">self</span>.await_consensus_block_height_inner(block_height).<span class="kw">await
+            <span class="self">self</span>.await_consensus_block_count_inner(block_count).<span class="kw">await
         </span>})
         .<span class="kw">await
     </span>}
 
-    <span class="kw">async fn </span>await_consensus_block_height_inner(<span class="kw-2">&amp;</span><span class="self">self</span>, block_height: u64) -&gt; u64 {
+    <span class="kw">async fn </span>await_consensus_block_count_inner(<span class="kw-2">&amp;</span><span class="self">self</span>, requested_count: u64) -&gt; u64 {
         <span class="kw">loop </span>{
-            <span class="kw">match </span><span class="self">self</span>.context.api.fetch_consensus_block_height().<span class="kw">await </span>{
-                <span class="prelude-val">Ok</span>(height) <span class="kw">if </span>height &gt;= block_height =&gt; <span class="kw">return </span>height,
+            <span class="kw">match </span><span class="self">self</span>.context.api.fetch_consensus_block_count().<span class="kw">await </span>{
+                <span class="prelude-val">Ok</span>(current_count) <span class="kw">if </span>requested_count &lt;= current_count =&gt; <span class="kw">return </span>current_count,
                 <span class="kw">_ </span>=&gt; sleep(Duration::from_millis(<span class="number">100</span>)).<span class="kw">await</span>,
             }
         }
@@ -2531,20 +2552,23 @@
     /// advance.
     </span><span class="kw">pub async fn </span>switch_active_gateway(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node_pub_key: <span class="prelude-ty">Option</span>&lt;secp256k1::PublicKey&gt;,
+        gateway_id: <span class="prelude-ty">Option</span>&lt;secp256k1::PublicKey&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;LightningGateway&gt; {
         <span class="kw">let </span>gateways = <span class="self">self</span>.fetch_registered_gateways().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">if </span>gateways.is_empty() {
             <span class="macro">debug!</span>(<span class="string">&quot;Could not find any gateways&quot;</span>);
             <span class="kw">return </span><span class="prelude-val">Err</span>(ClientError::NoGateways);
         };
-        <span class="kw">let </span>gateway = <span class="kw">match </span>node_pub_key {
+        <span class="kw">let </span>gateway = <span class="kw">match </span>gateway_id {
             <span class="comment">// If a pubkey was provided, try to select and activate a gateway with that pubkey.
             </span><span class="prelude-val">Some</span>(pub_key) =&gt; gateways
                 .into_iter()
-                .find(|g| g.node_pub_key == pub_key)
+                .find(|g| g.gateway_id == pub_key)
                 .ok_or_else(|| {
-                    <span class="macro">debug!</span>(<span class="string">&quot;Could not find gateway with public key {:?}&quot;</span>, pub_key);
+                    <span class="macro">debug!</span>(
+                        <span class="string">&quot;Could not find gateway with gateway public key {:?}&quot;</span>,
+                        gateway_id
+                    );
                     ClientError::GatewayNotFound
                 })<span class="question-mark">?</span>,
             <span class="comment">// Otherwise (no pubkey provided), select and activate the first registered gateway.
@@ -2568,8 +2592,8 @@
         <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self</span>.context.db.begin_transaction().<span class="kw">await</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>tx = TransactionBuilder::default();
 
-        <span class="kw">let </span>consensus_height = <span class="self">self</span>.context.api.fetch_consensus_block_height().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>absolute_timelock = consensus_height + OUTGOING_LN_CONTRACT_TIMELOCK;
+        <span class="kw">let </span>consensus_count = <span class="self">self</span>.context.api.fetch_consensus_block_count().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>absolute_timelock = consensus_count + OUTGOING_LN_CONTRACT_TIMELOCK - <span class="number">1</span>;
 
         <span class="kw">let </span>contract = <span class="self">self
             </span>.ln_client()
@@ -2948,11 +2972,11 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(ClientError::Underfunded(invoice_amount, account.amount));
         }
 
-        <span class="kw">let </span>consensus_block_height = <span class="self">self</span>.context.api.fetch_consensus_block_height().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="comment">// Calculate max delay taking into account current consensus block height and
+        <span class="kw">let </span>consensus_block_count = <span class="self">self</span>.context.api.fetch_consensus_block_count().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// Calculate max delay taking into account current consensus block count and
         // our safety margin.
         </span><span class="kw">let </span>max_delay = (account.contract.timelock <span class="kw">as </span>u64)
-            .checked_sub(consensus_block_height)
+            .checked_sub(consensus_block_count.saturating_sub(<span class="number">1</span>))
             .and_then(|delta| delta.checked_sub(<span class="self">self</span>.config.timelock_delta))
             .ok_or(ClientError::TimeoutTooClose)<span class="question-mark">?</span>;
 

@@ -429,6 +429,21 @@
 <a href="#429" id="429">429</a>
 <a href="#430" id="430">430</a>
 <a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
 </pre><pre class="rust"><code><span class="doccomment">//! # Lightning Module
 //!
 //! This module allows to atomically and trustlessly (in the federated trust
@@ -450,6 +465,7 @@
 
 <span class="kw">use </span>anyhow::bail;
 <span class="kw">use </span>bitcoin_hashes::sha256;
+<span class="kw">use </span>config::LightningClientConfig;
 <span class="kw">use </span>fedimint_client::oplog::OperationLogEntry;
 <span class="kw">use </span>fedimint_client::sm::{Context, OperationId};
 <span class="kw">use </span>fedimint_client::Client;
@@ -615,7 +631,7 @@
     /// gateway.
     </span><span class="kw">pub </span>mint_channel_id: u64,
     <span class="doccomment">/// Key used to pay the gateway
-    </span><span class="kw">pub </span>gateway_pub_key: secp256k1::XOnlyPublicKey,
+    </span><span class="kw">pub </span>gateway_redeem_key: secp256k1::XOnlyPublicKey,
     <span class="kw">pub </span>node_pub_key: secp256k1::PublicKey,
     <span class="kw">pub </span>api: Url,
     <span class="doccomment">/// Route hints to reach the LN node of the gateway.
@@ -628,12 +644,13 @@
     <span class="doccomment">/// Gateway configured routing fees
     </span><span class="attr">#[serde(with = <span class="string">&quot;serde_routing_fees&quot;</span>)]
     </span><span class="kw">pub </span>fees: RoutingFees,
+    <span class="kw">pub </span>gateway_id: secp256k1::PublicKey,
 }
 
 <span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, Encodable, Decodable, Serialize, Deserialize)]
 </span><span class="kw">pub enum </span>LightningConsensusItem {
     DecryptPreimage(ContractId, PreimageDecryptionShare),
-    BlockHeight(u64),
+    BlockCount(u64),
 }
 
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>LightningConsensusItem {
@@ -642,7 +659,7 @@
             LightningConsensusItem::DecryptPreimage(contract_id, <span class="kw">_</span>) =&gt; {
                 <span class="macro">write!</span>(f, <span class="string">&quot;LN Decryption Share for contract {contract_id}&quot;</span>)
             }
-            LightningConsensusItem::BlockHeight(height) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;LN block height {height}&quot;</span>),
+            LightningConsensusItem::BlockCount(count) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;LN block count {count}&quot;</span>),
         }
     }
 }
@@ -653,6 +670,9 @@
 <span class="kw">impl </span>CommonModuleGen <span class="kw">for </span>LightningCommonGen {
     <span class="kw">const </span>CONSENSUS_VERSION: ModuleConsensusVersion = CONSENSUS_VERSION;
     <span class="kw">const </span>KIND: ModuleKind = KIND;
+
+    <span class="kw">type </span>ClientConfig = LightningClientConfig;
+
     <span class="kw">fn </span>decoder() -&gt; Decoder {
         LightningModuleTypes::decoder()
     }
@@ -662,6 +682,7 @@
 
 <span class="macro">plugin_types_trait_impl_common!</span>(
     LightningModuleTypes,
+    LightningClientConfig,
     LightningInput,
     LightningOutput,
     LightningOutputOutcome,
@@ -826,14 +847,23 @@
 ) -&gt; anyhow::Result&lt;IncomingContractOffer, IncomingSmError&gt; {
     <span class="kw">let </span>offer = timeout(Duration::from_secs(<span class="number">5</span>), module_api.fetch_offer(payment_hash))
         .<span class="kw">await
-        </span>.map_err(|<span class="kw">_</span>| IncomingSmError::Timeout)<span class="question-mark">?
-        </span>.map_err(|<span class="kw">_</span>| IncomingSmError::FetchContractError)<span class="question-mark">?</span>;
+        </span>.map_err(|<span class="kw">_</span>| IncomingSmError::TimeoutFetchingOffer { payment_hash })<span class="question-mark">?
+        </span>.map_err(|e| IncomingSmError::FetchContractError {
+            payment_hash,
+            error_message: e.to_string(),
+        })<span class="question-mark">?</span>;
 
     <span class="kw">if </span>offer.amount &gt; amount_msat {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(IncomingSmError::ViolatedFeePolicy);
+        <span class="kw">return </span><span class="prelude-val">Err</span>(IncomingSmError::ViolatedFeePolicy {
+            offer_amount: offer.amount,
+            payment_amount: amount_msat,
+        });
     }
     <span class="kw">if </span>offer.hash != payment_hash {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(IncomingSmError::InvalidOffer);
+        <span class="kw">return </span><span class="prelude-val">Err</span>(IncomingSmError::InvalidOffer {
+            offer_hash: offer.hash,
+            payment_hash,
+        });
     }
     <span class="prelude-val">Ok</span>(offer)
 }

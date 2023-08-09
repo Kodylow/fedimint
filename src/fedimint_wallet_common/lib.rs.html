@@ -331,13 +331,13 @@
 <a href="#331" id="331">331</a>
 <a href="#332" id="332">332</a>
 <a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::hash::Hasher;
 
 <span class="kw">use </span>bitcoin::hashes::hex::ToHex;
 <span class="kw">use </span>bitcoin::util::psbt::raw::ProprietaryKey;
 <span class="kw">use </span>bitcoin::util::psbt::PartiallySignedTransaction;
 <span class="kw">use </span>bitcoin::{Amount, BlockHash, Network, Script, Transaction, Txid};
+<span class="kw">use </span>config::WalletClientConfig;
 <span class="kw">use </span>fedimint_core::core::{Decoder, ModuleInstanceId, ModuleKind};
 <span class="kw">use </span>fedimint_core::encoding::{Decodable, Encodable, UnzipConsensus};
 <span class="kw">use </span>fedimint_core::module::{CommonModuleGen, ModuleCommon, ModuleConsensusVersion};
@@ -371,15 +371,24 @@
     Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, UnzipConsensus, Encodable, Decodable,
 )]
 </span><span class="kw">pub enum </span>WalletConsensusItem {
-    RoundConsensus(RoundConsensusItem),
+    BlockCount(u32), <span class="comment">/* FIXME: use block hash instead, but needs more complicated
+                      * * verification logic */
+    </span>Feerate(Feerate),
     PegOutSignature(PegOutSignatureItem),
 }
 
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>WalletConsensusItem {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            WalletConsensusItem::RoundConsensus(rc) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;Wallet Block Height {}&quot;</span>, rc.block_height)
+            WalletConsensusItem::BlockCount(count) =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;Wallet Block Count {count}&quot;</span>)
+            }
+            WalletConsensusItem::Feerate(feerate) =&gt; {
+                <span class="macro">write!</span>(
+                    f,
+                    <span class="string">&quot;Wallet Feerate with sats per kvb {}&quot;</span>,
+                    feerate.sats_per_kvb
+                )
             }
             WalletConsensusItem::PegOutSignature(sig) =&gt; {
                 <span class="macro">write!</span>(f, <span class="string">&quot;Wallet PegOut signature for Bitcoin TxId {}&quot;</span>, sig.txid)
@@ -388,25 +397,10 @@
     }
 }
 
-<span class="attr">#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, Encodable, Decodable)]
-</span><span class="kw">pub struct </span>RoundConsensusItem {
-    <span class="kw">pub </span>block_height: u32, <span class="comment">/* FIXME: use block hash instead, but needs more complicated
-                            * verification logic */
-    </span><span class="kw">pub </span>fee_rate: Feerate,
-    <span class="kw">pub </span>randomness: [u8; <span class="number">32</span>],
-}
-
 <span class="attr">#[derive(Clone, Debug, Serialize, Deserialize, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>PegOutSignatureItem {
     <span class="kw">pub </span>txid: Txid,
     <span class="kw">pub </span>signature: Vec&lt;secp256k1::ecdsa::Signature&gt;,
-}
-
-<span class="attr">#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, Encodable, Decodable)]
-</span><span class="kw">pub struct </span>RoundConsensus {
-    <span class="kw">pub </span>block_height: u32,
-    <span class="kw">pub </span>fee_rate: Feerate,
-    <span class="kw">pub </span>randomness_beacon: [u8; <span class="number">32</span>],
 }
 
 <span class="attr">#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Encodable, Decodable)]
@@ -519,6 +513,9 @@
 <span class="kw">impl </span>CommonModuleGen <span class="kw">for </span>WalletCommonGen {
     <span class="kw">const </span>CONSENSUS_VERSION: ModuleConsensusVersion = CONSENSUS_VERSION;
     <span class="kw">const </span>KIND: ModuleKind = KIND;
+
+    <span class="kw">type </span>ClientConfig = WalletClientConfig;
+
     <span class="kw">fn </span>decoder() -&gt; Decoder {
         WalletModuleTypes::decoder()
     }
@@ -602,6 +599,7 @@
 
 <span class="macro">plugin_types_trait_impl_common!</span>(
     WalletModuleTypes,
+    WalletClientConfig,
     WalletInput,
     WalletOutput,
     WalletOutputOutcome,

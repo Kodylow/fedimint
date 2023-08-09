@@ -1236,14 +1236,48 @@
 <a href="#1236" id="1236">1236</a>
 <a href="#1237" id="1237">1237</a>
 <a href="#1238" id="1238">1238</a>
+<a href="#1239" id="1239">1239</a>
+<a href="#1240" id="1240">1240</a>
+<a href="#1241" id="1241">1241</a>
+<a href="#1242" id="1242">1242</a>
+<a href="#1243" id="1243">1243</a>
+<a href="#1244" id="1244">1244</a>
+<a href="#1245" id="1245">1245</a>
+<a href="#1246" id="1246">1246</a>
+<a href="#1247" id="1247">1247</a>
+<a href="#1248" id="1248">1248</a>
+<a href="#1249" id="1249">1249</a>
+<a href="#1250" id="1250">1250</a>
+<a href="#1251" id="1251">1251</a>
+<a href="#1252" id="1252">1252</a>
+<a href="#1253" id="1253">1253</a>
+<a href="#1254" id="1254">1254</a>
+<a href="#1255" id="1255">1255</a>
+<a href="#1256" id="1256">1256</a>
+<a href="#1257" id="1257">1257</a>
+<a href="#1258" id="1258">1258</a>
+<a href="#1259" id="1259">1259</a>
+<a href="#1260" id="1260">1260</a>
+<a href="#1261" id="1261">1261</a>
+<a href="#1262" id="1262">1262</a>
+<a href="#1263" id="1263">1263</a>
+<a href="#1264" id="1264">1264</a>
+<a href="#1265" id="1265">1265</a>
+<a href="#1266" id="1266">1266</a>
+<a href="#1267" id="1267">1267</a>
+<a href="#1268" id="1268">1268</a>
+<a href="#1269" id="1269">1269</a>
+<a href="#1270" id="1270">1270</a>
+<a href="#1271" id="1271">1271</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap};
 <span class="kw">use </span>std::fmt::{<span class="self">self</span>, Debug, Display, Formatter};
 <span class="kw">use </span>std::io::{Cursor, Read};
+<span class="kw">use </span>std::ops::Add;
 <span class="kw">use </span>std::pin::Pin;
 <span class="kw">use </span>std::str::FromStr;
 <span class="kw">use </span>std::sync::Arc;
-<span class="kw">use </span>std::time::{Duration, SystemTime};
+<span class="kw">use </span>std::time::Duration;
 <span class="kw">use </span>std::{cmp, result};
 
 <span class="kw">use </span>anyhow::{anyhow, ensure};
@@ -1257,6 +1291,7 @@
 <span class="kw">use </span>fedimint_core::fmt_utils::AbbreviateDebug;
 <span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
 <span class="kw">use </span>fedimint_core::task::{MaybeSend, MaybeSync, RwLock, RwLockWriteGuard};
+<span class="kw">use </span>fedimint_core::time::now;
 <span class="kw">use </span>fedimint_core::{
     apply, async_trait_maybe_send, dyn_newtype_define, NumPeers, OutPoint, PeerId, TransactionId,
 };
@@ -1274,17 +1309,17 @@
 <span class="kw">use </span>serde_json::Value;
 <span class="kw">use </span>thiserror::Error;
 <span class="kw">use </span>threshold_crypto::{PublicKey, PK_SIZE};
-<span class="kw">use </span>tracing::{debug, error, instrument, trace};
+<span class="kw">use </span>tracing::{debug, error, instrument, trace, warn};
 <span class="kw">use </span>url::Url;
 
 <span class="kw">use </span><span class="kw">crate</span>::backup::ClientBackupSnapshot;
 <span class="kw">use </span><span class="kw">crate</span>::core::backup::SignedBackupRequest;
 <span class="kw">use </span><span class="kw">crate</span>::core::{Decoder, OutputOutcome};
 <span class="kw">use </span><span class="kw">crate</span>::epoch::{SerdeEpochHistory, SignedEpochOutcome};
-<span class="kw">use </span><span class="kw">crate</span>::module::ApiRequestErased;
+<span class="kw">use </span><span class="kw">crate</span>::module::{ApiRequestErased, ApiVersion, SupportedApiVersionsSummary};
 <span class="kw">use </span><span class="kw">crate</span>::outcome::TransactionStatus;
 <span class="kw">use </span><span class="kw">crate</span>::query::{
-    CurrentConsensus, EventuallyConsistent, QueryStep, QueryStrategy, UnionResponses,
+    CurrentConsensus, DiscoverApiVersionSet, EventuallyConsistent, QueryStep, QueryStrategy,
     UnionResponsesSingle, VerifiableResponse,
 };
 <span class="kw">use </span><span class="kw">crate</span>::task;
@@ -1328,25 +1363,34 @@
 
 <span class="doccomment">/// An API request error when calling an entire federation
 </span><span class="attr">#[derive(Debug, Error)]
-</span><span class="kw">pub struct </span>FederationError(BTreeMap&lt;PeerId, MemberError&gt;);
+</span><span class="kw">pub struct </span>FederationError {
+    general: <span class="prelude-ty">Option</span>&lt;anyhow::Error&gt;,
+    members: BTreeMap&lt;PeerId, MemberError&gt;,
+}
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>FederationError {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;Federation rpc error(&quot;</span>)<span class="question-mark">?</span>;
-        <span class="kw">for </span>(i, (peer, e)) <span class="kw">in </span><span class="self">self</span>.<span class="number">0</span>.iter().enumerate() {
-            f.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{peer} =&gt; {e})&quot;</span>))<span class="question-mark">?</span>;
-            <span class="kw">if </span>i == <span class="self">self</span>.<span class="number">0</span>.len() - <span class="number">1 </span>{
+        f.write_str(<span class="string">&quot;Federation rpc error {&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(general) = <span class="self">self</span>.general.as_ref() {
+            f.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;general =&gt; {general})&quot;</span>))<span class="question-mark">?</span>;
+            <span class="kw">if </span>!<span class="self">self</span>.members.is_empty() {
                 f.write_str(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
             }
         }
-        f.write_str(<span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">for </span>(i, (peer, e)) <span class="kw">in </span><span class="self">self</span>.members.iter().enumerate() {
+            f.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{peer} =&gt; {e})&quot;</span>))<span class="question-mark">?</span>;
+            <span class="kw">if </span>i == <span class="self">self</span>.members.len() - <span class="number">1 </span>{
+                f.write_str(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+            }
+        }
+        f.write_str(<span class="string">&quot;}&quot;</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl </span>FederationError {
     <span class="kw">pub fn </span>is_retryable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.<span class="number">0</span>.iter().any(|(<span class="kw">_</span>, e)| e.is_retryable())
+        <span class="self">self</span>.members.iter().any(|(<span class="kw">_</span>, e)| e.is_retryable())
     }
 }
 
@@ -1391,6 +1435,15 @@
     ) -&gt; result::Result&lt;Value, jsonrpsee_core::Error&gt;;
 }
 
+<span class="doccomment">/// Set of api versions for each component (core + modules)
+///
+/// E.g. result of federated common api versions discovery.
+</span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize, Encodable, Decodable)]
+</span><span class="kw">pub struct </span>ApiVersionSet {
+    <span class="kw">pub </span>core: ApiVersion,
+    <span class="kw">pub </span>modules: BTreeMap&lt;ModuleInstanceId, ApiVersion&gt;,
+}
+
 <span class="doccomment">/// An extension trait allowing to making federation-wide API call on top
 /// [`IFederationApi`].
 </span><span class="attr">#[apply(<span class="macro">async_trait_maybe_send!</span>)]
@@ -1403,6 +1456,8 @@
         method: String,
         params: ApiRequestErased,
     ) -&gt; FederationResult&lt;FedRet&gt; {
+        <span class="kw">let </span>timeout = strategy.request_timeout();
+
         <span class="attr">#[cfg(not(target_family = <span class="string">&quot;wasm&quot;</span>))]
         </span><span class="kw">let </span><span class="kw-2">mut </span>futures = FuturesUnordered::&lt;Pin&lt;Box&lt;<span class="kw">dyn </span>Future&lt;Output = <span class="kw">_</span>&gt; + Send&gt;&gt;&gt;::new();
         <span class="attr">#[cfg(target_family = <span class="string">&quot;wasm&quot;</span>)]
@@ -1412,12 +1467,24 @@
 
         <span class="kw">for </span>peer_id <span class="kw">in </span>peers {
             futures.push(Box::pin(<span class="kw">async </span>{
+                <span class="kw">let </span>request = <span class="kw">async </span>{
+                    <span class="self">self</span>.request_raw(<span class="kw-2">*</span>peer_id, <span class="kw-2">&amp;</span>method, <span class="kw-2">&amp;</span>[params.to_json()])
+                        .<span class="kw">await
+                        </span>.map(AbbreviateDebug)
+                };
+
+                <span class="kw">let </span>result = <span class="kw">if let </span><span class="prelude-val">Some</span>(timeout) = timeout {
+                    <span class="kw">match </span>fedimint_core::task::timeout(timeout, request).<span class="kw">await </span>{
+                        <span class="prelude-val">Ok</span>(result) =&gt; result,
+                        <span class="prelude-val">Err</span>(_timeout) =&gt; <span class="prelude-val">Err</span>(JsonRpcError::RequestTimeout),
+                    }
+                } <span class="kw">else </span>{
+                    request.<span class="kw">await
+                </span>};
+
                 PeerResponse {
                     peer: <span class="kw-2">*</span>peer_id,
-                    result: <span class="self">self
-                        </span>.request_raw(<span class="kw-2">*</span>peer_id, <span class="kw-2">&amp;</span>method, <span class="kw-2">&amp;</span>[params.to_json()])
-                        .<span class="kw">await
-                        </span>.map(AbbreviateDebug),
+                    result,
                 }
             }));
         }
@@ -1484,35 +1551,27 @@
                             }
                         }
                         QueryStep::Continue =&gt; {}
-                        QueryStep::Failure(failed) =&gt; {
-                            <span class="kw">for </span>(failed_peer, error) <span class="kw">in </span>failed {
+                        QueryStep::Failure { general, members } =&gt; {
+                            <span class="kw">for </span>(failed_peer, error) <span class="kw">in </span>members {
                                 member_errors.insert(failed_peer, error);
                             }
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(FederationError(member_errors));
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(FederationError {
+                                general,
+                                members: member_errors,
+                            });
                         }
                         QueryStep::Success(response) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(response),
                     }
                 }
-                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(FederationError(BTreeMap::new())),
+                <span class="prelude-val">None </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(FederationError {
+                        general: <span class="prelude-val">None</span>,
+                        members: BTreeMap::new(),
+                    })
+                }
             }
         }
     }
-
-    <span class="kw">async fn </span>request_union&lt;Ret&gt;(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        method: String,
-        params: ApiRequestErased,
-    ) -&gt; FederationResult&lt;Vec&lt;Ret&gt;&gt;
-    <span class="kw">where
-        </span>Ret: serde::de::DeserializeOwned + Eq + Debug + Clone + MaybeSend,
-    {
-        <span class="self">self</span>.request_with_strategy(
-            UnionResponses::new(<span class="self">self</span>.all_members().one_honest()),
-            method,
-            params,
-        )
-        .<span class="kw">await
-    </span>}
 
     <span class="kw">async fn </span>request_current_consensus&lt;Ret&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -1568,7 +1627,7 @@
 
 <span class="kw">impl </span>AsRef&lt;<span class="kw">dyn </span>IGlobalFederationApi + <span class="lifetime">&#39;static</span>&gt; <span class="kw">for </span>DynGlobalApi {
     <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>IGlobalFederationApi + <span class="lifetime">&#39;static</span>) {
-        <span class="self">self</span>.<span class="number">0</span>.as_ref()
+        <span class="self">self</span>.inner.as_ref()
     }
 }
 
@@ -1609,10 +1668,7 @@
         </span>R: OutputOutcome;
 
     <span class="doccomment">/// Fetch client configuration info only if verified against a federation id
-    </span><span class="kw">async fn </span>download_client_config(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        info: <span class="kw-2">&amp;</span>WsClientConnectInfo,
-    ) -&gt; FederationResult&lt;ClientConfig&gt;;
+    </span><span class="kw">async fn </span>download_client_config(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>InviteCode) -&gt; FederationResult&lt;ClientConfig&gt;;
 
     <span class="doccomment">/// Fetches the server consensus hash if enough peers agree on it
     </span><span class="kw">async fn </span>consensus_config_hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; FederationResult&lt;sha256::Hash&gt;;
@@ -1623,6 +1679,12 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         id: <span class="kw-2">&amp;</span>secp256k1::XOnlyPublicKey,
     ) -&gt; FederationResult&lt;Vec&lt;ClientBackupSnapshot&gt;&gt;;
+
+    <span class="doccomment">/// Query peers and calculate optimal common api versions to use.
+    </span><span class="kw">async fn </span>discover_api_version_set(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        client_versions: <span class="kw-2">&amp;</span>SupportedApiVersionsSummary,
+    ) -&gt; FederationResult&lt;ApiVersionSet&gt;;
 }
 
 <span class="kw">fn </span>map_tx_outcome_outpoint&lt;R&gt;(
@@ -1719,7 +1781,9 @@
                     QueryStep::FailMembers(failed) =&gt; QueryStep::FailMembers(failed),
                     QueryStep::Continue =&gt; QueryStep::Continue,
                     QueryStep::Success(res) =&gt; QueryStep::Success(res),
-                    QueryStep::Failure(failed) =&gt; QueryStep::Failure(failed),
+                    QueryStep::Failure { general, members } =&gt; {
+                        QueryStep::Failure { general, members }
+                    }
                 }
             }
         }
@@ -1782,10 +1846,7 @@
         </span>.map_err(|<span class="kw">_</span>| OutputOutcomeError::Timeout(timeout))<span class="question-mark">?
     </span>}
 
-    <span class="kw">async fn </span>download_client_config(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        info: <span class="kw-2">&amp;</span>WsClientConnectInfo,
-    ) -&gt; FederationResult&lt;ClientConfig&gt; {
+    <span class="kw">async fn </span>download_client_config(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>InviteCode) -&gt; FederationResult&lt;ClientConfig&gt; {
         <span class="kw">let </span>id = info.id;
         <span class="kw">let </span>qs = VerifiableResponse::new(
             <span class="self">self</span>.all_members().total(),
@@ -1836,6 +1897,23 @@
             .flatten()
             .collect())
     }
+
+    <span class="kw">async fn </span>discover_api_version_set(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        client_versions: <span class="kw-2">&amp;</span>SupportedApiVersionsSummary,
+    ) -&gt; FederationResult&lt;ApiVersionSet&gt; {
+        <span class="kw">let </span>timeout = Duration::from_secs(<span class="number">60</span>);
+        <span class="self">self</span>.request_with_strategy(
+            DiscoverApiVersionSet::new(
+                <span class="self">self</span>.all_members().len(),
+                now().add(timeout),
+                client_versions.clone(),
+            ),
+            <span class="string">&quot;version&quot;</span>.to_owned(),
+            ApiRequestErased::default(),
+        )
+        .<span class="kw">await
+    </span>}
 }
 
 <span class="doccomment">/// Mint API client that will try to run queries against all `members` expecting
@@ -1859,7 +1937,7 @@
 ///
 /// Can be used to download the configs and bootstrap a client
 </span><span class="attr">#[derive(Clone, Debug, Eq, PartialEq, Encodable)]
-</span><span class="kw">pub struct </span>WsClientConnectInfo {
+</span><span class="kw">pub struct </span>InviteCode {
     <span class="doccomment">/// Url to reach an API that we can download configs from
     </span><span class="kw">pub </span>url: Url,
     <span class="doccomment">/// Config download token (might only be used a certain number of times)
@@ -1875,7 +1953,7 @@
 </span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Encodable, Decodable)]
 </span><span class="kw">pub struct </span>ClientConfigDownloadToken(<span class="kw">pub </span>[u8; CONFIG_DOWNLOAD_TOKEN_BYTES]);
 
-<span class="doccomment">/// We can represent client connect info as a bech32 string for compactness and
+<span class="doccomment">/// We can represent client invite code as a bech32 string for compactness and
 /// error-checking
 ///
 /// Human readable part (HRP) includes the version
@@ -1884,7 +1962,7 @@
 /// ```
 </span><span class="kw">const </span>BECH32_HRP: <span class="kw-2">&amp;</span>str = <span class="string">&quot;fed1&quot;</span>;
 
-<span class="kw">impl </span>FromStr <span class="kw">for </span>WsClientConnectInfo {
+<span class="kw">impl </span>FromStr <span class="kw">for </span>InviteCode {
     <span class="kw">type </span><span class="prelude-val">Err </span>= anyhow::Error;
 
     <span class="kw">fn </span>from_str(encoded: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
@@ -1916,8 +1994,8 @@
     }
 }
 
-<span class="doccomment">/// Parses the connect info from a bech32 string
-</span><span class="kw">impl </span>Display <span class="kw">for </span>WsClientConnectInfo {
+<span class="doccomment">/// Parses the invite code from a bech32 string
+</span><span class="kw">impl </span>Display <span class="kw">for </span>InviteCode {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="macro">vec!</span>[];
         data.extend(<span class="self">self</span>.id.<span class="number">0</span>.to_bytes());
@@ -1932,7 +2010,7 @@
     }
 }
 
-<span class="kw">impl </span>Serialize <span class="kw">for </span>WsClientConnectInfo {
+<span class="kw">impl </span>Serialize <span class="kw">for </span>InviteCode {
     <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
     <span class="kw">where
         </span>S: serde::Serializer,
@@ -1941,7 +2019,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>WsClientConnectInfo {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>InviteCode {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
         </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
@@ -2036,9 +2114,9 @@
         )
     }
 
-    <span class="doccomment">/// Creates a new API client from a connect info, assumes they are in peer
+    <span class="doccomment">/// Creates a new API client from a invite code, assumes they are in peer
     /// id order
-    </span><span class="kw">pub fn </span>from_connect_info(info: <span class="kw-2">&amp;</span>[WsClientConnectInfo]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>from_invite_code(info: <span class="kw-2">&amp;</span>[InviteCode]) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new(
             info.iter()
                 .enumerate()
@@ -2126,7 +2204,8 @@
                             .<span class="kw">await</span><span class="question-mark">?
                     </span>}
                     <span class="prelude-val">Err</span>(err) =&gt; {
-                        <span class="macro">error!</span>(
+                        <span class="comment">// Warn instead of Error because we will probably retry connecting later
+                        </span><span class="macro">warn!</span>(
                             target: LOG_NET_API,
                             %err, <span class="string">&quot;unable to connect to server&quot;</span>);
                         <span class="kw">return </span><span class="prelude-val">Err</span>(err)<span class="question-mark">?</span>;
@@ -2160,10 +2239,7 @@
 <span class="doccomment">/// The status of a server, including how it views its peers
 </span><span class="attr">#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>ConsensusStatus {
-    <span class="doccomment">/// The last contribution that this server has made to the consensus, it&#39;s
-    /// equivalent to [`PeerConsensusStatus::last_contribution`] and
-    /// [`ConsensusContribution::value`]
-    </span><span class="kw">pub </span>last_contribution: u64,
+    <span class="kw">pub </span>session_count: u64,
     <span class="kw">pub </span>status_by_peer: HashMap&lt;PeerId, PeerConsensusStatus&gt;,
     <span class="kw">pub </span>peers_online: u64,
     <span class="kw">pub </span>peers_offline: u64,
@@ -2175,11 +2251,9 @@
 <span class="attr">#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>PeerConsensusStatus {
     <span class="kw">pub </span>last_contribution: <span class="prelude-ty">Option</span>&lt;u64&gt;,
-    <span class="kw">pub </span>last_contribution_timestamp_seconds: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     <span class="kw">pub </span>connection_status: PeerConnectionStatus,
-    <span class="doccomment">/// Indicates that this peer needs attention from the operator. For instance
-    /// it may be suffering too many disconnections or it hasn&#39;t contributed for
-    /// the consensus in a long time
+    <span class="doccomment">/// Indicates that this peer needs attention from the operator since
+    /// it has not contributed to the consensus in a long time
     </span><span class="kw">pub </span>flagged: bool,
 }
 
@@ -2188,16 +2262,6 @@
     <span class="attr">#[default]
     </span>Disconnected,
     Connected,
-}
-
-<span class="doccomment">/// Tracks the consensus contribution for a peer
-</span><span class="attr">#[derive(Debug, Clone, Copy)]
-</span><span class="kw">pub struct </span>ConsensusContribution {
-    <span class="doccomment">/// Using HBBFT this is the epoch count. In general it should be an
-    /// increasing number
-    </span><span class="kw">pub </span>value: u64,
-    <span class="doccomment">/// When the contribution was received
-    </span><span class="kw">pub </span>time: SystemTime,
 }
 
 <span class="doccomment">/// The state of the server returned via APIs
@@ -2214,6 +2278,8 @@
     </span>ConfigGenFailed,
     <span class="doccomment">/// Config is generated, peers should verify the config
     </span>VerifyingConfigs,
+    <span class="doccomment">/// We have verified all our peer configs
+    </span>VerifiedConfigs,
     <span class="doccomment">/// Restarted from a planned upgrade (requires action to start)
     </span>Upgrading,
     <span class="doccomment">/// Consensus is running
@@ -2456,21 +2522,21 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>converts_connect_string() {
-        <span class="kw">let </span>connect = WsClientConnectInfo {
+    </span><span class="kw">fn </span>converts_invite_code() {
+        <span class="kw">let </span>connect = InviteCode {
             url: <span class="string">&quot;ws://test1&quot;</span>.parse().unwrap(),
             id: FederationId::dummy(),
             download_token: ClientConfigDownloadToken(OsRng::default().gen()),
         };
 
         <span class="kw">let </span>bech32 = connect.to_string();
-        <span class="kw">let </span>connect_parsed = WsClientConnectInfo::from_str(<span class="kw-2">&amp;</span>bech32).expect(<span class="string">&quot;parses&quot;</span>);
+        <span class="kw">let </span>connect_parsed = InviteCode::from_str(<span class="kw-2">&amp;</span>bech32).expect(<span class="string">&quot;parses&quot;</span>);
         <span class="macro">assert_eq!</span>(connect, connect_parsed);
 
         <span class="kw">let </span>json = serde_json::to_string(<span class="kw-2">&amp;</span>connect).unwrap();
         <span class="kw">let </span>connect_as_string: String = serde_json::from_str(<span class="kw-2">&amp;</span>json).unwrap();
         <span class="macro">assert_eq!</span>(connect_as_string, bech32);
-        <span class="kw">let </span>connect_parsed_json: WsClientConnectInfo = serde_json::from_str(<span class="kw-2">&amp;</span>json).unwrap();
+        <span class="kw">let </span>connect_parsed_json: InviteCode = serde_json::from_str(<span class="kw-2">&amp;</span>json).unwrap();
         <span class="macro">assert_eq!</span>(connect_parsed_json, connect_parsed);
     }
 }

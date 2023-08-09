@@ -612,66 +612,8 @@
 <a href="#612" id="612">612</a>
 <a href="#613" id="613">613</a>
 <a href="#614" id="614">614</a>
-<a href="#615" id="615">615</a>
-<a href="#616" id="616">616</a>
-<a href="#617" id="617">617</a>
-<a href="#618" id="618">618</a>
-<a href="#619" id="619">619</a>
-<a href="#620" id="620">620</a>
-<a href="#621" id="621">621</a>
-<a href="#622" id="622">622</a>
-<a href="#623" id="623">623</a>
-<a href="#624" id="624">624</a>
-<a href="#625" id="625">625</a>
-<a href="#626" id="626">626</a>
-<a href="#627" id="627">627</a>
-<a href="#628" id="628">628</a>
-<a href="#629" id="629">629</a>
-<a href="#630" id="630">630</a>
-<a href="#631" id="631">631</a>
-<a href="#632" id="632">632</a>
-<a href="#633" id="633">633</a>
-<a href="#634" id="634">634</a>
-<a href="#635" id="635">635</a>
-<a href="#636" id="636">636</a>
-<a href="#637" id="637">637</a>
-<a href="#638" id="638">638</a>
-<a href="#639" id="639">639</a>
-<a href="#640" id="640">640</a>
-<a href="#641" id="641">641</a>
-<a href="#642" id="642">642</a>
-<a href="#643" id="643">643</a>
-<a href="#644" id="644">644</a>
-<a href="#645" id="645">645</a>
-<a href="#646" id="646">646</a>
-<a href="#647" id="647">647</a>
-<a href="#648" id="648">648</a>
-<a href="#649" id="649">649</a>
-<a href="#650" id="650">650</a>
-<a href="#651" id="651">651</a>
-<a href="#652" id="652">652</a>
-<a href="#653" id="653">653</a>
-<a href="#654" id="654">654</a>
-<a href="#655" id="655">655</a>
-<a href="#656" id="656">656</a>
-<a href="#657" id="657">657</a>
-<a href="#658" id="658">658</a>
-<a href="#659" id="659">659</a>
-<a href="#660" id="660">660</a>
-<a href="#661" id="661">661</a>
-<a href="#662" id="662">662</a>
-<a href="#663" id="663">663</a>
-<a href="#664" id="664">664</a>
-<a href="#665" id="665">665</a>
-<a href="#666" id="666">666</a>
-<a href="#667" id="667">667</a>
-<a href="#668" id="668">668</a>
-<a href="#669" id="669">669</a>
-<a href="#670" id="670">670</a>
-<a href="#671" id="671">671</a>
-<a href="#672" id="672">672</a>
-</pre><pre class="rust"><code><span class="kw">pub mod </span>pay;
-<span class="kw">pub mod </span>register;
+</pre><pre class="rust"><code><span class="kw">pub mod </span>complete;
+<span class="kw">pub mod </span>pay;
 
 <span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>std::time::Duration;
@@ -687,12 +629,16 @@
 <span class="kw">use </span>fedimint_client::transaction::{ClientOutput, TransactionBuilder};
 <span class="kw">use </span>fedimint_client::{sm_enum_variant_translation, Client, DynGlobalClientContext};
 <span class="kw">use </span>fedimint_core::api::{DynGlobalApi, DynModuleApi};
+<span class="kw">use </span>fedimint_core::config::FederationId;
 <span class="kw">use </span>fedimint_core::core::{Decoder, IntoDynInstance, ModuleInstanceId};
-<span class="kw">use </span>fedimint_core::db::{AutocommitError, Database};
+<span class="kw">use </span>fedimint_core::db::{AutocommitError, Database, DatabaseTransaction};
 <span class="kw">use </span>fedimint_core::encoding::{Decodable, Encodable};
-<span class="kw">use </span>fedimint_core::module::{ExtendsCommonModuleGen, TransactionItemAmount};
+<span class="kw">use </span>fedimint_core::module::{
+    ApiVersion, ExtendsCommonModuleGen, MultiApiVersion, TransactionItemAmount,
+};
 <span class="kw">use </span>fedimint_core::{apply, async_trait_maybe_send, Amount, OutPoint, TransactionId};
 <span class="kw">use </span>fedimint_ln_client::contracts::ContractId;
+<span class="kw">use </span>fedimint_ln_common::api::LnFederationApi;
 <span class="kw">use </span>fedimint_ln_common::config::LightningClientConfig;
 <span class="kw">use </span>fedimint_ln_common::contracts::Preimage;
 <span class="kw">use </span>fedimint_ln_common::incoming::{
@@ -708,15 +654,18 @@
 <span class="kw">use </span>secp256k1::{KeyPair, PublicKey, Secp256k1};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>thiserror::Error;
+<span class="kw">use </span>tracing::info;
 <span class="kw">use </span>url::Url;
 
-<span class="kw">use </span><span class="self">self</span>::pay::{GatewayPayCommon, GatewayPayInvoice, GatewayPayStateMachine, GatewayPayStates};
-<span class="kw">use </span><span class="self">self</span>::register::RegisterWithFederationStateMachine;
-<span class="kw">use </span><span class="kw">crate</span>::gatewaylnrpc::{GetNodeInfoResponse, InterceptHtlcRequest};
-<span class="kw">use </span><span class="kw">crate</span>::lnrpc_client::ILnRpcClient;
-<span class="kw">use </span><span class="kw">crate</span>::ng::register::{
-    RegisterWithFederation, RegisterWithFederationCommon, RegisterWithFederationStates,
+<span class="kw">use </span><span class="self">self</span>::complete::GatewayCompleteStateMachine;
+<span class="kw">use </span><span class="self">self</span>::pay::{
+    GatewayPayCommon, GatewayPayInvoice, GatewayPayStateMachine, GatewayPayStates,
+    OutgoingPaymentError,
 };
+<span class="kw">use </span><span class="kw">crate</span>::db::FederationRegistrationKey;
+<span class="kw">use </span><span class="kw">crate</span>::gatewaylnrpc::InterceptHtlcRequest;
+<span class="kw">use </span><span class="kw">crate</span>::lnrpc_client::ILnRpcClient;
+<span class="kw">use </span><span class="kw">crate</span>::ng::complete::{GatewayCompleteCommon, GatewayCompleteStates, WaitForPreimageState};
 
 <span class="kw">pub const </span>GW_ANNOUNCEMENT_TTL: Duration = Duration::from_secs(<span class="number">600</span>);
 <span class="kw">pub const </span>INITIAL_REGISTER_BACKOFF_DURATION: Duration = Duration::from_secs(<span class="number">15</span>);
@@ -733,8 +682,13 @@
         preimage: Preimage,
         outpoint: OutPoint,
     },
-    Canceled,
-    Fail,
+    Canceled {
+        error: OutgoingPaymentError,
+    },
+    Fail {
+        error: OutgoingPaymentError,
+        error_message: String,
+    },
     OfferDoesNotExist {
         contract_id: ContractId,
     },
@@ -746,25 +700,23 @@
 </span><span class="kw">pub enum </span>GatewayExtReceiveStates {
     Funding,
     Preimage(Preimage),
-    RefundSuccess(OutPoint),
-    RefundError(String),
-    FundingFailed(String),
-}
-
-<span class="doccomment">/// The high-level state of a registration operation started with
-/// [`GatewayClientExt::register_with_federation`].
-</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-</span><span class="kw">pub enum </span>GatewayExtRegisterStates {
-    Registering,
-    Success,
-    Done,
+    RefundSuccess {
+        outpoint: OutPoint,
+        error: IncomingSmError,
+    },
+    RefundError {
+        error_message: String,
+        error: IncomingSmError,
+    },
+    FundingFailed {
+        error: IncomingSmError,
+    },
 }
 
 <span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
 </span><span class="kw">pub enum </span>GatewayMeta {
     Pay,
     Receive,
-    Register,
 }
 
 <span class="attr">#[apply(<span class="macro">async_trait_maybe_send!</span>)]
@@ -787,7 +739,8 @@
         gateway_api: Url,
         route_hints: Vec&lt;RouteHint&gt;,
         time_to_live: Duration,
-    ) -&gt; anyhow::Result&lt;OperationId&gt;;
+        gateway_id: secp256k1::PublicKey,
+    ) -&gt; anyhow::Result&lt;()&gt;;
 
     <span class="doccomment">/// Attempt fulfill HTLC by buying preimage from the federation
     </span><span class="kw">async fn </span>gateway_handle_intercepted_htlc(<span class="kw-2">&amp;</span><span class="self">self</span>, htlc: Htlc) -&gt; anyhow::Result&lt;OperationId&gt;;
@@ -797,12 +750,6 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         operation_id: OperationId,
     ) -&gt; anyhow::Result&lt;UpdateStreamOrOutcome&lt;<span class="lifetime">&#39;_</span>, GatewayExtReceiveStates&gt;&gt;;
-
-    <span class="doccomment">/// Subscribe to updates when the gateway is registering with the federation
-    </span><span class="kw">async fn </span>gateway_subscribe_register(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        operation_id: OperationId,
-    ) -&gt; anyhow::Result&lt;UpdateStreamOrOutcome&lt;<span class="lifetime">&#39;_</span>, GatewayExtRegisterStates&gt;&gt;;
 }
 
 <span class="attr">#[apply(<span class="macro">async_trait_maybe_send!</span>)]
@@ -868,33 +815,36 @@
             <span class="macro">stream! </span>{
                 <span class="kw">yield </span>GatewayExtPayStates::Created;
 
-                <span class="kw">match </span>gateway.await_paid_invoice(operation_id).<span class="kw">await </span>{
-                    <span class="prelude-val">Ok</span>((outpoint, preimage)) =&gt; {
-                        <span class="kw">yield </span>GatewayExtPayStates::Preimage{ preimage: preimage.clone() };
+                <span class="kw">let </span><span class="kw-2">mut </span>stream = gateway.notifier.subscribe(operation_id).<span class="kw">await</span>;
+                <span class="kw">loop </span>{
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(GatewayClientStateMachines::Pay(state)) = stream.next().<span class="kw">await </span>{
+                        <span class="kw">match </span>state.state {
+                            GatewayPayStates::Preimage(outpoint, preimage) =&gt; {
+                                <span class="kw">yield </span>GatewayExtPayStates::Preimage{ preimage: preimage.clone() };
 
-                        <span class="kw">if </span><span class="self">self</span>.await_primary_module_output(operation_id, outpoint).<span class="kw">await</span>.is_ok() {
-                            <span class="kw">yield </span>GatewayExtPayStates::Success{ preimage: preimage.clone(), outpoint };
-                            <span class="kw">return</span>;
-                        }
-
-                        <span class="kw">yield </span>GatewayExtPayStates::Fail;
-                    }
-                    <span class="prelude-val">Err</span>(error) =&gt; {
-                        <span class="kw">match </span>error {
-                            GatewayError::Canceled(cancel_txid) =&gt; {
-                                <span class="kw">if </span><span class="self">self</span>.transaction_updates(operation_id).<span class="kw">await</span>.await_tx_accepted(cancel_txid).<span class="kw">await</span>.is_ok() {
-                                    <span class="kw">yield </span>GatewayExtPayStates::Canceled;
+                                <span class="kw">if </span><span class="self">self</span>.await_primary_module_output(operation_id, outpoint).<span class="kw">await</span>.is_ok() {
+                                    <span class="kw">yield </span>GatewayExtPayStates::Success{ preimage: preimage.clone(), outpoint };
                                     <span class="kw">return</span>;
                                 }
-
-                                <span class="kw">yield </span>GatewayExtPayStates::Fail;
                             }
-                            GatewayError::OfferDoesNotExist(contract_id) =&gt; {
+                            GatewayPayStates::Canceled { txid, contract_id: <span class="kw">_</span>, error } =&gt; {
+                                <span class="kw">match </span><span class="self">self</span>.transaction_updates(operation_id).<span class="kw">await</span>.await_tx_accepted(txid).<span class="kw">await </span>{
+                                    <span class="prelude-val">Ok</span>(()) =&gt; {
+                                        <span class="kw">yield </span>GatewayExtPayStates::Canceled{ error };
+                                        <span class="kw">return</span>;
+                                    }
+                                    <span class="prelude-val">Err</span>(e) =&gt; {
+                                        <span class="kw">yield </span>GatewayExtPayStates::Fail { error, error_message: <span class="macro">format!</span>(<span class="string">&quot;Refund transaction {txid} was not accepted by the federation. OperationId: {operation_id} Error: {e:?}&quot;</span>) };
+                                    }
+                                }
+                            }
+                            GatewayPayStates::OfferDoesNotExist(contract_id) =&gt; {
                                 <span class="kw">yield </span>GatewayExtPayStates::OfferDoesNotExist { contract_id };
                             }
-                            <span class="kw">_ </span>=&gt; {
-                                <span class="kw">yield </span>GatewayExtPayStates::Fail;
-                            }
+                            GatewayPayStates::Failed{ error, error_message } =&gt; {
+                                <span class="kw">yield </span>GatewayExtPayStates::Fail{ error, error_message };
+                            },
+                            <span class="kw">_ </span>=&gt; {}
                         }
                     }
                 }
@@ -908,61 +858,23 @@
         gateway_api: Url,
         route_hints: Vec&lt;RouteHint&gt;,
         time_to_live: Duration,
-    ) -&gt; anyhow::Result&lt;OperationId&gt; {
-        <span class="kw">let </span>(gateway, instance) = <span class="self">self</span>.get_first_module::&lt;GatewayClientModule&gt;(<span class="kw-2">&amp;</span>KIND);
-        <span class="kw">let </span>registration_info =
-            gateway.to_gateway_registration_info(route_hints, time_to_live, gateway_api);
+        gateway_id: secp256k1::PublicKey,
+    ) -&gt; anyhow::Result&lt;()&gt; {
+        <span class="kw">let </span>(gateway, <span class="kw">_</span>) = <span class="self">self</span>.get_first_module::&lt;GatewayClientModule&gt;(<span class="kw-2">&amp;</span>KIND);
+        <span class="kw">let </span>registration_info = gateway.to_gateway_registration_info(
+            route_hints,
+            time_to_live,
+            gateway_api,
+            gateway_id,
+        );
 
-        <span class="self">self</span>.db()
-            .autocommit(
-                |dbtx| {
-                    Box::pin(<span class="kw">async </span>{
-                        <span class="kw">let </span>registration = registration_info.clone();
-                        <span class="kw">let </span>operation_id = OperationId(rand::random());
-
-                        <span class="kw">let </span>state_machines = <span class="macro">vec!</span>[GatewayClientStateMachines::Register(
-                            RegisterWithFederationStateMachine {
-                                common: RegisterWithFederationCommon {
-                                    operation_id,
-                                    time_to_live,
-                                    registration_info: registration,
-                                    federation_id: <span class="self">self</span>.get_config().<span class="kw">await</span>.federation_id,
-                                },
-                                state: RegisterWithFederationStates::Register(
-                                    RegisterWithFederation {
-                                        backoff_duration: INITIAL_REGISTER_BACKOFF_DURATION,
-                                    },
-                                ),
-                            },
-                        )];
-
-                        <span class="kw">let </span>dyn_states = state_machines
-                            .into_iter()
-                            .map(|s| s.into_dyn(instance.id))
-                            .collect();
-
-                        <span class="self">self</span>.add_state_machines(dbtx, dyn_states).<span class="kw">await</span><span class="question-mark">?</span>;
-                        <span class="self">self</span>.operation_log()
-                            .add_operation_log_entry(
-                                dbtx,
-                                operation_id,
-                                KIND.as_str(),
-                                GatewayMeta::Register,
-                            )
-                            .<span class="kw">await</span>;
-
-                        <span class="prelude-val">Ok</span>(operation_id)
-                    })
-                },
-                <span class="prelude-val">Some</span>(<span class="number">100</span>),
-            )
-            .<span class="kw">await
-            </span>.map_err(|e| <span class="kw">match </span>e {
-                AutocommitError::ClosureError { error, .. } =&gt; error,
-                AutocommitError::CommitFailed { last_error, .. } =&gt; {
-                    <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Commit to DB failed: {last_error}&quot;</span>)
-                }
-            })
+        <span class="kw">let </span>federation_id = <span class="self">self</span>.get_config().federation_id;
+        <span class="kw">let </span><span class="kw-2">mut </span>dbtx = <span class="self">self</span>.db().begin_transaction().<span class="kw">await</span>;
+        gateway
+            .register_with_federation(<span class="kw-2">&amp;mut </span>dbtx, federation_id, registration_info)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+        dbtx.commit_tx().<span class="kw">await</span>;
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Handles an intercepted HTLC by buying a preimage from the federation
@@ -994,45 +906,18 @@
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(GatewayClientStateMachines::Receive(state)) = stream.next().<span class="kw">await </span>{
                         <span class="kw">match </span>state.state {
                             IncomingSmStates::Preimage(preimage) =&gt; <span class="kw">break </span>GatewayExtReceiveStates::Preimage(preimage),
-                            IncomingSmStates::RefundSubmitted(txid) =&gt; {
+                            IncomingSmStates::RefundSubmitted{ txid, error } =&gt; {
                                 <span class="kw">let </span>out_point = OutPoint { txid, out_idx: <span class="number">0</span>};
                                 <span class="kw">match </span><span class="self">self</span>.await_primary_module_output(operation_id, out_point).<span class="kw">await </span>{
-                                    <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="kw">break </span>GatewayExtReceiveStates::RefundSuccess(out_point),
-                                    <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">break </span>GatewayExtReceiveStates::RefundError(e.to_string()),
+                                    <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="kw">break </span>GatewayExtReceiveStates::RefundSuccess{ outpoint: out_point, error },
+                                    <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">break </span>GatewayExtReceiveStates::RefundError{ error_message: e.to_string(), error },
                                 }
                             },
-                            IncomingSmStates::FundingFailed(e) =&gt; <span class="kw">break </span>GatewayExtReceiveStates::FundingFailed(e),
+                            IncomingSmStates::FundingFailed{ error } =&gt; <span class="kw">break </span>GatewayExtReceiveStates::FundingFailed{ error },
                             <span class="kw">_ </span>=&gt; {}
                         }
                     }
                 };
-                <span class="kw">yield </span>state;
-            }
-        }))
-    }
-
-    <span class="kw">async fn </span>gateway_subscribe_register(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        operation_id: OperationId,
-    ) -&gt; anyhow::Result&lt;UpdateStreamOrOutcome&lt;<span class="lifetime">&#39;_</span>, GatewayExtRegisterStates&gt;&gt; {
-        <span class="kw">let </span>(gateway, _instance) = <span class="self">self</span>.get_first_module::&lt;GatewayClientModule&gt;(<span class="kw-2">&amp;</span>KIND);
-        <span class="kw">let </span>operation = ln_operation(<span class="self">self</span>, operation_id).<span class="kw">await</span><span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(operation.outcome_or_updates(<span class="self">self</span>.db(), operation_id, || {
-            <span class="macro">stream! </span>{
-                <span class="kw">let </span><span class="kw-2">mut </span>stream = gateway.notifier.subscribe(operation_id).<span class="kw">await</span>;
-                <span class="kw">let </span>state = <span class="kw">loop </span>{
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(GatewayClientStateMachines::Register(state)) = stream.next().<span class="kw">await </span>{
-                        <span class="kw">match </span>state.state {
-                            RegisterWithFederationStates::Register(<span class="kw">_</span>) =&gt; <span class="kw">yield </span>GatewayExtRegisterStates::Registering,
-                            <span class="comment">// If we&#39;re waiting for the time to live to expire, that means we&#39;ve successfully registered before
-                            </span>RegisterWithFederationStates::WaitForTTL(<span class="kw">_</span>) =&gt; <span class="kw">yield </span>GatewayExtRegisterStates::Success,
-                            RegisterWithFederationStates::Done =&gt; <span class="kw">break </span>GatewayExtRegisterStates::Done,
-                            <span class="kw">_ </span>=&gt; {}
-                        }
-                    }
-                };
-
                 <span class="kw">yield </span>state;
             }
         }))
@@ -1041,7 +926,8 @@
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>GatewayClientGen {
-    <span class="kw">pub </span>lightning_client: Arc&lt;<span class="kw">dyn </span>ILnRpcClient&gt;,
+    <span class="kw">pub </span>lnrpc: Arc&lt;<span class="kw">dyn </span>ILnRpcClient&gt;,
+    <span class="kw">pub </span>node_pub_key: secp256k1::PublicKey,
     <span class="kw">pub </span>timelock_delta: u64,
     <span class="kw">pub </span>mint_channel_id: u64,
     <span class="kw">pub </span>fees: RoutingFees,
@@ -1054,28 +940,30 @@
 <span class="attr">#[apply(<span class="macro">async_trait_maybe_send!</span>)]
 </span><span class="kw">impl </span>ClientModuleGen <span class="kw">for </span>GatewayClientGen {
     <span class="kw">type </span>Module = GatewayClientModule;
-    <span class="kw">type </span>Config = LightningClientConfig;
+
+    <span class="kw">fn </span>supported_api_versions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MultiApiVersion {
+        MultiApiVersion::try_from_iter([ApiVersion { major: <span class="number">0</span>, minor: <span class="number">0 </span>}])
+            .expect(<span class="string">&quot;no version conflicts&quot;</span>)
+    }
 
     <span class="kw">async fn </span>init(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        cfg: <span class="self">Self</span>::Config,
+        cfg: LightningClientConfig,
         _db: Database,
+        _api_version: ApiVersion,
         module_root_secret: DerivableSecret,
         notifier: ModuleNotifier&lt;DynGlobalClientContext, &lt;<span class="self">Self</span>::Module <span class="kw">as </span>ClientModule&gt;::States&gt;,
         _api: DynGlobalApi,
         module_api: DynModuleApi,
     ) -&gt; anyhow::Result&lt;<span class="self">Self</span>::Module&gt; {
-        <span class="kw">let </span>GetNodeInfoResponse { pub_key, alias: <span class="kw">_ </span>} = <span class="self">self</span>.lightning_client.info().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>node_pub_key = PublicKey::from_slice(<span class="kw-2">&amp;</span>pub_key)
-            .map_err(|e| <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Invalid node pubkey {}&quot;</span>, e))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(GatewayClientModule {
+            lnrpc: <span class="self">self</span>.lnrpc.clone(),
             cfg,
             notifier,
             redeem_key: module_root_secret
                 .child_key(ChildId(<span class="number">0</span>))
                 .to_secp_key(<span class="kw-2">&amp;</span>Secp256k1::new()),
-            node_pub_key,
-            lightning_client: <span class="self">self</span>.lightning_client.clone(),
+            node_pub_key: <span class="self">self</span>.node_pub_key,
             timelock_delta: <span class="self">self</span>.timelock_delta,
             mint_channel_id: <span class="self">self</span>.mint_channel_id,
             fees: <span class="self">self</span>.fees,
@@ -1091,6 +979,7 @@
     timelock_delta: u64,
     secp: secp256k1_zkp::Secp256k1&lt;secp256k1_zkp::All&gt;,
     <span class="kw">pub </span>ln_decoder: Decoder,
+    notifier: ModuleNotifier&lt;DynGlobalClientContext, GatewayClientStateMachines&gt;,
 }
 
 <span class="kw">impl </span>Context <span class="kw">for </span>GatewayClientContext {}
@@ -1104,18 +993,9 @@
     }
 }
 
-<span class="attr">#[derive(Error, Debug, Serialize, Deserialize)]
-</span><span class="kw">pub enum </span>GatewayError {
-    <span class="attr">#[error(<span class="string">&quot;Gateway canceled the contract&quot;</span>)]
-    </span>Canceled(TransactionId),
-    <span class="attr">#[error(<span class="string">&quot;Offer does not exist&quot;</span>)]
-    </span>OfferDoesNotExist(ContractId),
-    <span class="attr">#[error(<span class="string">&quot;Unrecoverable error occurred in the gateway&quot;</span>)]
-    </span>Failed,
-}
-
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>GatewayClientModule {
+    lnrpc: Arc&lt;<span class="kw">dyn </span>ILnRpcClient&gt;,
     cfg: LightningClientConfig,
     <span class="kw">pub </span>notifier: ModuleNotifier&lt;DynGlobalClientContext, GatewayClientStateMachines&gt;,
     <span class="kw">pub </span>redeem_key: KeyPair,
@@ -1123,7 +1003,6 @@
     timelock_delta: u64,
     mint_channel_id: u64,
     fees: RoutingFees,
-    lightning_client: Arc&lt;<span class="kw">dyn </span>ILnRpcClient&gt;,
     module_api: DynModuleApi,
 }
 
@@ -1134,11 +1013,12 @@
 
     <span class="kw">fn </span>context(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::ModuleStateMachineContext {
         <span class="self">Self</span>::ModuleStateMachineContext {
-            lnrpc: <span class="self">self</span>.lightning_client.clone(),
+            lnrpc: <span class="self">self</span>.lnrpc.clone(),
             redeem_key: <span class="self">self</span>.redeem_key,
             timelock_delta: <span class="self">self</span>.timelock_delta,
             secp: secp256k1_zkp::Secp256k1::new(),
             ln_decoder: <span class="self">self</span>.decoder(),
+            notifier: <span class="self">self</span>.notifier.clone(),
         }
     }
 
@@ -1177,40 +1057,34 @@
         route_hints: Vec&lt;RouteHint&gt;,
         time_to_live: Duration,
         api: Url,
+        gateway_id: secp256k1::PublicKey,
     ) -&gt; LightningGateway {
         LightningGateway {
             mint_channel_id: <span class="self">self</span>.mint_channel_id,
-            gateway_pub_key: <span class="self">self</span>.redeem_key.x_only_public_key().<span class="number">0</span>,
+            gateway_redeem_key: <span class="self">self</span>.redeem_key.x_only_public_key().<span class="number">0</span>,
             node_pub_key: <span class="self">self</span>.node_pub_key,
             api,
             route_hints,
             valid_until: fedimint_core::time::now() + time_to_live,
             fees: <span class="self">self</span>.fees,
+            gateway_id,
         }
     }
 
-    <span class="kw">async fn </span>await_paid_invoice(
+    <span class="kw">async fn </span>register_with_federation(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        operation_id: OperationId,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(OutPoint, Preimage), GatewayError&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>stream = <span class="self">self</span>.notifier.subscribe(operation_id).<span class="kw">await</span>;
-        <span class="kw">loop </span>{
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(GatewayClientStateMachines::Pay(state)) = stream.next().<span class="kw">await </span>{
-                <span class="kw">match </span>state.state {
-                    GatewayPayStates::Preimage(outpoint, preimage) =&gt; {
-                        <span class="kw">return </span><span class="prelude-val">Ok</span>((outpoint, preimage))
-                    }
-                    GatewayPayStates::Canceled(cancel_outpoint, <span class="kw">_</span>) =&gt; {
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(GatewayError::Canceled(cancel_outpoint))
-                    }
-                    GatewayPayStates::OfferDoesNotExist(contract_id) =&gt; {
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(GatewayError::OfferDoesNotExist(contract_id))
-                    }
-                    GatewayPayStates::Failed =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(GatewayError::Failed),
-                    <span class="kw">_ </span>=&gt; {}
-                }
-            }
-        }
+        dbtx: <span class="kw-2">&amp;mut </span>DatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        id: FederationId,
+        registration: LightningGateway,
+    ) -&gt; anyhow::Result&lt;()&gt; {
+        <span class="self">self</span>.module_api.register_gateway(<span class="kw-2">&amp;</span>registration).<span class="kw">await</span><span class="question-mark">?</span>;
+        dbtx.insert_entry(<span class="kw-2">&amp;</span>FederationRegistrationKey { id }, <span class="kw-2">&amp;</span>registration)
+            .<span class="kw">await</span>;
+        <span class="macro">info!</span>(
+            <span class="string">&quot;Successfully registered gateway {} with federation {}&quot;</span>,
+            registration.gateway_id, id
+        );
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">async fn </span>create_funding_incoming_contract_output(
@@ -1235,13 +1109,23 @@
         <span class="kw">let </span>client_output = ClientOutput::&lt;LightningOutput, GatewayClientStateMachines&gt; {
             output: incoming_output,
             state_machines: Arc::new(<span class="kw">move </span>|txid, <span class="kw">_</span>| {
-                <span class="macro">vec!</span>[GatewayClientStateMachines::Receive(IncomingStateMachine {
-                    common: IncomingSmCommon {
-                        operation_id,
-                        contract_id,
-                    },
-                    state: IncomingSmStates::FundingOffer(FundingOfferState { txid }),
-                })]
+                <span class="macro">vec!</span>[
+                    GatewayClientStateMachines::Receive(IncomingStateMachine {
+                        common: IncomingSmCommon {
+                            operation_id,
+                            contract_id,
+                        },
+                        state: IncomingSmStates::FundingOffer(FundingOfferState { txid }),
+                    }),
+                    GatewayClientStateMachines::Complete(GatewayCompleteStateMachine {
+                        common: GatewayCompleteCommon {
+                            operation_id,
+                            incoming_chan_id: htlc.incoming_chan_id,
+                            htlc_id: htlc.htlc_id,
+                        },
+                        state: GatewayCompleteStates::WaitForPreimage(WaitForPreimageState),
+                    }),
+                ]
             }),
         };
         <span class="prelude-val">Ok</span>((operation_id, client_output))
@@ -1253,7 +1137,7 @@
 </span><span class="kw">pub enum </span>GatewayClientStateMachines {
     Pay(GatewayPayStateMachine),
     Receive(IncomingStateMachine),
-    Register(RegisterWithFederationStateMachine),
+    Complete(GatewayCompleteStateMachine),
 }
 
 <span class="kw">impl </span>IntoDynInstance <span class="kw">for </span>GatewayClientStateMachines {
@@ -1286,10 +1170,10 @@
                     GatewayClientStateMachines::Receive
                 )
             }
-            GatewayClientStateMachines::Register(register_state) =&gt; {
+            GatewayClientStateMachines::Complete(complete_state) =&gt; {
                 <span class="macro">sm_enum_variant_translation!</span>(
-                    register_state.transitions(context, global_context),
-                    GatewayClientStateMachines::Register
+                    complete_state.transitions(context, global_context),
+                    GatewayClientStateMachines::Complete
                 )
             }
         }
@@ -1299,7 +1183,7 @@
         <span class="kw">match </span><span class="self">self </span>{
             GatewayClientStateMachines::Pay(pay_state) =&gt; pay_state.operation_id(),
             GatewayClientStateMachines::Receive(receive_state) =&gt; receive_state.operation_id(),
-            GatewayClientStateMachines::Register(register_state) =&gt; register_state.operation_id(),
+            GatewayClientStateMachines::Complete(complete_state) =&gt; complete_state.operation_id(),
         }
     }
 }

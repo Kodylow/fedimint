@@ -337,14 +337,6 @@
 <a href="#337" id="337">337</a>
 <a href="#338" id="338">338</a>
 <a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
-<a href="#342" id="342">342</a>
-<a href="#343" id="343">343</a>
-<a href="#344" id="344">344</a>
-<a href="#345" id="345">345</a>
-<a href="#346" id="346">346</a>
-<a href="#347" id="347">347</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::path::PathBuf;
 <span class="kw">use </span>std::str::FromStr;
 <span class="kw">use </span>std::time::Duration;
@@ -362,7 +354,6 @@
 <span class="kw">use </span>fedimint_core::encoding::Decodable;
 <span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
 <span class="kw">use </span>fedimint_core::module::CommonModuleGen;
-<span class="kw">use </span>fedimint_core::task::TaskGroup;
 <span class="kw">use </span>fedimint_core::{Amount, OutPoint, TieredMulti, TieredSummary};
 <span class="kw">use </span>fedimint_ln_client::{LightningClientExt, LightningClientGen, LnPayState};
 <span class="kw">use </span>fedimint_mint_client::{
@@ -377,7 +368,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::MetricEvent;
 
 <span class="kw">pub async fn </span>get_notes_cli(amount: <span class="kw-2">&amp;</span>Amount) -&gt; anyhow::Result&lt;TieredMulti&lt;SpendableNote&gt;&gt; {
-    <span class="macro">cmd!</span>(FedimintCli, <span class="string">&quot;ng&quot;</span>, <span class="string">&quot;spend&quot;</span>, amount.msats.to_string())
+    <span class="macro">cmd!</span>(FedimintCli, <span class="string">&quot;spend&quot;</span>, amount.msats.to_string())
         .out_json()
         .<span class="kw">await</span><span class="question-mark">?</span>[<span class="string">&quot;notes&quot;</span>]
         .as_str()
@@ -469,11 +460,7 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub async fn </span>build_client(
-    cfg: <span class="kw-2">&amp;</span>ClientConfig,
-    tg: <span class="kw-2">&amp;mut </span>TaskGroup,
-    rocksdb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>PathBuf&gt;,
-) -&gt; anyhow::Result&lt;Client&gt; {
+<span class="kw">pub async fn </span>build_client(cfg: <span class="kw-2">&amp;</span>ClientConfig, rocksdb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>PathBuf&gt;) -&gt; anyhow::Result&lt;Client&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>client_builder = ClientBuilder::default();
     client_builder.with_module(MintClientGen);
     client_builder.with_module(LightningClientGen);
@@ -485,7 +472,7 @@
     } <span class="kw">else </span>{
         client_builder.with_database(fedimint_core::db::mem_impl::MemDatabase::new())
     }
-    <span class="kw">let </span>client = client_builder.build::&lt;PlainRootSecretStrategy&gt;(tg).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>client = client_builder.build::&lt;PlainRootSecretStrategy&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(client)
 }
 
@@ -582,16 +569,13 @@
     }
 }
 
-<span class="kw">pub async fn </span>switch_default_gateway(
-    client: <span class="kw-2">&amp;</span>Client,
-    gateway_public_key: <span class="kw-2">&amp;</span>str,
-) -&gt; anyhow::Result&lt;()&gt; {
-    <span class="kw">let </span>gateway_public_key = parse_node_pub_key(gateway_public_key)<span class="question-mark">?</span>;
-    client.set_active_gateway(<span class="kw-2">&amp;</span>gateway_public_key).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">pub async fn </span>switch_default_gateway(client: <span class="kw-2">&amp;</span>Client, gateway_id: <span class="kw-2">&amp;</span>str) -&gt; anyhow::Result&lt;()&gt; {
+    <span class="kw">let </span>gateway_id = parse_gateway_id(gateway_id)<span class="question-mark">?</span>;
+    client.set_active_gateway(<span class="kw-2">&amp;</span>gateway_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub fn </span>parse_node_pub_key(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;secp256k1::PublicKey, secp256k1::Error&gt; {
+<span class="kw">pub fn </span>parse_gateway_id(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;secp256k1::PublicKey, secp256k1::Error&gt; {
     secp256k1::PublicKey::from_str(s)
 }
 
