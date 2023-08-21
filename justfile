@@ -112,3 +112,7 @@ tmuxinator:
 # exit tmuxinator session
 exit-tmuxinator:
   tmux kill-session -t fedimint-dev
+
+# starts cargo watch on target directory and uses browser-sync to serve the docs on localhost:3000 and hot-reload on changes
+watch doc:
+  cargo watch -s 'cargo doc && browser-sync start --ss target/doc -s target/doc --directory --no-open'
