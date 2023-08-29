@@ -585,7 +585,7 @@
 <span class="kw">use </span>std::iter::FromIterator;
 
 <span class="kw">use </span>anyhow::bail;
-<span class="kw">use </span>fedimint_core::config::ServerModuleGenRegistry;
+<span class="kw">use </span>fedimint_core::config::ServerModuleInitRegistry;
 <span class="kw">use </span>fedimint_core::core::ModuleInstanceId;
 <span class="kw">use </span>fedimint_core::db::{Database, DatabaseTransaction};
 <span class="kw">use </span>fedimint_core::epoch::<span class="kw-2">*</span>;
@@ -654,7 +654,7 @@
     <span class="doccomment">/// Configuration describing the federation and containing our secrets
     </span><span class="kw">pub </span>cfg: ServerConfig,
     <span class="doccomment">/// Modules config gen information
-    </span><span class="kw">pub </span>module_inits: ServerModuleGenRegistry,
+    </span><span class="kw">pub </span>module_inits: ServerModuleInitRegistry,
     <span class="doccomment">/// Modules registered with the federation
     </span><span class="kw">pub </span>modules: ServerModuleRegistry,
     <span class="doccomment">/// Database storing the result of processing consensus outcomes
@@ -779,7 +779,7 @@
 
         <span class="kw">let </span>audit = <span class="self">self</span>.audit().<span class="kw">await</span>;
 
-        <span class="kw">if </span>audit.sum().milli_sat &lt; <span class="number">0 </span>{
+        <span class="kw">if </span>audit.net_assets().milli_sat &lt; <span class="number">0 </span>{
             <span class="macro">panic!</span>(<span class="string">&quot;Balance sheet of the fed has gone negative, this should never happen! {audit}&quot;</span>)
         }
 

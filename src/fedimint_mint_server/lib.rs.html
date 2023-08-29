@@ -1149,6 +1149,13 @@
 <a href="#1149" id="1149">1149</a>
 <a href="#1150" id="1150">1150</a>
 <a href="#1151" id="1151">1151</a>
+<a href="#1152" id="1152">1152</a>
+<a href="#1153" id="1153">1153</a>
+<a href="#1154" id="1154">1154</a>
+<a href="#1155" id="1155">1155</a>
+<a href="#1156" id="1156">1156</a>
+<a href="#1157" id="1157">1157</a>
+<a href="#1158" id="1158">1158</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, HashMap};
 <span class="kw">use </span>std::iter::FromIterator;
 
@@ -1161,8 +1168,8 @@
 <span class="kw">use </span>fedimint_core::module::audit::Audit;
 <span class="kw">use </span>fedimint_core::module::{
     api_endpoint, ApiEndpoint, ApiError, ConsensusProposal, CoreConsensusVersion,
-    ExtendsCommonModuleGen, InputMeta, IntoModuleError, ModuleConsensusVersion, ModuleError,
-    PeerHandle, ServerModuleGen, SupportedModuleApiVersions, TransactionItemAmount,
+    ExtendsCommonModuleInit, InputMeta, IntoModuleError, ModuleConsensusVersion, ModuleError,
+    PeerHandle, ServerModuleInit, SupportedModuleApiVersions, TransactionItemAmount,
 };
 <span class="kw">use </span>fedimint_core::server::DynServerModule;
 <span class="kw">use </span>fedimint_core::task::{MaybeSend, TaskGroup};
@@ -1205,12 +1212,12 @@
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>MintGen;
 
-<span class="kw">impl </span>ExtendsCommonModuleGen <span class="kw">for </span>MintGen {
+<span class="kw">impl </span>ExtendsCommonModuleInit <span class="kw">for </span>MintGen {
     <span class="kw">type </span>Common = MintCommonGen;
 }
 
 <span class="attr">#[apply(<span class="macro">async_trait_maybe_send!</span>)]
-</span><span class="kw">impl </span>ServerModuleGen <span class="kw">for </span>MintGen {
+</span><span class="kw">impl </span>ServerModuleInit <span class="kw">for </span>MintGen {
     <span class="kw">type </span>Params = MintGenParams;
     <span class="kw">const </span>DATABASE_VERSION: DatabaseVersion = DatabaseVersion(<span class="number">0</span>);
 
@@ -1757,12 +1764,17 @@
 
     <span class="kw">async fn </span>audit(<span class="kw-2">&amp;</span><span class="self">self</span>, dbtx: <span class="kw-2">&amp;mut </span>ModuleDatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;, audit: <span class="kw-2">&amp;mut </span>Audit) {
         audit
-            .add_items(dbtx, <span class="kw-2">&amp;</span>MintAuditItemKeyPrefix, |k, v| <span class="kw">match </span>k {
-                MintAuditItemKey::Issuance(<span class="kw">_</span>) =&gt; -(v.msats <span class="kw">as </span>i64),
-                MintAuditItemKey::IssuanceTotal =&gt; -(v.msats <span class="kw">as </span>i64),
-                MintAuditItemKey::Redemption(<span class="kw">_</span>) =&gt; v.msats <span class="kw">as </span>i64,
-                MintAuditItemKey::RedemptionTotal =&gt; v.msats <span class="kw">as </span>i64,
-            })
+            .add_items(
+                dbtx,
+                common::KIND.as_str(),
+                <span class="kw-2">&amp;</span>MintAuditItemKeyPrefix,
+                |k, v| <span class="kw">match </span>k {
+                    MintAuditItemKey::Issuance(<span class="kw">_</span>) =&gt; -(v.msats <span class="kw">as </span>i64),
+                    MintAuditItemKey::IssuanceTotal =&gt; -(v.msats <span class="kw">as </span>i64),
+                    MintAuditItemKey::Redemption(<span class="kw">_</span>) =&gt; v.msats <span class="kw">as </span>i64,
+                    MintAuditItemKey::RedemptionTotal =&gt; v.msats <span class="kw">as </span>i64,
+                },
+            )
             .<span class="kw">await</span>;
     }
 
@@ -1912,7 +1924,7 @@
     <span class="kw">use </span>fedimint_core::config::{ClientModuleConfig, ConfigGenModuleParams, ServerModuleConfig};
     <span class="kw">use </span>fedimint_core::db::mem_impl::MemDatabase;
     <span class="kw">use </span>fedimint_core::db::Database;
-    <span class="kw">use </span>fedimint_core::module::{ModuleConsensusVersion, ServerModuleGen};
+    <span class="kw">use </span>fedimint_core::module::{ModuleConsensusVersion, ServerModuleInit};
     <span class="kw">use </span>fedimint_core::{Amount, PeerId, ServerModule};
     <span class="kw">use </span>fedimint_mint_common::config::FeeConsensus;
     <span class="kw">use </span>fedimint_mint_common::{MintInput, Nonce, Note};
@@ -2076,7 +2088,7 @@
     <span class="kw">use </span>fedimint_core::core::LEGACY_HARDCODED_INSTANCE_ID_MINT;
     <span class="kw">use </span>fedimint_core::db::{apply_migrations, DatabaseTransaction};
     <span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
-    <span class="kw">use </span>fedimint_core::module::{CommonModuleGen, DynServerModuleGen};
+    <span class="kw">use </span>fedimint_core::module::{CommonModuleInit, DynServerModuleInit};
     <span class="kw">use </span>fedimint_core::time::now;
     <span class="kw">use </span>fedimint_core::{Amount, OutPoint, ServerModule, TieredMulti, TransactionId};
     <span class="kw">use </span>fedimint_mint_common::db::{
@@ -2088,7 +2100,9 @@
     <span class="kw">use </span>fedimint_mint_common::{
         MintCommonGen, MintOutputBlindSignatures, MintOutputSignatureShare, Nonce,
     };
-    <span class="kw">use </span>fedimint_testing::db::{prepare_snapshot, validate_migrations, BYTE_32, BYTE_8};
+    <span class="kw">use </span>fedimint_testing::db::{
+        prepare_db_migration_snapshot, validate_migrations, BYTE_32, BYTE_8,
+    };
     <span class="kw">use </span>futures::StreamExt;
     <span class="kw">use </span>rand::rngs::OsRng;
     <span class="kw">use </span>strum::IntoEnumIterator;
@@ -2176,8 +2190,8 @@
     }
 
     <span class="attr">#[tokio::test(flavor = <span class="string">&quot;multi_thread&quot;</span>)]
-    </span><span class="kw">async fn </span>prepare_migration_snapshots() {
-        prepare_snapshot(
+    </span><span class="kw">async fn </span>prepare_db_migration_snapshots() -&gt; anyhow::Result&lt;()&gt; {
+        prepare_db_migration_snapshot(
             <span class="string">&quot;mint-v0&quot;</span>,
             |dbtx| {
                 Box::pin(<span class="kw">async move </span>{
@@ -2190,15 +2204,15 @@
                 &lt;Mint <span class="kw">as </span>ServerModule&gt;::decoder(),
             )]),
         )
-        .<span class="kw">await</span>;
-    }
+        .<span class="kw">await
+    </span>}
 
     <span class="attr">#[tokio::test(flavor = <span class="string">&quot;multi_thread&quot;</span>)]
     </span><span class="kw">async fn </span>test_migrations() {
         validate_migrations(
             <span class="string">&quot;mint&quot;</span>,
             |db| <span class="kw">async move </span>{
-                <span class="kw">let </span>module = DynServerModuleGen::from(MintGen);
+                <span class="kw">let </span>module = DynServerModuleInit::from(MintGen);
                 apply_migrations(
                     <span class="kw-2">&amp;</span>db,
                     module.module_kind().to_string(),

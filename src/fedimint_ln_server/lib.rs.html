@@ -1405,6 +1405,10 @@
 <a href="#1405" id="1405">1405</a>
 <a href="#1406" id="1406">1406</a>
 <a href="#1407" id="1407">1407</a>
+<a href="#1408" id="1408">1408</a>
+<a href="#1409" id="1409">1409</a>
+<a href="#1410" id="1410">1410</a>
+<a href="#1411" id="1411">1411</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 <span class="kw">use </span>std::time::Duration;
 
@@ -1420,8 +1424,8 @@
 <span class="kw">use </span>fedimint_core::module::audit::Audit;
 <span class="kw">use </span>fedimint_core::module::{
     api_endpoint, ApiEndpoint, ApiEndpointContext, ConsensusProposal, CoreConsensusVersion,
-    ExtendsCommonModuleGen, InputMeta, IntoModuleError, ModuleConsensusVersion, ModuleError,
-    PeerHandle, ServerModuleGen, SupportedModuleApiVersions, TransactionItemAmount,
+    ExtendsCommonModuleInit, InputMeta, IntoModuleError, ModuleConsensusVersion, ModuleError,
+    PeerHandle, ServerModuleInit, SupportedModuleApiVersions, TransactionItemAmount,
 };
 <span class="kw">use </span>fedimint_core::server::DynServerModule;
 <span class="kw">use </span>fedimint_core::task::{sleep, TaskGroup};
@@ -1512,12 +1516,12 @@
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>LightningGen;
 
-<span class="kw">impl </span>ExtendsCommonModuleGen <span class="kw">for </span>LightningGen {
+<span class="kw">impl </span>ExtendsCommonModuleInit <span class="kw">for </span>LightningGen {
     <span class="kw">type </span>Common = LightningCommonGen;
 }
 
 <span class="attr">#[apply(<span class="macro">async_trait_maybe_send!</span>)]
-</span><span class="kw">impl </span>ServerModuleGen <span class="kw">for </span>LightningGen {
+</span><span class="kw">impl </span>ServerModuleInit <span class="kw">for </span>LightningGen {
     <span class="kw">type </span>Params = LightningGenParams;
     <span class="kw">const </span>DATABASE_VERSION: DatabaseVersion = DatabaseVersion(<span class="number">0</span>);
 
@@ -2228,7 +2232,9 @@
 
     <span class="kw">async fn </span>audit(<span class="kw-2">&amp;</span><span class="self">self</span>, dbtx: <span class="kw-2">&amp;mut </span>ModuleDatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;, audit: <span class="kw-2">&amp;mut </span>Audit) {
         audit
-            .add_items(dbtx, <span class="kw-2">&amp;</span>ContractKeyPrefix, |<span class="kw">_</span>, v| -(v.amount.msats <span class="kw">as </span>i64))
+            .add_items(dbtx, common::KIND.as_str(), <span class="kw-2">&amp;</span>ContractKeyPrefix, |<span class="kw">_</span>, v| {
+                -(v.amount.msats <span class="kw">as </span>i64)
+            })
             .<span class="kw">await</span>;
     }
 
@@ -2423,7 +2429,7 @@
     <span class="kw">use </span>fedimint_core::db::mem_impl::MemDatabase;
     <span class="kw">use </span>fedimint_core::db::Database;
     <span class="kw">use </span>fedimint_core::encoding::Encodable;
-    <span class="kw">use </span>fedimint_core::module::ServerModuleGen;
+    <span class="kw">use </span>fedimint_core::module::ServerModuleInit;
     <span class="kw">use </span>fedimint_core::task::TaskGroup;
     <span class="kw">use </span>fedimint_core::{Amount, OutPoint, PeerId, ServerModule, TransactionId};
     <span class="kw">use </span>fedimint_ln_common::config::{
@@ -2440,7 +2446,7 @@
 
     <span class="kw">fn </span>build_configs() -&gt; (Vec&lt;LightningConfig&gt;, LightningClientConfig) {
         <span class="kw">let </span>peers = (<span class="number">0</span>..MINTS <span class="kw">as </span>u16).map(PeerId::from).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-        <span class="kw">let </span>server_cfg = ServerModuleGen::trusted_dealer_gen(
+        <span class="kw">let </span>server_cfg = ServerModuleInit::trusted_dealer_gen(
             <span class="kw-2">&amp;</span>LightningGen,
             <span class="kw-2">&amp;</span>peers,
             <span class="kw-2">&amp;</span>ConfigGenModuleParams::from_typed(LightningGenParams {
@@ -2457,7 +2463,7 @@
             .expect(<span class="string">&quot;valid config params&quot;</span>),
         );
 
-        <span class="kw">let </span>client_cfg = ServerModuleGen::get_client_config(
+        <span class="kw">let </span>client_cfg = ServerModuleInit::get_client_config(
             <span class="kw-2">&amp;</span>LightningGen,
             <span class="kw-2">&amp;</span>server_cfg[<span class="kw-2">&amp;</span>PeerId::from(<span class="number">0</span>)].consensus,
         )
@@ -2537,7 +2543,7 @@
     <span class="kw">use </span>fedimint_core::db::{apply_migrations, DatabaseTransaction};
     <span class="kw">use </span>fedimint_core::encoding::Encodable;
     <span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
-    <span class="kw">use </span>fedimint_core::module::{CommonModuleGen, DynServerModuleGen};
+    <span class="kw">use </span>fedimint_core::module::{CommonModuleInit, DynServerModuleInit};
     <span class="kw">use </span>fedimint_core::{OutPoint, ServerModule, TransactionId};
     <span class="kw">use </span>fedimint_ln_common::contracts::incoming::{
         FundedIncomingContract, IncomingContract, IncomingContractOffer, OfferId,
@@ -2553,7 +2559,9 @@
         OfferKeyPrefix, ProposeDecryptionShareKey, ProposeDecryptionShareKeyPrefix,
     };
     <span class="kw">use </span>fedimint_ln_common::LightningCommonGen;
-    <span class="kw">use </span>fedimint_testing::db::{prepare_snapshot, validate_migrations, BYTE_32, BYTE_8, STRING_64};
+    <span class="kw">use </span>fedimint_testing::db::{
+        prepare_db_migration_snapshot, validate_migrations, BYTE_32, BYTE_8, STRING_64,
+    };
     <span class="kw">use </span>futures::StreamExt;
     <span class="kw">use </span>lightning::routing::gossip::RoutingFees;
     <span class="kw">use </span>lightning_invoice::Invoice;
@@ -2675,8 +2683,8 @@
     }
 
     <span class="attr">#[tokio::test(flavor = <span class="string">&quot;multi_thread&quot;</span>)]
-    </span><span class="kw">async fn </span>prepare_migration_snapshots() {
-        prepare_snapshot(
+    </span><span class="kw">async fn </span>prepare_db_migration_snapshots() -&gt; anyhow::Result&lt;()&gt; {
+        prepare_db_migration_snapshot(
             <span class="string">&quot;lightning-v0&quot;</span>,
             |dbtx| {
                 Box::pin(<span class="kw">async move </span>{
@@ -2689,15 +2697,15 @@
                 &lt;Lightning <span class="kw">as </span>ServerModule&gt;::decoder(),
             )]),
         )
-        .<span class="kw">await</span>;
-    }
+        .<span class="kw">await
+    </span>}
 
     <span class="attr">#[tokio::test(flavor = <span class="string">&quot;multi_thread&quot;</span>)]
     </span><span class="kw">async fn </span>test_migrations() -&gt; anyhow::Result&lt;()&gt; {
         validate_migrations(
             <span class="string">&quot;lightning&quot;</span>,
             |db| <span class="kw">async move </span>{
-                <span class="kw">let </span>module = DynServerModuleGen::from(LightningGen);
+                <span class="kw">let </span>module = DynServerModuleInit::from(LightningGen);
                 apply_migrations(
                     <span class="kw-2">&amp;</span>db,
                     module.module_kind().to_string(),

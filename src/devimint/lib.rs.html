@@ -221,6 +221,7 @@
 <a href="#221" id="221">221</a>
 <a href="#222" id="222">222</a>
 <a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::env;
 <span class="kw">use </span>std::future::Future;
@@ -231,7 +232,7 @@
 <span class="kw">use </span>anyhow::{Context, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>bitcoincore_rpc::RpcApi;
 <span class="kw">use </span>federation::Federation;
-<span class="kw">use </span>fedimint_client::module::gen::{ClientModuleGenRegistry, DynClientModuleGen};
+<span class="kw">use </span>fedimint_client::module::init::{ClientModuleInitRegistry, DynClientModuleInit};
 <span class="kw">use </span>fedimint_client_legacy::modules::mint::MintClientGen;
 <span class="kw">use </span>fedimint_client_legacy::{module_decode_stubs, UserClient, UserClientConfig};
 <span class="kw">use </span>fedimint_core::admin_client::WsAdminClient;
@@ -325,7 +326,7 @@
     }
 
     <span class="kw">pub async fn </span>stop_lightning_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">tracing::info!</span>(<span class="string">&quot;Stoppng lightning node&quot;</span>);
+        <span class="macro">tracing::info!</span>(<span class="string">&quot;Stopping lightning node&quot;</span>);
         <span class="kw">match </span><span class="self">self</span>.ln.take() {
             <span class="prelude-val">Some</span>(LightningNode::Lnd(lnd)) =&gt; lnd.terminate().<span class="kw">await</span>,
             <span class="prelude-val">Some</span>(LightningNode::Cln(cln)) =&gt; cln.terminate().<span class="kw">await</span>,
@@ -424,6 +425,7 @@
     </span><span class="macro">cmd!</span>(fed, <span class="string">&quot;join-federation&quot;</span>, fed.invite_code()<span class="question-mark">?</span>)
         .run()
         .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="macro">info!</span>(LOG_DEVIMINT, <span class="string">&quot;await gateways registered&quot;</span>);
     fed.await_gateways_registered().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">info!</span>(LOG_DEVIMINT, <span class="string">&quot;gateways registered&quot;</span>);
     fed.use_gateway(<span class="kw-2">&amp;</span>gw_cln).<span class="kw">await</span><span class="question-mark">?</span>;

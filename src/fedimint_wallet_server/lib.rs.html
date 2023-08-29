@@ -1870,6 +1870,43 @@
 <a href="#1870" id="1870">1870</a>
 <a href="#1871" id="1871">1871</a>
 <a href="#1872" id="1872">1872</a>
+<a href="#1873" id="1873">1873</a>
+<a href="#1874" id="1874">1874</a>
+<a href="#1875" id="1875">1875</a>
+<a href="#1876" id="1876">1876</a>
+<a href="#1877" id="1877">1877</a>
+<a href="#1878" id="1878">1878</a>
+<a href="#1879" id="1879">1879</a>
+<a href="#1880" id="1880">1880</a>
+<a href="#1881" id="1881">1881</a>
+<a href="#1882" id="1882">1882</a>
+<a href="#1883" id="1883">1883</a>
+<a href="#1884" id="1884">1884</a>
+<a href="#1885" id="1885">1885</a>
+<a href="#1886" id="1886">1886</a>
+<a href="#1887" id="1887">1887</a>
+<a href="#1888" id="1888">1888</a>
+<a href="#1889" id="1889">1889</a>
+<a href="#1890" id="1890">1890</a>
+<a href="#1891" id="1891">1891</a>
+<a href="#1892" id="1892">1892</a>
+<a href="#1893" id="1893">1893</a>
+<a href="#1894" id="1894">1894</a>
+<a href="#1895" id="1895">1895</a>
+<a href="#1896" id="1896">1896</a>
+<a href="#1897" id="1897">1897</a>
+<a href="#1898" id="1898">1898</a>
+<a href="#1899" id="1899">1899</a>
+<a href="#1900" id="1900">1900</a>
+<a href="#1901" id="1901">1901</a>
+<a href="#1902" id="1902">1902</a>
+<a href="#1903" id="1903">1903</a>
+<a href="#1904" id="1904">1904</a>
+<a href="#1905" id="1905">1905</a>
+<a href="#1906" id="1906">1906</a>
+<a href="#1907" id="1907">1907</a>
+<a href="#1908" id="1908">1908</a>
+<a href="#1909" id="1909">1909</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap};
 <span class="kw">use </span>std::convert::{Infallible, TryInto};
 <span class="attr">#[cfg(not(target_family = <span class="string">&quot;wasm&quot;</span>))]
@@ -1907,8 +1944,8 @@
 <span class="kw">use </span>fedimint_core::encoding::{Decodable, Encodable};
 <span class="kw">use </span>fedimint_core::module::audit::Audit;
 <span class="kw">use </span>fedimint_core::module::{
-    api_endpoint, ApiEndpoint, ConsensusProposal, CoreConsensusVersion, ExtendsCommonModuleGen,
-    InputMeta, IntoModuleError, ModuleConsensusVersion, ModuleError, PeerHandle, ServerModuleGen,
+    api_endpoint, ApiEndpoint, ConsensusProposal, CoreConsensusVersion, ExtendsCommonModuleInit,
+    InputMeta, IntoModuleError, ModuleConsensusVersion, ModuleError, PeerHandle, ServerModuleInit,
     SupportedModuleApiVersions, TransactionItemAmount,
 };
 <span class="kw">use </span>fedimint_core::server::DynServerModule;
@@ -1943,12 +1980,12 @@
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>WalletGen;
 
-<span class="kw">impl </span>ExtendsCommonModuleGen <span class="kw">for </span>WalletGen {
+<span class="kw">impl </span>ExtendsCommonModuleInit <span class="kw">for </span>WalletGen {
     <span class="kw">type </span>Common = WalletCommonGen;
 }
 
 <span class="attr">#[apply(<span class="macro">async_trait_maybe_send!</span>)]
-</span><span class="kw">impl </span>ServerModuleGen <span class="kw">for </span>WalletGen {
+</span><span class="kw">impl </span>ServerModuleInit <span class="kw">for </span>WalletGen {
     <span class="kw">type </span>Params = WalletGenParams;
     <span class="kw">const </span>DATABASE_VERSION: DatabaseVersion = DatabaseVersion(<span class="number">0</span>);
 
@@ -2193,12 +2230,18 @@
             .collect::&lt;Vec&lt;WalletConsensusItem&gt;&gt;()
             .<span class="kw">await</span>;
 
-        <span class="kw">let </span>block_count_proposal = <span class="self">self
-            </span>.block_count()
-            .<span class="kw">await
-            </span>.saturating_sub(<span class="self">self</span>.cfg.consensus.finality_delay);
+        <span class="kw">let </span>block_count = <span class="self">self</span>.block_count().<span class="kw">await</span>;
+        <span class="kw">let </span>block_count_proposal = block_count.saturating_sub(<span class="self">self</span>.cfg.consensus.finality_delay);
+        <span class="kw">let </span>consensus_block_count = <span class="self">self</span>.consensus_block_count(dbtx).<span class="kw">await</span>;
 
-        <span class="kw">if </span>block_count_proposal != <span class="self">self</span>.consensus_block_count(dbtx).<span class="kw">await </span>{
+        <span class="macro">debug!</span>(
+            <span class="question-mark">?</span>block_count_proposal,
+            <span class="question-mark">?</span>block_count,
+            <span class="question-mark">?</span>consensus_block_count,
+            <span class="string">&quot;Considering proposing block count&quot;
+        </span>);
+
+        <span class="kw">if </span><span class="prelude-val">Some</span>(block_count_proposal) != consensus_block_count {
             items.push(WalletConsensusItem::BlockCount(block_count_proposal));
         }
 
@@ -2227,10 +2270,16 @@
                     </span>.unwrap_or(<span class="number">0</span>);
 
                 <span class="kw">if </span>block_count &lt; current_vote {
+                    <span class="macro">debug!</span>(<span class="question-mark">?</span>peer_id, <span class="question-mark">?</span>block_count, <span class="string">&quot;Received outdated block count vote&quot;</span>);
                     <span class="macro">bail!</span>(<span class="string">&quot;Block count vote decreased&quot;</span>);
                 }
 
                 <span class="kw">if </span>block_count == current_vote {
+                    <span class="macro">debug!</span>(
+                        <span class="question-mark">?</span>peer_id,
+                        <span class="question-mark">?</span>block_count,
+                        <span class="string">&quot;Received redundant block count vote&quot;
+                    </span>);
                     <span class="macro">bail!</span>(<span class="string">&quot;Block height vote is redundant&quot;</span>);
                 }
 
@@ -2241,14 +2290,21 @@
 
                 <span class="kw">let </span>new_consensus_block_count = <span class="self">self</span>.consensus_block_count(dbtx).<span class="kw">await</span>;
 
-                <span class="comment">// only sync from the first non-default consensus block count
-                </span><span class="kw">if </span>new_consensus_block_count &gt; old_consensus_block_count {
-                    <span class="self">self</span>.sync_up_to_consensus_height(
-                        dbtx,
-                        old_consensus_block_count,
-                        new_consensus_block_count,
-                    )
-                    .<span class="kw">await</span>;
+                <span class="macro">debug!</span>(
+                    <span class="question-mark">?</span>peer_id,
+                    <span class="question-mark">?</span>current_vote,
+                    <span class="question-mark">?</span>block_count,
+                    <span class="question-mark">?</span>old_consensus_block_count,
+                    <span class="question-mark">?</span>new_consensus_block_count,
+                    <span class="string">&quot;Received block count vote&quot;
+                </span>);
+
+                <span class="comment">// only sync when we have a consensus block count
+                </span><span class="kw">match </span>(old_consensus_block_count, new_consensus_block_count) {
+                    (<span class="prelude-val">Some</span>(old), <span class="prelude-val">Some</span>(new)) <span class="kw">if </span>new &gt; old =&gt; {
+                        <span class="self">self</span>.sync_up_to_consensus_height(dbtx, old, new).<span class="kw">await</span>;
+                    }
+                    <span class="kw">_ </span>=&gt; {}
                 }
             }
             WalletConsensusItem::Feerate(feerate) =&gt; {
@@ -2424,20 +2480,33 @@
     </span>}
 
     <span class="kw">async fn </span>audit(<span class="kw-2">&amp;</span><span class="self">self</span>, dbtx: <span class="kw-2">&amp;mut </span>ModuleDatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;, audit: <span class="kw-2">&amp;mut </span>Audit) {
+        <span class="kw">let </span>module_name = common::KIND.as_str().to_string();
         audit
-            .add_items(dbtx, <span class="kw-2">&amp;</span>UTXOPrefixKey, |<span class="kw">_</span>, v| v.amount.to_sat() <span class="kw">as </span>i64 * <span class="number">1000</span>)
+            .add_items(dbtx, <span class="kw-2">&amp;</span>module_name, <span class="kw-2">&amp;</span>UTXOPrefixKey, |<span class="kw">_</span>, v| {
+                v.amount.to_sat() <span class="kw">as </span>i64 * <span class="number">1000
+            </span>})
             .<span class="kw">await</span>;
         audit
-            .add_items(dbtx, <span class="kw-2">&amp;</span>UnsignedTransactionPrefixKey, |<span class="kw">_</span>, v| <span class="kw">match </span>v.rbf {
-                <span class="prelude-val">None </span>=&gt; v.change.to_sat() <span class="kw">as </span>i64 * <span class="number">1000</span>,
-                <span class="prelude-val">Some</span>(rbf) =&gt; rbf.fees.amount().to_sat() <span class="kw">as </span>i64 * -<span class="number">1000</span>,
-            })
+            .add_items(
+                dbtx,
+                <span class="kw-2">&amp;</span>module_name,
+                <span class="kw-2">&amp;</span>UnsignedTransactionPrefixKey,
+                |<span class="kw">_</span>, v| <span class="kw">match </span>v.rbf {
+                    <span class="prelude-val">None </span>=&gt; v.change.to_sat() <span class="kw">as </span>i64 * <span class="number">1000</span>,
+                    <span class="prelude-val">Some</span>(rbf) =&gt; rbf.fees.amount().to_sat() <span class="kw">as </span>i64 * -<span class="number">1000</span>,
+                },
+            )
             .<span class="kw">await</span>;
         audit
-            .add_items(dbtx, <span class="kw-2">&amp;</span>PendingTransactionPrefixKey, |<span class="kw">_</span>, v| <span class="kw">match </span>v.rbf {
-                <span class="prelude-val">None </span>=&gt; v.change.to_sat() <span class="kw">as </span>i64 * <span class="number">1000</span>,
-                <span class="prelude-val">Some</span>(rbf) =&gt; rbf.fees.amount().to_sat() <span class="kw">as </span>i64 * -<span class="number">1000</span>,
-            })
+            .add_items(
+                dbtx,
+                <span class="kw-2">&amp;</span>module_name,
+                <span class="kw-2">&amp;</span>PendingTransactionPrefixKey,
+                |<span class="kw">_</span>, v| <span class="kw">match </span>v.rbf {
+                    <span class="prelude-val">None </span>=&gt; v.change.to_sat() <span class="kw">as </span>i64 * <span class="number">1000</span>,
+                    <span class="prelude-val">Some</span>(rbf) =&gt; rbf.fees.amount().to_sat() <span class="kw">as </span>i64 * -<span class="number">1000</span>,
+                },
+            )
             .<span class="kw">await</span>;
     }
 
@@ -2446,7 +2515,8 @@
             <span class="macro">api_endpoint! </span>{
                 <span class="string">&quot;block_count&quot;</span>,
                 <span class="kw">async </span>|module: <span class="kw-2">&amp;</span>Wallet, context, _params: ()| -&gt; u32 {
-                    <span class="prelude-val">Ok</span>(module.consensus_block_count(<span class="kw-2">&amp;mut </span>context.dbtx()).<span class="kw">await</span>)
+                    <span class="comment">// TODO: perhaps change this to an Option
+                    </span><span class="prelude-val">Ok</span>(module.consensus_block_count(<span class="kw-2">&amp;mut </span>context.dbtx()).<span class="kw">await</span>.unwrap_or_default())
                 }
             },
             <span class="macro">api_endpoint! </span>{
@@ -2667,20 +2737,22 @@
             .unwrap_or(<span class="self">self</span>.cfg.consensus.default_fee)
     }
 
-    <span class="kw">pub async fn </span>consensus_block_count(<span class="kw-2">&amp;</span><span class="self">self</span>, dbtx: <span class="kw-2">&amp;mut </span>ModuleDatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; u32 {
+    <span class="kw">pub async fn </span>consensus_block_count(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        dbtx: <span class="kw-2">&amp;mut </span>ModuleDatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
         <span class="kw">let </span>peer_count = <span class="self">self</span>.cfg.consensus.peer_peg_in_keys.total();
 
         <span class="kw">let </span><span class="kw-2">mut </span>counts = dbtx
             .find_by_prefix(<span class="kw-2">&amp;</span>BlockCountVotePrefix)
             .<span class="kw">await
-            </span>.map(|(.., count)| count)
+            </span>.map(|(.., count)| <span class="prelude-val">Some</span>(count))
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
             .<span class="kw">await</span>;
 
         <span class="macro">assert!</span>(counts.len() &lt;= peer_count);
-
         <span class="kw">while </span>counts.len() &lt; peer_count {
-            counts.push(<span class="number">0</span>);
+            counts.push(<span class="prelude-val">None</span>);
         }
 
         counts.sort_unstable();
@@ -3411,9 +3483,11 @@
     <span class="kw">use </span>fedimint_core::core::LEGACY_HARDCODED_INSTANCE_ID_WALLET;
     <span class="kw">use </span>fedimint_core::db::{apply_migrations, DatabaseTransaction};
     <span class="kw">use </span>fedimint_core::module::registry::ModuleDecoderRegistry;
-    <span class="kw">use </span>fedimint_core::module::{CommonModuleGen, DynServerModuleGen};
+    <span class="kw">use </span>fedimint_core::module::{CommonModuleInit, DynServerModuleInit};
     <span class="kw">use </span>fedimint_core::{BitcoinHash, Feerate, OutPoint, PeerId, ServerModule, TransactionId};
-    <span class="kw">use </span>fedimint_testing::db::{prepare_snapshot, validate_migrations, BYTE_20, BYTE_32};
+    <span class="kw">use </span>fedimint_testing::db::{
+        prepare_db_migration_snapshot, validate_migrations, BYTE_20, BYTE_32,
+    };
     <span class="kw">use </span>fedimint_wallet_common::db::{
         BlockCountVoteKey, BlockCountVotePrefix, BlockHashKey, BlockHashKeyPrefix, DbKeyPrefix,
         FeeRateVoteKey, FeeRateVotePrefix, PegOutBitcoinTransaction,
@@ -3588,8 +3662,8 @@
     }
 
     <span class="attr">#[tokio::test(flavor = <span class="string">&quot;multi_thread&quot;</span>)]
-    </span><span class="kw">async fn </span>prepare_migration_snapshots() {
-        prepare_snapshot(
+    </span><span class="kw">async fn </span>prepare_db_migration_snapshots() -&gt; anyhow::Result&lt;()&gt; {
+        prepare_db_migration_snapshot(
             <span class="string">&quot;wallet-v0&quot;</span>,
             |dbtx| {
                 Box::pin(<span class="kw">async move </span>{
@@ -3602,15 +3676,15 @@
                 &lt;Wallet <span class="kw">as </span>ServerModule&gt;::decoder(),
             )]),
         )
-        .<span class="kw">await</span>;
-    }
+        .<span class="kw">await
+    </span>}
 
     <span class="attr">#[tokio::test(flavor = <span class="string">&quot;multi_thread&quot;</span>)]
     </span><span class="kw">async fn </span>test_migrations() -&gt; anyhow::Result&lt;()&gt; {
         validate_migrations(
             <span class="string">&quot;wallet&quot;</span>,
             |db| <span class="kw">async move </span>{
-                <span class="kw">let </span>module = DynServerModuleGen::from(WalletGen);
+                <span class="kw">let </span>module = DynServerModuleInit::from(WalletGen);
                 apply_migrations(
                     <span class="kw-2">&amp;</span>db,
                     module.module_kind().to_string(),

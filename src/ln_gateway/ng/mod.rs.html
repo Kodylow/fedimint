@@ -622,6 +622,7 @@
 <a href="#622" id="622">622</a>
 <a href="#623" id="623">623</a>
 <a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
 </pre></div><pre class="rust"><code><span class="kw">pub mod </span>complete;
 <span class="kw">pub mod </span>pay;
 
@@ -631,7 +632,7 @@
 <span class="kw">use </span>async_stream::stream;
 <span class="kw">use </span>bitcoin_hashes::{sha256, Hash};
 <span class="kw">use </span>fedimint_client::derivable_secret::{ChildId, DerivableSecret};
-<span class="kw">use </span>fedimint_client::module::gen::ClientModuleGen;
+<span class="kw">use </span>fedimint_client::module::init::ClientModuleInit;
 <span class="kw">use </span>fedimint_client::module::{ClientModule, IClientModule};
 <span class="kw">use </span>fedimint_client::oplog::UpdateStreamOrOutcome;
 <span class="kw">use </span>fedimint_client::sm::util::MapStateTransitions;
@@ -644,7 +645,7 @@
 <span class="kw">use </span>fedimint_core::db::{AutocommitError, Database, DatabaseTransaction};
 <span class="kw">use </span>fedimint_core::encoding::{Decodable, Encodable};
 <span class="kw">use </span>fedimint_core::module::{
-    ApiVersion, ExtendsCommonModuleGen, MultiApiVersion, TransactionItemAmount,
+    ApiVersion, ExtendsCommonModuleInit, MultiApiVersion, TransactionItemAmount,
 };
 <span class="kw">use </span>fedimint_core::{apply, async_trait_maybe_send, Amount, OutPoint, TransactionId};
 <span class="kw">use </span>fedimint_ln_client::contracts::ContractId;
@@ -673,7 +674,7 @@
     OutgoingPaymentError,
 };
 <span class="kw">use </span><span class="kw">crate</span>::db::FederationRegistrationKey;
-<span class="kw">use </span><span class="kw">crate</span>::gatewaylnrpc::InterceptHtlcRequest;
+<span class="kw">use </span><span class="kw">crate</span>::gateway_lnrpc::InterceptHtlcRequest;
 <span class="kw">use </span><span class="kw">crate</span>::lnrpc_client::ILnRpcClient;
 <span class="kw">use </span><span class="kw">crate</span>::ng::complete::{GatewayCompleteCommon, GatewayCompleteStates, WaitForPreimageState};
 
@@ -953,12 +954,12 @@
     <span class="kw">pub </span>fees: RoutingFees,
 }
 
-<span class="kw">impl </span>ExtendsCommonModuleGen <span class="kw">for </span>GatewayClientGen {
+<span class="kw">impl </span>ExtendsCommonModuleInit <span class="kw">for </span>GatewayClientGen {
     <span class="kw">type </span>Common = LightningCommonGen;
 }
 
 <span class="attr">#[apply(<span class="macro">async_trait_maybe_send!</span>)]
-</span><span class="kw">impl </span>ClientModuleGen <span class="kw">for </span>GatewayClientGen {
+</span><span class="kw">impl </span>ClientModuleInit <span class="kw">for </span>GatewayClientGen {
     <span class="kw">type </span>Module = GatewayClientModule;
 
     <span class="kw">fn </span>supported_api_versions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MultiApiVersion {
@@ -968,6 +969,7 @@
 
     <span class="kw">async fn </span>init(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
+        _federation_id: FederationId,
         cfg: LightningClientConfig,
         _db: Database,
         _api_version: ApiVersion,
