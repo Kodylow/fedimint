@@ -542,6 +542,15 @@
 <a href="#542" id="542">542</a>
 <a href="#543" id="543">543</a>
 <a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::env;
 <span class="kw">use </span>std::path::Path;
 <span class="kw">use </span>std::str::FromStr;
@@ -555,14 +564,14 @@
 <span class="kw">use </span>fedimint_core::encoding::Encodable;
 <span class="kw">use </span>fedimint_core::task::{block_in_place, sleep};
 <span class="kw">use </span>fedimint_logging::LOG_DEVIMINT;
-<span class="kw">use </span>fedimint_testing::gateway::LightningNodeName;
+<span class="kw">use </span>fedimint_testing::gateway::LightningNodeType;
 <span class="kw">use </span>futures::executor::block_on;
 <span class="kw">use </span>tokio::fs;
 <span class="kw">use </span>tokio::sync::{MappedMutexGuard, Mutex, MutexGuard};
 <span class="kw">use </span>tonic_lnd::lnrpc::policy_update_request::Scope;
 <span class="kw">use </span>tonic_lnd::lnrpc::{ChanInfoRequest, GetInfoRequest, ListChannelsRequest, PolicyUpdateRequest};
 <span class="kw">use </span>tonic_lnd::Client <span class="kw">as </span>LndClient;
-<span class="kw">use </span>tracing::{info, warn};
+<span class="kw">use </span>tracing::{info, trace, warn};
 
 <span class="kw">use </span><span class="kw">crate</span>::cmd;
 <span class="kw">use </span><span class="kw">crate</span>::util::{poll, ClnLightningCli, ProcessHandle, ProcessManager};
@@ -624,7 +633,13 @@
         <span class="macro">info!</span>(block_num, <span class="string">&quot;Mining bitcoin blocks&quot;</span>);
         <span class="kw">let </span>client = <span class="self">self</span>.client();
         <span class="kw">let </span>addr = client.get_new_address(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>initial_block_count = client.get_block_count()<span class="question-mark">?</span>;
         client.generate_to_address(block_num, <span class="kw-2">&amp;</span>addr)<span class="question-mark">?</span>;
+        <span class="kw">while </span>client.get_block_count()<span class="question-mark">? </span>&lt; initial_block_count + block_num {
+            <span class="macro">trace!</span>(LOG_DEVIMINT, <span class="string">&quot;Waiting for blocks to be mined&quot;</span>);
+            sleep(Duration::from_millis(<span class="number">200</span>)).<span class="kw">await</span>;
+        }
+
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -809,13 +824,16 @@
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
         poll(<span class="string">&quot;lnd_connect&quot;</span>, || <span class="kw">async </span>{
-            <span class="prelude-val">Ok</span>(tonic_lnd::connect(
+            <span class="kw">let </span>result = tonic_lnd::connect(
                 lnd_rpc_addr.clone(),
                 lnd_tls_cert.clone(),
                 lnd_macaroon.clone(),
             )
-            .<span class="kw">await
-            </span>.is_ok())
+            .<span class="kw">await</span>;
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = <span class="kw-2">&amp;</span>result {
+                <span class="macro">info!</span>(<span class="string">&quot;lnd_connect failed: {:?}&quot;</span>, e);
+            }
+            <span class="prelude-val">Ok</span>(result.is_ok())
         })
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -988,10 +1006,10 @@
 }
 
 <span class="kw">impl </span>LightningNode {
-    <span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LightningNodeName {
+    <span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LightningNodeType {
         <span class="kw">match </span><span class="self">self </span>{
-            LightningNode::Cln(<span class="kw">_</span>) =&gt; LightningNodeName::Cln,
-            LightningNode::Lnd(<span class="kw">_</span>) =&gt; LightningNodeName::Lnd,
+            LightningNode::Cln(<span class="kw">_</span>) =&gt; LightningNodeType::Cln,
+            LightningNode::Lnd(<span class="kw">_</span>) =&gt; LightningNodeType::Lnd,
         }
     }
 }
