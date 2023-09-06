@@ -891,6 +891,17 @@
 <a href="#891" id="891">891</a>
 <a href="#892" id="892">892</a>
 <a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
 </pre></div><pre class="rust"><code><span class="kw">pub mod </span>client;
 <span class="kw">pub mod </span>db;
 <span class="kw">pub mod </span>lnd;
@@ -922,6 +933,7 @@
 <span class="kw">use </span>client::StandardGatewayClientBuilder;
 <span class="kw">use </span>db::{FederationRegistrationKey, GatewayPublicKey};
 <span class="kw">use </span>fedimint_client::module::init::ClientModuleInitRegistry;
+<span class="kw">use </span>fedimint_client::Client;
 <span class="kw">use </span>fedimint_core::api::{FederationError, InviteCode};
 <span class="kw">use </span>fedimint_core::config::FederationId;
 <span class="kw">use </span>fedimint_core::core::{
@@ -1308,12 +1320,7 @@
             <span class="kw">let </span>route_hints =
                 <span class="self">Self</span>::fetch_lightning_route_hints(lnrpc.clone(), <span class="self">self</span>.num_route_hints).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">for </span>(federation_id, client) <span class="kw">in </span>federation_clients {
-                <span class="kw">let </span>balance_msat = client.get_balance().<span class="kw">await</span>;
-
-                federations.push(FederationInfo {
-                    federation_id,
-                    balance_msat,
-                });
+                federations.push(<span class="self">self</span>.make_federation_info(<span class="kw-2">&amp;</span>client, federation_id).<span class="kw">await</span>);
             }
 
             <span class="kw">return </span><span class="prelude-val">Ok</span>(GatewayInfo {
@@ -1494,7 +1501,7 @@
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let </span>balance_msat = client.get_balance().<span class="kw">await</span>;
+            <span class="kw">let </span>federation_info = <span class="self">self</span>.make_federation_info(<span class="kw-2">&amp;</span>client, federation_id).<span class="kw">await</span>;
 
             client
                 .register_with_federation(
@@ -1515,10 +1522,7 @@
                 .save_config(gw_client_cfg.clone(), dbtx)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(FederationInfo {
-                federation_id,
-                balance_msat,
-            });
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(federation_info);
         }
 
         <span class="prelude-val">Err</span>(GatewayError::Disconnected)
@@ -1581,7 +1585,7 @@
                 <span class="kw">for </span>config <span class="kw">in </span>configs {
                     <span class="kw">let </span>federation_id = config.config.federation_id;
                     <span class="kw">let </span>old_client = <span class="self">self</span>.clients.read().<span class="kw">await</span>.get(<span class="kw-2">&amp;</span>federation_id).cloned();
-                    <span class="kw">let </span>client = <span class="self">self
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(client) = <span class="self">self
                         </span>.client_builder
                         .build(
                             config.clone(),
@@ -1590,17 +1594,20 @@
                             lnrpc.clone(),
                             old_client,
                         )
-                        .<span class="kw">await</span><span class="question-mark">?</span>;
-
-                    <span class="comment">// Registering each client happens in the background, since we&#39;re loading the
-                    // clients for the first time, just add them to the in-memory
-                    // maps
-                    </span><span class="kw">let </span>scid = config.mint_channel_id;
-                    <span class="self">self</span>.clients.write().<span class="kw">await</span>.insert(federation_id, client);
-                    <span class="self">self</span>.scid_to_federation
-                        .write()
                         .<span class="kw">await
-                        </span>.insert(scid, federation_id);
+                    </span>{
+                        <span class="comment">// Registering each client happens in the background, since we&#39;re loading
+                        // the clients for the first time, just add them to
+                        // the in-memory maps
+                        </span><span class="kw">let </span>scid = config.mint_channel_id;
+                        <span class="self">self</span>.clients.write().<span class="kw">await</span>.insert(federation_id, client);
+                        <span class="self">self</span>.scid_to_federation
+                            .write()
+                            .<span class="kw">await
+                            </span>.insert(scid, federation_id);
+                    } <span class="kw">else </span>{
+                        <span class="macro">warn!</span>(<span class="string">&quot;Failed to load client for federation: {federation_id}&quot;</span>);
+                    }
 
                     <span class="kw">if </span>config.mint_channel_id &gt; next_channel_id {
                         next_channel_id = config.mint_channel_id + <span class="number">1</span>;
@@ -1713,6 +1720,21 @@
         }
 
         <span class="macro">unreachable!</span>();
+    }
+
+    <span class="kw">async fn </span>make_federation_info(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        client: <span class="kw-2">&amp;</span>Client,
+        federation_id: FederationId,
+    ) -&gt; FederationInfo {
+        <span class="kw">let </span>balance_msat = client.get_balance().<span class="kw">await</span>;
+        <span class="kw">let </span>config = client.get_config().clone();
+
+        FederationInfo {
+            federation_id,
+            balance_msat,
+            config,
+        }
     }
 }
 

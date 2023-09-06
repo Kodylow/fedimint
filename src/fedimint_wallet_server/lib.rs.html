@@ -1918,6 +1918,34 @@
 <a href="#1918" id="1918">1918</a>
 <a href="#1919" id="1919">1919</a>
 <a href="#1920" id="1920">1920</a>
+<a href="#1921" id="1921">1921</a>
+<a href="#1922" id="1922">1922</a>
+<a href="#1923" id="1923">1923</a>
+<a href="#1924" id="1924">1924</a>
+<a href="#1925" id="1925">1925</a>
+<a href="#1926" id="1926">1926</a>
+<a href="#1927" id="1927">1927</a>
+<a href="#1928" id="1928">1928</a>
+<a href="#1929" id="1929">1929</a>
+<a href="#1930" id="1930">1930</a>
+<a href="#1931" id="1931">1931</a>
+<a href="#1932" id="1932">1932</a>
+<a href="#1933" id="1933">1933</a>
+<a href="#1934" id="1934">1934</a>
+<a href="#1935" id="1935">1935</a>
+<a href="#1936" id="1936">1936</a>
+<a href="#1937" id="1937">1937</a>
+<a href="#1938" id="1938">1938</a>
+<a href="#1939" id="1939">1939</a>
+<a href="#1940" id="1940">1940</a>
+<a href="#1941" id="1941">1941</a>
+<a href="#1942" id="1942">1942</a>
+<a href="#1943" id="1943">1943</a>
+<a href="#1944" id="1944">1944</a>
+<a href="#1945" id="1945">1945</a>
+<a href="#1946" id="1946">1946</a>
+<a href="#1947" id="1947">1947</a>
+<a href="#1948" id="1948">1948</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap};
 <span class="kw">use </span>std::convert::{Infallible, TryInto};
 <span class="attr">#[cfg(not(target_family = <span class="string">&quot;wasm&quot;</span>))]
@@ -1949,6 +1977,7 @@
     ConfigGenModuleParams, DkgResult, ServerModuleConfig, ServerModuleConsensusConfig,
     TypedServerModuleConfig, TypedServerModuleConsensusConfig,
 };
+<span class="kw">use </span>fedimint_core::core::ModuleInstanceId;
 <span class="kw">use </span>fedimint_core::db::{
     Database, DatabaseTransaction, DatabaseVersion, ModuleDatabaseTransaction,
 };
@@ -2241,7 +2270,8 @@
             .collect::&lt;Vec&lt;WalletConsensusItem&gt;&gt;()
             .<span class="kw">await</span>;
 
-        <span class="kw">let </span>block_count = <span class="self">self</span>.block_count().<span class="kw">await</span>;
+        <span class="comment">// TODO: We should not be panicking
+        </span><span class="kw">let </span>block_count = <span class="self">self</span>.get_block_count().<span class="kw">await</span>.expect(<span class="string">&quot;bitcoind rpc failed&quot;</span>);
         <span class="kw">let </span>block_count_proposal = block_count.saturating_sub(<span class="self">self</span>.cfg.consensus.finality_delay);
         <span class="kw">let </span>consensus_block_count = <span class="self">self</span>.consensus_block_count(dbtx).<span class="kw">await</span>;
 
@@ -2256,7 +2286,8 @@
             items.push(WalletConsensusItem::BlockCount(block_count_proposal));
         }
 
-        <span class="kw">let </span>fee_rate_proposal = <span class="self">self</span>.fee_rate().<span class="kw">await</span>;
+        <span class="comment">// TODO: We should not be panicking
+        </span><span class="kw">let </span>fee_rate_proposal = <span class="self">self</span>.get_fee_rate().<span class="kw">await</span>.expect(<span class="string">&quot;bitcoind rpc failed&quot;</span>);
 
         <span class="kw">if </span>fee_rate_proposal != <span class="self">self</span>.consensus_fee_rate(dbtx).<span class="kw">await </span>{
             items.push(WalletConsensusItem::Feerate(fee_rate_proposal));
@@ -2501,17 +2532,21 @@
         dbtx.get_value(<span class="kw-2">&amp;</span>PegOutBitcoinTransaction(out_point)).<span class="kw">await
     </span>}
 
-    <span class="kw">async fn </span>audit(<span class="kw-2">&amp;</span><span class="self">self</span>, dbtx: <span class="kw-2">&amp;mut </span>ModuleDatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;, audit: <span class="kw-2">&amp;mut </span>Audit) {
-        <span class="kw">let </span>module_name = common::KIND.as_str().to_string();
+    <span class="kw">async fn </span>audit(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        dbtx: <span class="kw-2">&amp;mut </span>ModuleDatabaseTransaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        audit: <span class="kw-2">&amp;mut </span>Audit,
+        module_instance_id: ModuleInstanceId,
+    ) {
         audit
-            .add_items(dbtx, <span class="kw-2">&amp;</span>module_name, <span class="kw-2">&amp;</span>UTXOPrefixKey, |<span class="kw">_</span>, v| {
+            .add_items(dbtx, module_instance_id, <span class="kw-2">&amp;</span>UTXOPrefixKey, |<span class="kw">_</span>, v| {
                 v.amount.to_sat() <span class="kw">as </span>i64 * <span class="number">1000
             </span>})
             .<span class="kw">await</span>;
         audit
             .add_items(
                 dbtx,
-                <span class="kw-2">&amp;</span>module_name,
+                module_instance_id,
                 <span class="kw-2">&amp;</span>UnsignedTransactionPrefixKey,
                 |<span class="kw">_</span>, v| <span class="kw">match </span>v.rbf {
                     <span class="prelude-val">None </span>=&gt; v.change.to_sat() <span class="kw">as </span>i64 * <span class="number">1000</span>,
@@ -2522,7 +2557,7 @@
         audit
             .add_items(
                 dbtx,
-                <span class="kw-2">&amp;</span>module_name,
+                module_instance_id,
                 <span class="kw-2">&amp;</span>PendingTransactionPrefixKey,
                 |<span class="kw">_</span>, v| <span class="kw">match </span>v.rbf {
                     <span class="prelude-val">None </span>=&gt; v.change.to_sat() <span class="kw">as </span>i64 * <span class="number">1000</span>,
@@ -2539,6 +2574,12 @@
                 <span class="kw">async </span>|module: <span class="kw-2">&amp;</span>Wallet, context, _params: ()| -&gt; u32 {
                     <span class="comment">// TODO: perhaps change this to an Option
                     </span><span class="prelude-val">Ok</span>(module.consensus_block_count(<span class="kw-2">&amp;mut </span>context.dbtx()).<span class="kw">await</span>.unwrap_or_default())
+                }
+            },
+            <span class="macro">api_endpoint! </span>{
+                <span class="string">&quot;block_count_local&quot;</span>,
+                <span class="kw">async </span>|module: <span class="kw-2">&amp;</span>Wallet, _context, _params: ()| -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
+                    <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>module.block_count_local.lock().expect(<span class="string">&quot;Locking failed&quot;</span>))
                 }
             },
             <span class="macro">api_endpoint! </span>{
@@ -2579,6 +2620,8 @@
     cfg: WalletConfig,
     secp: Secp256k1&lt;All&gt;,
     btc_rpc: DynBitcoindRpc,
+    <span class="doccomment">/// The result of last successful get_block_count
+    </span>block_count_local: std::sync::Mutex&lt;<span class="prelude-ty">Option</span>&lt;u32&gt;&gt;,
 }
 
 <span class="kw">impl </span>Wallet {
@@ -2618,26 +2661,27 @@
             ));
         }
 
-        <span class="kw">match </span>bitcoind_rpc.get_block_count().<span class="kw">await </span>{
+        <span class="kw">let </span>wallet = Wallet {
+            cfg,
+            secp: Default::default(),
+            block_count_local: Default::default(),
+            btc_rpc: bitcoind_rpc,
+        };
+
+        <span class="kw">match </span>wallet.get_block_count().<span class="kw">await </span>{
             <span class="prelude-val">Ok</span>(height) =&gt; <span class="macro">info!</span>(height, <span class="string">&quot;Connected to bitcoind&quot;</span>),
             <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">warn!</span>(<span class="string">&quot;Bitcoin node is not ready or configured properly. Modules relying on it may not function correctly: {:?}&quot;</span>, err),
         }
 
-        <span class="kw">match </span>bitcoind_rpc.get_fee_rate(<span class="number">1</span>).<span class="kw">await </span>{
+        <span class="kw">match </span>wallet.get_fee_rate_opt().<span class="kw">await </span>{
             <span class="prelude-val">Ok</span>(feerate) =&gt; {
                 <span class="kw">match </span>feerate {
                     <span class="prelude-val">Some</span>(fr) =&gt; <span class="macro">info!</span>(feerate = fr.sats_per_kvb, <span class="string">&quot;Bitcoind feerate available&quot;</span>),
-                    <span class="prelude-val">None </span>=&gt; <span class="macro">info!</span>(feerate = <span class="number">0</span>, <span class="string">&quot;Bitcoind feerate available&quot;</span>),
+                    <span class="prelude-val">None </span>=&gt; <span class="macro">info!</span>(feerate = <span class="number">0</span>, <span class="string">&quot;Bitcoind feerate not available. Using defaults.&quot;</span>),
                 }
             },
             <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">warn!</span>(<span class="string">&quot;Bitcoin fee estimation failed. Please configure your nodes to enable fee estimation: {:?}&quot;</span>, err),
         }
-
-        <span class="kw">let </span>wallet = Wallet {
-            cfg,
-            secp: Default::default(),
-            btc_rpc: bitcoind_rpc,
-        };
 
         <span class="prelude-val">Ok</span>(wallet)
     }
@@ -2744,19 +2788,31 @@
         })
     }
 
-    <span class="kw">pub async fn </span>block_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
-        <span class="self">self</span>.btc_rpc
+    <span class="doccomment">/// Wrapper around `self.btc_rpc` that keeps track of the last successful
+    /// result
+    </span><span class="kw">async fn </span>get_block_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; anyhow::Result&lt;u32&gt; {
+        <span class="kw">let </span>res = <span class="self">self
+            </span>.btc_rpc
             .get_block_count()
             .<span class="kw">await
-            </span>.expect(<span class="string">&quot;bitcoind rpc failed&quot;</span>) <span class="kw">as </span>u32
+            </span>.and_then(|count| <span class="prelude-val">Ok</span>(u32::try_from(count)<span class="question-mark">?</span>));
+
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref </span>count) = res {
+            <span class="kw-2">*</span><span class="self">self</span>.block_count_local.lock().expect(<span class="string">&quot;Failed to lock&quot;</span>) = <span class="prelude-val">Some</span>(<span class="kw-2">*</span>count);
+        }
+
+        res
     }
 
-    <span class="kw">pub async fn </span>fee_rate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Feerate {
-        <span class="self">self</span>.btc_rpc
-            .get_fee_rate(CONFIRMATION_TARGET)
-            .<span class="kw">await
-            </span>.expect(<span class="string">&quot;bitcoind rpc failed&quot;</span>)
-            .unwrap_or(<span class="self">self</span>.cfg.consensus.default_fee)
+    <span class="kw">pub async fn </span>get_fee_rate_opt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; anyhow::Result&lt;<span class="prelude-ty">Option</span>&lt;Feerate&gt;&gt; {
+        <span class="self">self</span>.btc_rpc.get_fee_rate(CONFIRMATION_TARGET).<span class="kw">await
+    </span>}
+
+    <span class="kw">pub async fn </span>get_fee_rate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; anyhow::Result&lt;Feerate&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self
+            </span>.get_fee_rate_opt()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.unwrap_or(<span class="self">self</span>.cfg.consensus.default_fee))
     }
 
     <span class="kw">pub async fn </span>consensus_block_count(

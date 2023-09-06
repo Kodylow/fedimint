@@ -1230,6 +1230,9 @@
 <a href="#1230" id="1230">1230</a>
 <a href="#1231" id="1231">1231</a>
 <a href="#1232" id="1232">1232</a>
+<a href="#1233" id="1233">1233</a>
+<a href="#1234" id="1234">1234</a>
+<a href="#1235" id="1235">1235</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap};
 <span class="kw">use </span>std::fmt::{<span class="self">self</span>, Debug, Display, Formatter};
@@ -1257,7 +1260,7 @@
     apply, async_trait_maybe_send, dyn_newtype_define, NumPeers, OutPoint, PeerId, TransactionId,
 };
 <span class="kw">use </span>fedimint_derive::Decodable;
-<span class="kw">use </span>fedimint_logging::LOG_NET_API;
+<span class="kw">use </span>fedimint_logging::{LOG_CLIENT_NET_API, LOG_NET_API};
 <span class="kw">use </span>futures::stream::FuturesUnordered;
 <span class="kw">use </span>futures::{Future, StreamExt};
 <span class="kw">use </span>jsonrpsee_core::client::ClientT;
@@ -1456,7 +1459,7 @@
         </span><span class="kw">let </span>max_delay_ms = <span class="number">1000</span>;
         <span class="kw">loop </span>{
             <span class="kw">let </span>response = futures.next().<span class="kw">await</span>;
-            <span class="macro">trace!</span>(<span class="question-mark">?</span>response, method, params = <span class="question-mark">?</span>AbbreviateDebug(params.to_json()), <span class="string">&quot;Received peer response&quot;</span>);
+            <span class="macro">trace!</span>(target: LOG_CLIENT_NET_API, <span class="question-mark">?</span>response, method, params = <span class="question-mark">?</span>AbbreviateDebug(params.to_json()), <span class="string">&quot;Received peer response&quot;</span>);
             <span class="kw">match </span>response {
                 <span class="prelude-val">Some</span>(PeerResponse { peer, result }) =&gt; {
                     <span class="kw">let </span>result: PeerResult&lt;PeerRet&gt; =
@@ -1467,6 +1470,7 @@
 
                     <span class="kw">let </span>strategy_step = strategy.process(peer, result);
                     <span class="macro">trace!</span>(
+                        target: LOG_CLIENT_NET_API,
                         method,
                         <span class="question-mark">?</span>params,
                         <span class="question-mark">?</span>strategy_step,
@@ -1776,7 +1780,9 @@
             },
             <span class="bool-val">false</span>,
             <span class="self">self</span>.all_peers().total(),
-        );
+        )
+        <span class="comment">// downloading a config shouldn&#39;t take too long
+        </span>.with_request_timeout(Duration::from_secs(<span class="number">5</span>));
 
         <span class="self">self</span>.request_with_strategy(
             qs,
@@ -1869,7 +1875,7 @@
 </span><span class="kw">const </span>CONFIG_DOWNLOAD_TOKEN_BYTES: usize = <span class="number">12</span>;
 
 <span class="doccomment">/// Allows a client to download the config
-</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Encodable, Decodable)]
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Encodable, Decodable, PartialOrd, Ord)]
 </span><span class="kw">pub struct </span>ClientConfigDownloadToken(<span class="kw">pub </span>[u8; CONFIG_DOWNLOAD_TOKEN_BYTES]);
 
 <span class="macro">serde_as_encodable_hex!</span>(ClientConfigDownloadToken);
