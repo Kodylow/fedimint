@@ -15,10 +15,91 @@ use crate::gateway_lnrpc::gateway_lightning_client::GatewayLightningClient;
 use crate::gateway_lnrpc::{
     EmptyRequest, EmptyResponse, GetNodeInfoResponse, GetRouteHintsRequest, GetRouteHintsResponse,
     InterceptHtlcRequest, InterceptHtlcResponse, PayInvoiceRequest, PayInvoiceResponse,
+    UpdateScidsRequest,
 };
 use crate::lightning::MAX_LIGHTNING_RETRIES;
 pub type HtlcResult = std::result::Result<InterceptHtlcRequest, tonic::Status>;
 pub type RouteHtlcStream<'a> = BoxStream<'a, HtlcResult>;
+
+pub const MAX_LIGHTNING_RETRIES: u32 = 10;
+
+#[derive(Error, Debug, Serialize, Deserialize, Encodable, Decodable, Clone, Eq, PartialEq)]
+pub enum LightningRpcError {
+    #[error("Failed to connect to Lightning node")]
+    FailedToConnect,
+    #[error("Failed to retrieve node info: {failure_reason}")]
+    FailedToGetNodeInfo { failure_reason: String },
+    #[error("Failed to retrieve route hints: {failure_reason}")]
+    FailedToGetRouteHints { failure_reason: String },
+    #[error("Payment failed: {failure_reason}")]
+    FailedPayment { failure_reason: String },
+    #[error("Failed to route HTLCs: {failure_reason}")]
+    FailedToRouteHtlcs { failure_reason: String },
+    #[error("Failed to complete HTLC: {failure_reason}")]
+    FailedToCompleteHtlc { failure_reason: String },
+    #[error("Failed to open channel: {failure_reason}")]
+    FailedToOpenChannel { failure_reason: String },
+    #[error("Failed to get Invoice: {failure_reason}")]
+    FailedToGetInvoice { failure_reason: String },
+    #[error("Failed to update fedimint scids: {failure_reason}")]
+    FailedToUpdateScids { failure_reason: String },
+}
+
+#[async_trait]
+pub trait ILnRpcClient: Debug + Send + Sync {
+    /// Get the public key and alias of the lightning node
+    async fn info(&self) -> Result<GetNodeInfoResponse, LightningRpcError>;
+
+    /// Get route hints to the lightning node
+    async fn routehints(
+        &self,
+        num_route_hints: usize,
+    ) -> Result<GetRouteHintsResponse, LightningRpcError>;
+
+    /// Attempt to pay an invoice using the lightning node
+    async fn pay(
+        &self,
+        invoice: PayInvoiceRequest,
+    ) -> Result<PayInvoiceResponse, LightningRpcError>;
+
+    /// Attempt to pay an invoice using the lightning node using a
+    /// [`PrunedInvoice`], increasing the user's privacy by not sending the
+    /// invoice description to the gateway.
+    async fn pay_private(
+        &self,
+        _invoice: PrunedInvoice,
+        _max_delay: u64,
+        _max_fee: Amount,
+    ) -> Result<PayInvoiceResponse, LightningRpcError> {
+        Err(LightningRpcError::FailedPayment {
+            failure_reason: "Private payments not supported".to_string(),
+        })
+    }
+
+    /// Returns true if the lightning backend supports payments without full
+    /// invoices. If this returns true, then [`ILnRpcClient::pay_private`] has
+    /// to be implemented.
+    fn supports_private_payments(&self) -> bool {
+        false
+    }
+
+    // Consumes the current lightning client because `route_htlcs` should only be
+    // called once per client. A stream of intercepted HTLCs and a `Arc<dyn
+    // ILnRpcClient> are returned to the caller. The caller can use this new
+    // client to interact with the lightning node, but since it is an `Arc` is
+    // cannot call `route_htlcs` again.
+    async fn route_htlcs<'a>(
+        self: Box<Self>,
+        task_group: &mut TaskGroup,
+    ) -> Result<(RouteHtlcStream<'a>, Arc<dyn ILnRpcClient>), LightningRpcError>;
+
+    async fn complete_htlc(
+        &self,
+        htlc: InterceptHtlcResponse,
+    ) -> Result<EmptyResponse, LightningRpcError>;
+
+    async fn update_scids(&self, scids: Vec<u64>) -> Result<EmptyResponse, LightningRpcError>;
+}
 
 /// An `ILnRpcClient` that wraps around `GatewayLightningClient` for
 /// convenience, and makes real RPC requests over the wire to a remote lightning
@@ -137,6 +218,17 @@ impl ILnRpcClient for NetworkLnRpcClient {
                 failure_reason: status.message().to_string(),
             }
         })?;
+        Ok(res.into_inner())
+    }
+
+    async fn update_scids(&self, scids: Vec<u64>) -> Result<EmptyResponse, LightningRpcError> {
+        let mut client = Self::connect(self.connection_url.clone()).await?;
+        let res = client
+            .update_scids(UpdateScidsRequest { scids })
+            .await
+            .map_err(|status| LightningRpcError::FailedToUpdateScids {
+                failure_reason: status.message().to_string(),
+            })?;
         Ok(res.into_inner())
     }
 }
