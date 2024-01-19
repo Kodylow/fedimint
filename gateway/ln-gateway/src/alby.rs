@@ -1,8 +1,10 @@
+use std::collections::BTreeMap;
 use std::fmt;
 use std::str::FromStr;
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use cln_rpc::primitives::ShortChannelId;
 use fedimint_core::task::{sleep, TaskGroup};
 use fedimint_core::Amount;
 use fedimint_ln_common::route_hints::RouteHint;
@@ -10,7 +12,8 @@ use fedimint_ln_common::PrunedInvoice;
 use secp256k1::PublicKey;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use tokio::sync::mpsc;
+use tokio::sync::{mpsc, Mutex};
+use tokio::sync::oneshot::Sender;
 use tonic::Status;
 use tracing::info;
 
@@ -38,17 +41,16 @@ struct AlbyPayResponse {
 }
 
 pub struct GatewayAlbyClient {
-    /// LND client
-    listen_address: String,
     api_key: String,
+    map: Arc<Mutex<BTreeMap<ShortChannelId, Sender<()>>>>,
 }
 
 impl GatewayAlbyClient {
     pub async fn new(listen_address: String, api_key: String) -> Self {
         info!("Gateway configured to connect to Alby at \n address: {listen_address:?}");
-        GatewayAlbyClient {
-            listen_address,
+        Self {
             api_key,
+            map: Arc::new(Mutex::new(BTreeMap::new())),
         }
     }
 }
@@ -145,7 +147,10 @@ impl ILnRpcClient for GatewayAlbyClient {
         self: Box<Self>,
         task_group: &mut TaskGroup,
     ) -> Result<(RouteHtlcStream<'a>, Arc<dyn ILnRpcClient>), LightningRpcError> {
-        todo!()
+        let (gateway_sender, gateway_receiver) =
+            mpsc::channel::<Result<InterceptHtlcRequest, tonic::Status>>(CHANNEL_SIZE);
+
+        let (lnd_sender, lnd_rx) = mpsc::channel::<ForwardHtlcInterceptResponse>(CHANNEL_SIZE);
         // Ok((Box::pin(ReceiverStream::new(gateway_receiver)), new_client))
     }
 

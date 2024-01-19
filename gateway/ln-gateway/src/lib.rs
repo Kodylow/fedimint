@@ -1389,6 +1389,10 @@ async fn wait_for_new_password(
         .await;
 }
 
+pub enum SupportedApi {
+
+}
+
 #[derive(Debug, Clone, Subcommand, Serialize, Deserialize)]
 pub enum LightningMode {
     #[clap(name = "lnd")]
@@ -1409,7 +1413,7 @@ pub enum LightningMode {
     Cln {
         #[arg(long = "cln-extension-addr", env = "FM_GATEWAY_LIGHTNING_ADDR")]
         cln_extension_addr: SafeUrl,
-    },
+    }
 }
 
 #[derive(Debug, Error)]
