@@ -16,7 +16,7 @@ use rand::thread_rng;
 use tracing::info;
 
 use crate::db::{FederationConfig, FederationIdKey, FederationIdKeyPrefix};
-use crate::lightning::rpc_client::ILnRpcClient;
+use crate::lightning::ILnRpcClient;
 use crate::state_machine::GatewayClientInit;
 use crate::{FederationToClientMap, GatewayError, Result, ScidToFederationMap};
 

@@ -25,7 +25,7 @@ use super::{GatewayClientContext, GatewayClientStateMachines, GatewayExtReceiveS
 use crate::db::PreimageAuthentication;
 use crate::fetch_lightning_node_info;
 use crate::gateway_lnrpc::{PayInvoiceRequest, PayInvoiceResponse};
-use crate::lightning::rpc_client::LightningRpcError;
+use crate::lightning::LightningRpcError;
 use crate::state_machine::GatewayClientModule;
 
 #[cfg_attr(doc, aquamarine::aquamarine)]
