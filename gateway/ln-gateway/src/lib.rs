@@ -1,3 +1,4 @@
+pub mod alby;
 pub mod client;
 pub mod db;
 pub mod lnd;
