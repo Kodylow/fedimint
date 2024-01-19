@@ -1388,8 +1388,6 @@ async fn wait_for_new_password(
         .await;
 }
 
-pub enum SupportedApi {}
-
 #[derive(Debug, Clone, Subcommand, Serialize, Deserialize)]
 pub enum LightningMode {
     #[clap(name = "lnd")]
