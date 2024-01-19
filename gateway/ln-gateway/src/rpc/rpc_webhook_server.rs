@@ -7,10 +7,10 @@ use fedimint_core::task::TaskGroup;
 use serde::{Deserialize, Deserializer, Serialize};
 use tracing::{error, instrument};
 
-use crate::alby::GatewayAlbyClient;
 use crate::gateway_lnrpc::intercept_htlc_response::Action;
 use crate::gateway_lnrpc::{InterceptHtlcRequest, InterceptHtlcResponse};
-use crate::lnrpc_client::LightningRpcError;
+use crate::lightning::alby::GatewayAlbyClient;
+use crate::lightning::rpc_client::LightningRpcError;
 use crate::GatewayError;
 
 pub async fn run_webhook_server(

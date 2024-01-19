@@ -16,11 +16,12 @@ use tokio::sync::{mpsc, Mutex};
 use tokio_stream::wrappers::ReceiverStream;
 use tracing::info;
 
+use super::rpc_client::{ILnRpcClient, LightningRpcError, RouteHtlcStream};
+use super::send_htlc_to_webhook;
 use crate::gateway_lnrpc::{
     EmptyResponse, GetNodeInfoResponse, GetRouteHintsResponse, InterceptHtlcRequest,
     InterceptHtlcResponse, PayInvoiceRequest, PayInvoiceResponse,
 };
-use crate::lnrpc_client::{ILnRpcClient, LightningRpcError, RouteHtlcStream};
 use crate::rpc::rpc_webhook_server::run_webhook_server;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -36,8 +37,8 @@ struct AlbyPayResponse {
 
 #[derive(Clone)]
 pub struct GatewayAlbyClient {
-    api_key: String,
     bind_addr: SocketAddr,
+    api_key: String,
     pub outcomes: Arc<Mutex<BTreeMap<u64, Sender<InterceptHtlcResponse>>>>,
 }
 
@@ -80,7 +81,7 @@ impl ILnRpcClient for GatewayAlbyClient {
         let pub_key = pub_key.serialize().to_vec();
 
         return Ok(GetNodeInfoResponse {
-            pub_key: pub_key,
+            pub_key,
             alias: alias.to_string(),
             network: mainnet.to_string(),
         });
@@ -150,14 +151,8 @@ impl ILnRpcClient for GatewayAlbyClient {
         let (gateway_sender, gateway_receiver) =
             mpsc::channel::<Result<InterceptHtlcRequest, tonic::Status>>(CHANNEL_SIZE);
 
-        let new_client = Arc::new(
-            Self::new(
-                self.bind_addr.clone(),
-                self.api_key.clone(),
-                self.outcomes.clone(),
-            )
-            .await,
-        );
+        let new_client =
+            Arc::new(Self::new(self.bind_addr, self.api_key.clone(), self.outcomes.clone()).await);
 
         run_webhook_server(self.bind_addr, task_group, gateway_sender.clone(), *self)
             .await
@@ -172,17 +167,7 @@ impl ILnRpcClient for GatewayAlbyClient {
         &self,
         htlc: InterceptHtlcResponse,
     ) -> Result<EmptyResponse, LightningRpcError> {
-        let htlc_id = htlc.htlc_id;
-        if let Some(sender) = self.outcomes.lock().await.remove(&htlc_id) {
-            sender
-                .send(htlc)
-                .map_err(|_| LightningRpcError::FailedToCompleteHtlc {
-                    failure_reason: "Failed to send back to webhook".to_string(),
-                })?;
-        }
-
-        Err(LightningRpcError::FailedToCompleteHtlc {
-            failure_reason: "Could not find sender for HTLC {htlc_id}".to_string(),
-        })
+        send_htlc_to_webhook(&self.outcomes, htlc).await?;
+        Ok(EmptyResponse {})
     }
 }

@@ -24,14 +24,12 @@ use tonic_lnd::tonic::Code;
 use tonic_lnd::{connect, Client as LndClient};
 use tracing::{debug, error, info, trace, warn};
 
+use super::rpc_client::{ILnRpcClient, LightningRpcError, RouteHtlcStream, MAX_LIGHTNING_RETRIES};
 use crate::gateway_lnrpc::get_route_hints_response::{RouteHint, RouteHintHop};
 use crate::gateway_lnrpc::intercept_htlc_response::{Action, Cancel, Forward, Settle};
 use crate::gateway_lnrpc::{
     EmptyResponse, GetNodeInfoResponse, GetRouteHintsResponse, InterceptHtlcRequest,
     InterceptHtlcResponse, PayInvoiceRequest, PayInvoiceResponse,
-};
-use crate::lnrpc_client::{
-    ILnRpcClient, LightningRpcError, RouteHtlcStream, MAX_LIGHTNING_RETRIES,
 };
 
 type HtlcSubscriptionSender = mpsc::Sender<Result<InterceptHtlcRequest, Status>>;

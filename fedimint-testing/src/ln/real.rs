@@ -19,8 +19,8 @@ use ln_gateway::gateway_lnrpc::{
     EmptyResponse, GetNodeInfoResponse, GetRouteHintsResponse, InterceptHtlcResponse,
     PayInvoiceRequest, PayInvoiceResponse,
 };
-use ln_gateway::lnd::GatewayLndClient;
-use ln_gateway::lnrpc_client::{
+use ln_gateway::lightning::lnd::GatewayLndClient;
+use ln_gateway::lightning::rpc_client::{
     ILnRpcClient, LightningRpcError, NetworkLnRpcClient, RouteHtlcStream,
 };
 use secp256k1::PublicKey;

@@ -1,8 +1,6 @@
-pub mod alby;
 pub mod client;
 pub mod db;
-pub mod lnd;
-pub mod lnrpc_client;
+pub mod lightning;
 pub mod rpc;
 pub mod state_machine;
 pub mod types;
@@ -60,7 +58,6 @@ use futures::stream::StreamExt;
 use gateway_lnrpc::intercept_htlc_response::Action;
 use gateway_lnrpc::{GetNodeInfoResponse, InterceptHtlcResponse};
 use lightning_invoice::RoutingFees;
-use lnrpc_client::{ILnRpcClient, LightningBuilder, LightningRpcError, RouteHtlcStream};
 use rand::rngs::OsRng;
 use rpc::{
     FederationConnectionInfo, FederationInfo, GatewayFedConfig, GatewayInfo, LeaveFedPayload,
@@ -77,7 +74,9 @@ use tracing::{debug, error, info, warn};
 
 use crate::db::{FederationConfig, FederationIdKeyPrefix};
 use crate::gateway_lnrpc::intercept_htlc_response::Forward;
-use crate::lnrpc_client::GatewayLightningBuilder;
+use crate::lightning::rpc_client::{
+    GatewayLightningBuilder, ILnRpcClient, LightningBuilder, LightningRpcError, RouteHtlcStream,
+};
 use crate::rpc::rpc_server::run_webserver;
 use crate::rpc::{
     BackupPayload, BalancePayload, ConnectFedPayload, DepositAddressPayload, RestorePayload,
@@ -1411,6 +1410,13 @@ pub enum LightningMode {
     Cln {
         #[arg(long = "cln-extension-addr", env = "FM_GATEWAY_LIGHTNING_ADDR")]
         cln_extension_addr: SafeUrl,
+    },
+    #[clap(name = "alby")]
+    Alby {
+        #[arg(long = "bind-addr", env = "FM_GATEWAY_LIGHTNING_ADDR")]
+        bind_addr: SocketAddr,
+        #[arg(long = "api-key", env = "FM_GATEWAY_LIGHTNING_API_KEY")]
+        api_key: String,
     },
 }
 

@@ -50,7 +50,7 @@ use self::pay::{
     OutgoingPaymentError,
 };
 use crate::gateway_lnrpc::InterceptHtlcRequest;
-use crate::lnrpc_client::ILnRpcClient;
+use crate::lightning::rpc_client::ILnRpcClient;
 use crate::state_machine::complete::{
     GatewayCompleteCommon, GatewayCompleteStates, WaitForPreimageState,
 };

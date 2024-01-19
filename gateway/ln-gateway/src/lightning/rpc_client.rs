@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::sync::Arc;
 use std::time::Duration;
@@ -11,16 +12,18 @@ use fedimint_ln_common::PrunedInvoice;
 use futures::stream::BoxStream;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+use tokio::sync::Mutex;
 use tonic::transport::{Channel, Endpoint};
 use tonic::Request;
 use tracing::info;
 
+use super::alby::GatewayAlbyClient;
+use super::lnd::GatewayLndClient;
 use crate::gateway_lnrpc::gateway_lightning_client::GatewayLightningClient;
 use crate::gateway_lnrpc::{
     EmptyRequest, EmptyResponse, GetNodeInfoResponse, GetRouteHintsRequest, GetRouteHintsResponse,
     InterceptHtlcRequest, InterceptHtlcResponse, PayInvoiceRequest, PayInvoiceResponse,
 };
-use crate::lnd::GatewayLndClient;
 use crate::LightningMode;
 pub type HtlcResult = std::result::Result<InterceptHtlcRequest, tonic::Status>;
 pub type RouteHtlcStream<'a> = BoxStream<'a, HtlcResult>;
@@ -246,6 +249,10 @@ impl LightningBuilder for GatewayLightningBuilder {
             } => Box::new(
                 GatewayLndClient::new(lnd_rpc_addr, lnd_tls_cert, lnd_macaroon, None).await,
             ),
+            LightningMode::Alby { bind_addr, api_key } => {
+                let outcomes = Arc::new(Mutex::new(BTreeMap::new()));
+                Box::new(GatewayAlbyClient::new(bind_addr, api_key, outcomes).await)
+            }
         }
     }
 }
