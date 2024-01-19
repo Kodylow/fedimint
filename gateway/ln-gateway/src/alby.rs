@@ -1,33 +1,27 @@
 use std::collections::BTreeMap;
 use std::fmt;
+use std::net::SocketAddr;
 use std::str::FromStr;
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use cln_rpc::primitives::ShortChannelId;
-use fedimint_core::task::{sleep, TaskGroup};
+use fedimint_core::task::TaskGroup;
 use fedimint_core::Amount;
-use fedimint_ln_common::route_hints::RouteHint;
 use fedimint_ln_common::PrunedInvoice;
 use secp256k1::PublicKey;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use tokio::sync::{mpsc, Mutex};
 use tokio::sync::oneshot::Sender;
-use tonic::Status;
+use tokio::sync::{mpsc, Mutex};
+use tokio_stream::wrappers::ReceiverStream;
 use tracing::info;
 
 use crate::gateway_lnrpc::{
     EmptyResponse, GetNodeInfoResponse, GetRouteHintsResponse, InterceptHtlcRequest,
     InterceptHtlcResponse, PayInvoiceRequest, PayInvoiceResponse,
 };
-use crate::lnrpc_client::{
-    ILnRpcClient, LightningRpcError, RouteHtlcStream, MAX_LIGHTNING_RETRIES,
-};
-
-type HtlcSubscriptionSender = mpsc::Sender<Result<InterceptHtlcRequest, Status>>;
-
-const LND_PAYMENT_TIMEOUT_SECONDS: i32 = 180;
+use crate::lnrpc_client::{ILnRpcClient, LightningRpcError, RouteHtlcStream};
+use crate::rpc::rpc_webhook_server::run_webhook_server;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct AlbyPayResponse {
@@ -40,17 +34,24 @@ struct AlbyPayResponse {
     payment_request: String,
 }
 
+#[derive(Clone)]
 pub struct GatewayAlbyClient {
     api_key: String,
-    map: Arc<Mutex<BTreeMap<ShortChannelId, Sender<()>>>>,
+    bind_addr: SocketAddr,
+    pub outcomes: Arc<Mutex<BTreeMap<u64, Sender<InterceptHtlcResponse>>>>,
 }
 
 impl GatewayAlbyClient {
-    pub async fn new(listen_address: String, api_key: String) -> Self {
-        info!("Gateway configured to connect to Alby at \n address: {listen_address:?}");
+    pub async fn new(
+        bind_addr: SocketAddr,
+        api_key: String,
+        outcomes: Arc<Mutex<BTreeMap<u64, Sender<InterceptHtlcResponse>>>>,
+    ) -> Self {
+        info!("Gateway configured to connect to Alby at \n address: {bind_addr:?}");
         Self {
             api_key,
-            map: Arc::new(Mutex::new(BTreeMap::new())),
+            bind_addr,
+            outcomes,
         }
     }
 }
@@ -89,10 +90,9 @@ impl ILnRpcClient for GatewayAlbyClient {
     /// SCID is the short channel ID mapping to the federation
     async fn routehints(
         &self,
-        num_route_hints: usize,
+        _num_route_hints: usize,
     ) -> Result<GetRouteHintsResponse, LightningRpcError> {
         todo!()
-        // Ok(GetRouteHintsResponse { route_hints })
     }
 
     /// Pay an invoice using the alby api
@@ -127,9 +127,9 @@ impl ILnRpcClient for GatewayAlbyClient {
     // FIXME: deduplicate implementation with pay
     async fn pay_private(
         &self,
-        invoice: PrunedInvoice,
-        max_delay: u64,
-        max_fee: Amount,
+        _invoice: PrunedInvoice,
+        _max_delay: u64,
+        _max_fee: Amount,
     ) -> Result<PayInvoiceResponse, LightningRpcError> {
         todo!()
 
@@ -142,27 +142,47 @@ impl ILnRpcClient for GatewayAlbyClient {
         false
     }
 
-    /// TODO: For receiving payments, we need to implement a webhook
     async fn route_htlcs<'a>(
         self: Box<Self>,
         task_group: &mut TaskGroup,
     ) -> Result<(RouteHtlcStream<'a>, Arc<dyn ILnRpcClient>), LightningRpcError> {
+        const CHANNEL_SIZE: usize = 100;
         let (gateway_sender, gateway_receiver) =
             mpsc::channel::<Result<InterceptHtlcRequest, tonic::Status>>(CHANNEL_SIZE);
 
-        let (lnd_sender, lnd_rx) = mpsc::channel::<ForwardHtlcInterceptResponse>(CHANNEL_SIZE);
-        // Ok((Box::pin(ReceiverStream::new(gateway_receiver)), new_client))
+        let new_client = Arc::new(
+            Self::new(
+                self.bind_addr.clone(),
+                self.api_key.clone(),
+                self.outcomes.clone(),
+            )
+            .await,
+        );
+
+        run_webhook_server(self.bind_addr, task_group, gateway_sender.clone(), *self)
+            .await
+            .map_err(|_| LightningRpcError::FailedToRouteHtlcs {
+                failure_reason: "Failed to start webhook server".to_string(),
+            })?;
+
+        Ok((Box::pin(ReceiverStream::new(gateway_receiver)), new_client))
     }
 
-    /// TODO: For receiving payments, we need to implement a webhook
     async fn complete_htlc(
         &self,
         htlc: InterceptHtlcResponse,
     ) -> Result<EmptyResponse, LightningRpcError> {
-        todo!()
+        let htlc_id = htlc.htlc_id;
+        if let Some(sender) = self.outcomes.lock().await.remove(&htlc_id) {
+            sender
+                .send(htlc)
+                .map_err(|_| LightningRpcError::FailedToCompleteHtlc {
+                    failure_reason: "Failed to send back to webhook".to_string(),
+                })?;
+        }
 
-        // Err(LightningRpcError::FailedToCompleteHtlc {
-        //     failure_reason: "Gatewayd has not started to route
-        // HTLCs".to_string(), })
+        Err(LightningRpcError::FailedToCompleteHtlc {
+            failure_reason: "Could not find sender for HTLC {htlc_id}".to_string(),
+        })
     }
 }

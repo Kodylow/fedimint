@@ -1,36 +1,28 @@
 use std::net::SocketAddr;
-use std::sync::mpsc;
 
-use axum::response::IntoResponse;
-use axum::routing::{get, post};
+use axum::routing::post;
 use axum::{Extension, Json, Router};
 use axum_macros::debug_handler;
-use bitcoin_hashes::hex::ToHex;
 use fedimint_core::task::TaskGroup;
-use fedimint_ln_client::pay::PayInvoicePayload;
 use serde::{Deserialize, Deserializer, Serialize};
-use serde_json::json;
-use tower_http::cors::CorsLayer;
-use tower_http::validate_request::ValidateRequestHeaderLayer;
 use tracing::{error, instrument};
 
-use super::{
-    BackupPayload, BalancePayload, ConnectFedPayload, DepositAddressPayload, LeaveFedPayload,
-    RestorePayload, SetConfigurationPayload, WithdrawPayload,
-};
-use crate::db::GatewayConfiguration;
-use crate::gateway_lnrpc::InterceptHtlcRequest;
-use crate::rpc::ConfigPayload;
-use crate::{Gateway, GatewayError};
+use crate::alby::GatewayAlbyClient;
+use crate::gateway_lnrpc::intercept_htlc_response::Action;
+use crate::gateway_lnrpc::{InterceptHtlcRequest, InterceptHtlcResponse};
+use crate::lnrpc_client::LightningRpcError;
+use crate::GatewayError;
 
 pub async fn run_webhook_server(
     bind_addr: SocketAddr,
     task_group: &mut TaskGroup,
-    htlc_stream_sender: mpsc::Sender<Result<InterceptHtlcRequest, tonic::Status>>,
+    htlc_stream_sender: tokio::sync::mpsc::Sender<Result<InterceptHtlcRequest, tonic::Status>>,
+    client: GatewayAlbyClient,
 ) -> axum::response::Result<()> {
     let app = Router::new()
-            .route("/webhook", post(handle_htlc))
-            .layer(Extension(htlc_stream_sender.clone()));
+        .route("/handle_htlc", post(handle_htlc))
+        .layer(Extension(htlc_stream_sender.clone()))
+        .layer(Extension(client));
 
     let handle = task_group.make_handle();
     let shutdown_rx = handle.make_shutdown_rx().await;
@@ -50,9 +42,9 @@ pub async fn run_webhook_server(
     Ok(())
 }
 
-
-/// `WebhookHandleHtlcParams` is a structure that holds an intercepted HTLC request.
-/// 
+/// `WebhookHandleHtlcParams` is a structure that holds an intercepted HTLC
+/// request.
+///
 /// Example JSON representation:
 /// ```json
 /// {
@@ -71,8 +63,9 @@ struct WebhookHandleHtlcParams {
     htlc: InterceptHtlcRequest,
 }
 
-use serde::de::{MapAccess, Visitor};
 use std::fmt;
+
+use serde::de::{MapAccess, Visitor};
 
 impl<'de> Deserialize<'de> for WebhookHandleHtlcParams {
     fn deserialize<D>(deserializer: D) -> Result<WebhookHandleHtlcParams, D::Error>
@@ -111,40 +104,61 @@ impl<'de> Deserialize<'de> for WebhookHandleHtlcParams {
             }
         }
 
-        deserializer.deserialize_struct("WebhookHandleHtlcParams", &[
-            "payment_hash",
-            "incoming_amount_msat",
-            "outgoing_amount_msat",
-            "incoming_expiry",
-            "short_channel_id",
-            "incoming_chan_id",
-            "htlc_id",
-        ], WebhookHandleHtlcParamsVisitor)
+        deserializer.deserialize_struct(
+            "WebhookHandleHtlcParams",
+            &[
+                "payment_hash",
+                "incoming_amount_msat",
+                "outgoing_amount_msat",
+                "incoming_expiry",
+                "short_channel_id",
+                "incoming_chan_id",
+                "htlc_id",
+            ],
+            WebhookHandleHtlcParamsVisitor,
+        )
     }
 }
 
 #[derive(Serialize)]
 struct WebhookHandleHtlcResponse {
-    preimage: String,
+    preimage: Vec<u8>,
 }
 
 #[debug_handler]
+#[instrument(skip_all, err)]
 async fn handle_htlc(
-    Extension(htlc_stream_sender): Extension<mpsc::Sender<Result<InterceptHtlcRequest, tonic::Status>>>,
+    Extension(htlc_stream_sender): Extension<
+        tokio::sync::mpsc::Sender<Result<InterceptHtlcRequest, tonic::Status>>,
+    >,
+    Extension(client): Extension<GatewayAlbyClient>,
     params: Json<WebhookHandleHtlcParams>,
 ) -> Result<Json<WebhookHandleHtlcResponse>, GatewayError> {
-    htlc_stream_sender.send(Ok(params.htlc)).map_err(|e| {
+    let htlc = params.htlc.clone();
+    let (sender, receiver) = tokio::sync::oneshot::channel::<InterceptHtlcResponse>();
+
+    client.outcomes.lock().await.insert(htlc.htlc_id, sender);
+
+    htlc_stream_sender.send(Ok(htlc)).await.map_err(|e| {
         error!("Error sending htlc to stream: {:?}", e);
         anyhow::anyhow!("Error sending htlc to stream: {:?}", e)
     })?;
 
-    let (sender, receiver) = tokio::sync::oneshot::channel();
+    let response = receiver.await.map_err(|_| GatewayError::Disconnected)?;
 
-    tokio::spawn(async move {
-        let res = receiver.await;
-    });
-
-    Ok(Json(WebhookHandleHtlcResponse {
-        preimage: "preimage".to_string(),
-    }))
+    match response.action {
+        Some(Action::Settle(preimage)) => Ok(Json(WebhookHandleHtlcResponse {
+            preimage: preimage.preimage,
+        })),
+        Some(Action::Cancel(cancel)) => Err(GatewayError::LightningRpcError(
+            LightningRpcError::FailedToCompleteHtlc {
+                failure_reason: cancel.reason,
+            },
+        )),
+        _ => Err(GatewayError::LightningRpcError(
+            LightningRpcError::FailedToCompleteHtlc {
+                failure_reason: "Invalid action specified for htlc {htlc_id}".to_string(),
+            },
+        )),
+    }
 }
