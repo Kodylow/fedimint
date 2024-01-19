@@ -7,7 +7,6 @@ use tokio::sync::Mutex;
 use self::rpc_client::LightningRpcError;
 use crate::gateway_lnrpc::InterceptHtlcResponse;
 
-pub mod alby;
 pub mod lnd;
 pub mod rpc_client;
 

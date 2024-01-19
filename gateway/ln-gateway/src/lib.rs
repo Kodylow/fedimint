@@ -1409,13 +1409,6 @@ pub enum LightningMode {
         #[arg(long = "cln-extension-addr", env = "FM_GATEWAY_LIGHTNING_ADDR")]
         cln_extension_addr: SafeUrl,
     },
-    #[clap(name = "alby")]
-    Alby {
-        #[arg(long = "bind-addr", env = "FM_GATEWAY_LIGHTNING_ADDR")]
-        bind_addr: SocketAddr,
-        #[arg(long = "api-key", env = "FM_GATEWAY_LIGHTNING_API_KEY")]
-        api_key: String,
-    },
 }
 
 #[derive(Debug, Error)]
