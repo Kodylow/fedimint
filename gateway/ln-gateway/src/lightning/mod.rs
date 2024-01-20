@@ -2,6 +2,7 @@ pub mod alby;
 pub mod cln;
 pub mod coinos;
 pub mod lnd;
+pub mod strike;
 pub mod zbd;
 
 use std::collections::BTreeMap;
@@ -25,6 +26,7 @@ use self::alby::GatewayAlbyClient;
 use self::cln::{NetworkLnRpcClient, RouteHtlcStream};
 use self::coinos::GatewayCoinosClient;
 use self::lnd::GatewayLndClient;
+use self::strike::GatewayStrikeClient;
 use self::zbd::GatewayZbdClient;
 use crate::gateway_lnrpc::{
     EmptyResponse, GetNodeInfoResponse, GetRouteHintsResponse, InterceptHtlcResponse,
@@ -149,6 +151,13 @@ pub enum LightningMode {
         #[arg(long = "api-key", env = "FM_GATEWAY_LIGHTNING_API_KEY")]
         api_key: String,
     },
+    #[clap(name = "strike")]
+    Strike {
+        #[arg(long = "bind-addr", env = "FM_GATEWAY_WEBSERVER_BIND_ADDR")]
+        bind_addr: SocketAddr,
+        #[arg(long = "api-key", env = "FM_GATEWAY_LIGHTNING_API_KEY")]
+        api_key: String,
+    },
 }
 
 #[async_trait]
@@ -187,6 +196,10 @@ impl LightningBuilder for GatewayLightningBuilder {
                 let outcomes = Arc::new(Mutex::new(BTreeMap::new()));
                 Box::new(GatewayZbdClient::new(bind_addr, api_key, outcomes).await)
             }
+            LightningMode::Strike { bind_addr, api_key } => {
+                let outcomes = Arc::new(Mutex::new(BTreeMap::new()));
+                Box::new(GatewayStrikeClient::new(bind_addr, api_key, outcomes).await)
+            }
         }
     }
 }
@@ -196,6 +209,7 @@ pub enum WebhookClient {
     Alby(GatewayAlbyClient),
     Coinos(GatewayCoinosClient),
     Zbd(GatewayZbdClient),
+    Strike(GatewayStrikeClient),
 }
 
 impl WebhookClient {
@@ -208,6 +222,9 @@ impl WebhookClient {
                 client.outcomes.lock().await.insert(htlc_id, sender);
             }
             WebhookClient::Zbd(client) => {
+                client.outcomes.lock().await.insert(htlc_id, sender);
+            }
+            WebhookClient::Strike(client) => {
                 client.outcomes.lock().await.insert(htlc_id, sender);
             }
         }
