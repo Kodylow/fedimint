@@ -4,9 +4,13 @@
 # Important: This version uses TLS certificates, so you must have a domain under your control that you can change the DNS records for
 # You can download this script and run it with: curl -sSL https://raw.githubusercontent.com/tonygiorgio/fedimint/mainnet-deploy/docker/tls-download-mainnet.sh | bash
 
-FEDIMINT_VERSION="0.2.2"
+# Prompt the user for the version, with a fallback to the latest stable version
+read -p "Enter the version you want to use or hit enter for latest stable release: " user_version
+FEDIMINT_VERSION=${user_version:-0.2.2}
 
-DOCKER_COMPOSE_FILE=https://raw.githubusercontent.com/tonygiorgio/fedimint/mainnet-deploy/docker/${FEDIMINT_VERSION}/full-tls-mainnet/docker-compose.yaml
+echo "Using Fedimint version: $FEDIMINT_VERSION"
+
+DOCKER_COMPOSE_FILE=https://raw.githubusercontent.com/kodylow/fedimint/docker/mainnet/full-tls/docker-compose.yaml
 
 DOCKER_COMPOSE=docker-compose
 if docker compose version|grep 'Docker Compose' >& /dev/null; then
@@ -238,7 +242,7 @@ if [ "$WITH_GATEWAY" = true ]; then
   echo "  scp admin.macaroon $REMOTE_USER@$EXTERNAL_IP:/home/$REMOTE_USER/.lnd/"
   echo "  scp tls.cert $REMOTE_USER@$EXTERNAL_IP:/home/$REMOTE_USER/.lnd/"
   echo
-  read -p "Press enter after you have transfered the files " -r -n 1 < /dev/tty
+  read -p "Press enter after you have transferred the files " -r -n 1 < /dev/tty
   echo
   
   while true; do
@@ -250,7 +254,7 @@ if [ "$WITH_GATEWAY" = true ]; then
           break
       else
           echo "Some files do not look correct. Make sure you put them both in your .lnd directory."
-          read -p "Press enter after you have transfered the files " -r -n 1 < /dev/tty
+          read -p "Press enter after you have transferred the files " -r -n 1 < /dev/tty
           continue
       fi
   done
