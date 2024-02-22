@@ -4,24 +4,9 @@
 # Important: This version uses TLS certificates, so you must have a domain under your control that you can change the DNS records for
 # You can download this script and run it with: curl -sSL https://raw.githubusercontent.com/tonygiorgio/fedimint/mainnet-deploy/docker/tls-download-mainnet.sh | bash
 
-# Prompt the user for the version, with a fallback to the latest stable version
-read -p "Enter the version you want to use or hit enter for latest stable release: " user_version
-FEDIMINT_VERSION=${user_version:-0.2.2}
-echo "Using Fedimint version: $FEDIMINT_VERSION"
+FEDIMINT_VERSION=0.2.2
 
-# Prompt the user for which network they want to use: bitcoin/mainnet or mutinynet
-read -p "Enter the network you want to use or hit enter for mutinynet: " user_network
-NETWORK=${user_network:-mutinynet}
-# If mainnet or bitcoin is entered, prompt warning that fedimint is alpha software and acknowledge risks
-if [[ $NETWORK == "mainnet" ]] || [[ $NETWORK == "bitcoin" ]]; then
-  echo "Warning: Fedimint is alpha software and should not be used on mainnet without understanding the risks."
-  read -p "Do you acknowledge the risks and want to continue? [y/N] " -n 1 -r -a acknowledge_risks < /dev/tty
-  if [[ ! ${acknowledge_risks[*]} =~ ^[Yy]$ ]]; then
-    echo "Exiting..."
-    exit 1
-  fi
-fi
-echo "Using network: $NETWORK"
+echo "Using Fedimint version: $FEDIMINT_VERSION"
 
 # Prompt the user for whether they want to use TLS or not
 read -p "Do you want to set up TLS certificates with Let's Encrypt? [Y/n] " -n 1 -r -a use_tls < /dev/tty
