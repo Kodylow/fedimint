@@ -94,7 +94,7 @@ pub struct OOBNotes(Vec<OOBNotesData>);
 
 #[derive(Clone, Debug, Decodable, Encodable, PartialEq, Eq)]
 enum OOBNotesData {
-    Notes(TieredMulti<SpendableNote>),
+    Notes(Vec<SpendableNote>),
     FederationIdPrefix(FederationIdPrefix),
     /// Invite code to join the federation by which the e-cash was issued
     ///
@@ -112,17 +112,14 @@ enum OOBNotesData {
 }
 
 impl OOBNotes {
-    pub fn new(
-        federation_id_prefix: FederationIdPrefix,
-        notes: TieredMulti<SpendableNote>,
-    ) -> Self {
+    pub fn new(federation_id_prefix: FederationIdPrefix, notes: Vec<SpendableNote>) -> Self {
         Self(vec![
             OOBNotesData::FederationIdPrefix(federation_id_prefix),
             OOBNotesData::Notes(notes),
         ])
     }
 
-    pub fn new_with_invite(notes: TieredMulti<SpendableNote>, invite: InviteCode) -> Self {
+    pub fn new_with_invite(notes: Vec<SpendableNote>, invite: InviteCode) -> Self {
         Self(vec![
             // FIXME: once we can break compatibility with 0.2 we can remove the prefix in case an
             // invite is present
@@ -146,7 +143,7 @@ impl OOBNotes {
             .expect("Invariant violated: OOBNotes does not contain a FederationIdPrefix")
     }
 
-    pub fn notes(&self) -> &TieredMulti<SpendableNote> {
+    pub fn notes(&self) -> &Vec<SpendableNote> {
         self.0
             .iter()
             .find_map(|data| match data {
@@ -325,7 +322,7 @@ impl<'de> Deserialize<'de> for OOBNotes {
 impl OOBNotes {
     /// Returns the total value of all notes in msat as `Amount`
     pub fn total_amount(&self) -> Amount {
-        self.notes().total_amount()
+        self.notes().iter().map(|note| note.amount).sum()
     }
 }
 
@@ -865,9 +862,9 @@ impl MintClientModule {
         )
         .await?;
 
-        for (amount, note) in selected_notes.iter_items() {
+        for note in selected_notes.iter() {
             dbtx.remove_entry(&NoteKey {
-                amount,
+                amount: note.amount,
                 nonce: note.nonce(),
             })
             .await;
@@ -881,16 +878,19 @@ impl MintClientModule {
     pub async fn create_input_from_notes(
         &self,
         operation_id: OperationId,
-        notes: TieredMulti<SpendableNote>,
+        notes: Vec<SpendableNote>,
     ) -> anyhow::Result<Vec<ClientInput<MintInput, MintClientStateMachines>>> {
         let mut inputs = Vec::new();
 
-        for (amount, spendable_note) in notes.into_iter() {
+        for spendable_note in notes {
             let key = self
                 .cfg
                 .tbs_pks
-                .get(amount)
-                .ok_or(anyhow!("Invalid amount tier: {amount}"))?;
+                .get(spendable_note.amount)
+                .ok_or(anyhow!(format!(
+                    "Invalid amount tier: {:?}",
+                    spendable_note.amount
+                )))?;
 
             let note = spendable_note.note();
 
@@ -906,14 +906,14 @@ impl MintClientModule {
                         input_idx,
                     },
                     state: MintInputStates::Created(MintInputStateCreated {
-                        amount,
+                        amount: note.amount,
                         spendable_note,
                     }),
                 })]
             });
 
             inputs.push(ClientInput {
-                input: MintInput::new_v0(amount, note),
+                input: MintInput::new_v0(note),
                 keys: vec![spendable_note.spend_key],
                 state_machines: sm_gen,
             });
@@ -931,7 +931,7 @@ impl MintClientModule {
     ) -> anyhow::Result<(
         OperationId,
         Vec<MintClientStateMachines>,
-        TieredMulti<SpendableNote>,
+        Vec<SpendableNote>,
     )> {
         ensure!(
             amount > Amount::ZERO,
@@ -942,9 +942,9 @@ impl MintClientModule {
 
         let operation_id = spendable_notes_to_operation_id(&selected_notes);
 
-        for (amount, note) in selected_notes.iter_items() {
+        for note in selected_notes.iter() {
             dbtx.remove_entry(&NoteKey {
-                amount,
+                amount: note.amount,
                 nonce: note.nonce(),
             })
             .await;
@@ -952,11 +952,10 @@ impl MintClientModule {
 
         let mut state_machines = Vec::new();
 
-        for (amount, spendable_note) in selected_notes.clone() {
+        for spendable_note in selected_notes.clone() {
             state_machines.push(MintClientStateMachines::OOB(MintOOBStateMachine {
                 operation_id,
                 state: MintOOBStates::Created(MintOOBStatesCreated {
-                    amount,
                     spendable_note,
                     timeout: fedimint_core::time::now() + try_cancel_after,
                 }),
@@ -999,7 +998,7 @@ impl MintClientModule {
         notes_selector: &impl NotesSelector<SpendableNote>,
         requested_amount: Amount,
         fee_per_note_input: Amount,
-    ) -> anyhow::Result<TieredMulti<SpendableNote>> {
+    ) -> anyhow::Result<Vec<SpendableNote>> {
         let note_stream = dbtx
             .find_by_prefix_sorted_descending(&NoteKeyPrefix)
             .await
@@ -1099,7 +1098,7 @@ impl MintClientModule {
         let federation_id_prefix = oob_notes.federation_id_prefix();
 
         ensure!(
-            notes.total_amount() > Amount::ZERO,
+            oob_notes.total_amount() > Amount::ZERO,
             "Reissuing zero-amount e-cash isn't supported"
         );
 
@@ -1113,8 +1112,10 @@ impl MintClientModule {
                 .into_inner(),
         );
 
-        let amount = notes.total_amount();
-        let mint_input = self.create_input_from_notes(operation_id, notes).await?;
+        let amount = oob_notes.total_amount();
+        let mint_input = self
+            .create_input_from_notes(operation_id, oob_notes.notes().clone())
+            .await?;
 
         let tx =
             TransactionBuilder::new().with_inputs(self.client_ctx.map_dyn(mint_input).collect());
@@ -1322,10 +1323,13 @@ impl MintClientModule {
 
         let tbs_pks = &self.cfg.tbs_pks;
 
-        for (idx, (amt, snote)) in notes.iter_items().enumerate() {
-            let key = tbs_pks
-                .get(amt)
-                .ok_or_else(|| anyhow!("Note {idx} uses an invalid amount tier {amt}"))?;
+        for (idx, snote) in notes.iter().enumerate() {
+            let key = tbs_pks.get(snote.amount).ok_or_else(|| {
+                anyhow!(format!(
+                    "Note {:?} uses an invalid amount tier {:?}",
+                    idx, snote.amount
+                ))
+            })?;
 
             let note = snote.note();
             if !note.verify(*key) {
@@ -1338,7 +1342,7 @@ impl MintClientModule {
             }
         }
 
-        Ok(notes.total_amount())
+        Ok(oob_notes.total_amount())
     }
 
     /// Try to cancel a spend operation started with
@@ -1430,7 +1434,7 @@ impl MintClientModule {
 }
 
 pub fn spendable_notes_to_operation_id(
-    spendable_selected_notes: &TieredMulti<SpendableNote>,
+    spendable_selected_notes: &Vec<SpendableNote>,
 ) -> OperationId {
     OperationId(
         spendable_selected_notes
@@ -1455,7 +1459,7 @@ pub trait NotesSelector<Note>: Send + Sync {
         #[cfg(target_family = "wasm")] stream: impl futures::Stream<Item = (Amount, Note)>,
         requested_amount: Amount,
         fee_per_note_input: Amount,
-    ) -> anyhow::Result<TieredMulti<Note>>;
+    ) -> anyhow::Result<Vec<Note>>;
 }
 
 /// Select notes with total amount of *at least* `request_amount`. If more than
@@ -1473,7 +1477,7 @@ impl<Note: Send> NotesSelector<Note> for SelectNotesWithAtleastAmount {
         #[cfg(target_family = "wasm")] stream: impl futures::Stream<Item = (Amount, Note)>,
         requested_amount: Amount,
         fee_per_note_input: Amount,
-    ) -> anyhow::Result<TieredMulti<Note>> {
+    ) -> anyhow::Result<Vec<Note>> {
         Ok(select_notes_from_stream(stream, requested_amount, fee_per_note_input).await?)
     }
 }
@@ -1491,14 +1495,15 @@ impl<Note: Send> NotesSelector<Note> for SelectNotesWithExactAmount {
         #[cfg(target_family = "wasm")] stream: impl futures::Stream<Item = (Amount, Note)>,
         requested_amount: Amount,
         note_fee: Amount,
-    ) -> anyhow::Result<TieredMulti<Note>> {
+    ) -> anyhow::Result<Vec<Note>> {
         let notes = select_notes_from_stream(stream, requested_amount, note_fee).await?;
+        let notes_total_amount = notes.iter().map(|note| note.amount).sum::<Amount>();
 
-        if notes.total_amount() != requested_amount {
+        if notes_total_amount != requested_amount {
             bail!(
                 "Could not select notes with exact amount. Requested amount: {}. Selected amount: {}",
                 requested_amount,
-                notes.total_amount()
+                notes_total_amount
             );
         }
 
@@ -1512,12 +1517,12 @@ impl<Note: Send> NotesSelector<Note> for SelectNotesWithExactAmount {
 // tiers, so we need to save a big note in case the sum of the following
 // small notes are not enough.
 async fn select_notes_from_stream<Note>(
-    stream: impl futures::Stream<Item = (Amount, Note)>,
+    stream: impl futures::Stream<Item = Note>,
     requested_amount: Amount,
     fee_per_note_input: Amount,
-) -> Result<TieredMulti<Note>, InsufficientBalanceError> {
+) -> Result<Vec<Note>, InsufficientBalanceError> {
     if requested_amount == Amount::ZERO {
-        return Ok(TieredMulti::default());
+        return Ok(vec![]);
     }
     let mut stream = Box::pin(stream);
     let mut selected = vec![];
@@ -1525,44 +1530,45 @@ async fn select_notes_from_stream<Note>(
     // not sufficient to cover the pending amount
     // The tuple is (amount, note, checkpoint), where checkpoint is the index where
     // the note should be inserted on the selected vector if it is needed
-    let mut last_big_note_checkpoint: Option<(Amount, Note, usize)> = None;
+    let mut last_big_note_checkpoint: Option<(Note, usize)> = None;
     let mut pending_amount = requested_amount;
     let mut previous_amount: Option<Amount> = None; // used to assert descending order
     loop {
-        if let Some((note_amount, note)) = stream.next().await {
+        if let Some(note) = stream.next().await {
             assert!(
-                previous_amount.map_or(true, |previous| previous >= note_amount),
+                previous_amount.map_or(true, |previous| previous >= note.amount),
                 "notes are not sorted in descending order"
             );
-            previous_amount = Some(note_amount);
+            previous_amount = Some(note.amount);
 
-            if note_amount <= fee_per_note_input {
+            if note.amount <= fee_per_note_input {
                 continue;
             }
 
-            match note_amount.cmp(&(pending_amount + fee_per_note_input)) {
+            match note.amount.cmp(&(pending_amount + fee_per_note_input)) {
                 Ordering::Less => {
                     // keep adding notes until we have enough
                     pending_amount += fee_per_note_input;
-                    pending_amount -= note_amount;
-                    selected.push((note_amount, note))
+                    pending_amount -= note.amount;
+                    selected.push(note)
                 }
                 Ordering::Greater => {
                     // probably we don't need this big note, but we'll keep it in case the
                     // following small notes don't add up to the
                     // requested amount
-                    last_big_note_checkpoint = Some((note_amount, note, selected.len()));
+                    last_big_note_checkpoint = Some((note, selected.len()));
                 }
                 Ordering::Equal => {
                     // exactly enough notes, return
-                    selected.push((note_amount, note));
+                    selected.push(note);
 
-                    let notes: TieredMulti<Note> = selected.into_iter().collect();
+                    let notes: Vec<Note> = selected;
+                    let notes_total_amount = notes.iter().map(|note| note.amount).sum::<Amount>();
 
                     assert!(
-                        notes.total_amount().msats
+                        notes_total_amount.msats
                             >= requested_amount.msats
-                                + notes.count_items() as u64 * fee_per_note_input.msats
+                                + notes.len() as u64 * fee_per_note_input.msats
                     );
 
                     return Ok(notes);
@@ -1570,19 +1576,19 @@ async fn select_notes_from_stream<Note>(
             }
         } else {
             assert!(pending_amount > Amount::ZERO);
-            if let Some((big_note_amount, big_note, checkpoint)) = last_big_note_checkpoint {
+            if let Some((big_note, checkpoint)) = last_big_note_checkpoint {
                 // the sum of the small notes don't add up to the pending amount, remove
                 // them
                 selected.truncate(checkpoint);
                 // and use the big note to cover it
-                selected.push((big_note_amount, big_note));
+                selected.push(big_note);
 
-                let notes: TieredMulti<Note> = selected.into_iter().collect();
+                let notes: Vec<Note> = selected.into_iter().collect();
+                let notes_total_amount = notes.iter().map(|note| note.amount).sum::<Amount>();
 
                 assert!(
-                    notes.total_amount().msats
-                        >= requested_amount.msats
-                            + notes.count_items() as u64 * fee_per_note_input.msats
+                    notes_total_amount.msats
+                        >= requested_amount.msats + notes.len() as u64 * fee_per_note_input.msats
                 );
 
                 // so now we have enough to cover the requested amount, return
@@ -1693,6 +1699,7 @@ impl State for MintClientStateMachines {
 /// it)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize, Encodable, Decodable)]
 pub struct SpendableNote {
+    pub amount: Amount,
     pub signature: tbs::Signature,
     pub spend_key: KeyPair,
 }
@@ -1704,6 +1711,7 @@ impl SpendableNote {
 
     fn note(&self) -> Note {
         Note {
+            amount: self.amount,
             nonce: self.nonce(),
             signature: self.signature,
         }

@@ -44,7 +44,6 @@ pub struct MintOOBStateMachine {
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Decodable, Encodable)]
 pub struct MintOOBStatesCreated {
-    pub(crate) amount: Amount,
     pub(crate) spendable_note: SpendableNote,
     pub(crate) timeout: SystemTime,
 }
@@ -120,15 +119,15 @@ async fn transition_user_cancel(
     dbtx: &mut ClientSMDatabaseTransaction<'_, '_>,
     global_context: DynGlobalClientContext,
 ) -> MintOOBStateMachine {
-    let (amount, spendable_note) = match prev_state.state {
-        MintOOBStates::Created(created) => (created.amount, created.spendable_note),
+    let spendable_note = match prev_state.state {
+        MintOOBStates::Created(created) => created.spendable_note,
         _ => panic!("Invalid previous state: {prev_state:?}"),
     };
 
     let refund_txid = try_cancel_oob_spend(
         dbtx,
         prev_state.operation_id,
-        amount,
+        spendable_note.amount,
         spendable_note,
         global_context,
     )
@@ -150,15 +149,15 @@ async fn transition_timeout_cancel(
     dbtx: &mut ClientSMDatabaseTransaction<'_, '_>,
     global_context: DynGlobalClientContext,
 ) -> MintOOBStateMachine {
-    let (amount, spendable_note) = match prev_state.state {
-        MintOOBStates::Created(created) => (created.amount, created.spendable_note),
+    let spendable_note = match prev_state.state {
+        MintOOBStates::Created(created) => created.spendable_note,
         _ => panic!("Invalid previous state: {prev_state:?}"),
     };
 
     let refund_txid = try_cancel_oob_spend(
         dbtx,
         prev_state.operation_id,
-        amount,
+        spendable_note.amount,
         spendable_note,
         global_context,
     )
@@ -177,7 +176,7 @@ async fn try_cancel_oob_spend(
     global_context: DynGlobalClientContext,
 ) -> TransactionId {
     let input = ClientInput {
-        input: MintInput::new_v0(amount, spendable_note.note()),
+        input: MintInput::new_v0(spendable_note.note()),
         keys: vec![spendable_note.spend_key],
         state_machines: Arc::new(move |txid, input_idx| {
             vec![MintClientStateMachines::Input(MintInputStateMachine {

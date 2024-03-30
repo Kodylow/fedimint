@@ -59,6 +59,7 @@ pub struct MintOutputBlindSignature(pub tbs::BlindedSignature);
 /// corresponding secret spend key is required.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Encodable, Decodable)]
 pub struct Note {
+    pub amount: Amount,
     pub nonce: Nonce,
     pub signature: tbs::Signature,
 }
@@ -114,8 +115,11 @@ impl CommonModuleInit for MintCommonInit {
 extensible_associated_module_type!(MintInput, MintInputV0, UnknownMintInputVariantError);
 
 impl MintInput {
-    pub fn new_v0(amount: Amount, note: Note) -> MintInput {
-        MintInput::V0(MintInputV0 { amount, note })
+    pub fn new_v0(note: Note) -> MintInput {
+        MintInput::V0(MintInputV0 {
+            amount: note.amount,
+            note,
+        })
     }
 }
 

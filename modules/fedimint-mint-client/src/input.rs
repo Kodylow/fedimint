@@ -134,13 +134,13 @@ impl MintInputStateCreated {
         old_state: MintInputStateMachine,
         global_context: DynGlobalClientContext,
     ) -> MintInputStateMachine {
-        let (amount, spendable_note) = match old_state.state {
-            MintInputStates::Created(created) => (created.amount, created.spendable_note),
+        let spendable_note = match old_state.state {
+            MintInputStates::Created(created) => created.spendable_note,
             _ => panic!("Invalid state transition"),
         };
 
         let refund_input = ClientInput::<MintInput, MintClientStateMachines> {
-            input: MintInput::new_v0(amount, spendable_note.note()),
+            input: MintInput::new_v0(spendable_note.note()),
             keys: vec![spendable_note.spend_key],
             // The input of the refund tx is managed by this state machine, so no new state machines
             // need to be created
