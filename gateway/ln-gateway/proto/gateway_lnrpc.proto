@@ -42,11 +42,22 @@ service GatewayLightning {
 
   /* List all channels that are active and able to send and receive funds. */
   rpc ListActiveChannels(EmptyRequest) returns (ListActiveChannelsResponse) {}
+
+  /*
+   * UpdateScids updates the short channel ids of the federations that the
+   * Lightning node forwards to the gateway
+   */
+  rpc UpdateScids(UpdateScidsRequest) returns (EmptyResponse) {}
 }
 
 message EmptyRequest {}
 
 message EmptyResponse {}
+
+message UpdateScidsRequest {
+  // The short channel ids of the associated lightning node
+  repeated uint64 scids = 1;
+}
 
 message GetRouteHintsRequest {
   uint64 num_route_hints = 1;

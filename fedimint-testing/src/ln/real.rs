@@ -164,6 +164,10 @@ impl ILnRpcClient for ClnLightningTest {
     async fn list_active_channels(&self) -> Result<Vec<ChannelInfo>, LightningRpcError> {
         self.lnrpc.list_active_channels().await
     }
+
+    async fn update_scids(&self, _scids: Vec<u64>) -> Result<EmptyResponse, LightningRpcError> {
+        Ok(EmptyResponse {})
+    }
 }
 
 impl ClnLightningTest {
@@ -226,6 +230,10 @@ impl ClnLightningTest {
             .map(|channel| channel.our_amount_msat.msat())
             .sum();
         Amount::from_msats(funds)
+    }
+
+    async fn update_scids(&self, scids: Vec<u64>) -> Result<EmptyResponse, LightningRpcError> {
+        Ok(EmptyResponse {})
     }
 }
 
@@ -421,5 +429,9 @@ impl LndLightningTest {
             .map(|channel| channel.local_balance)
             .sum();
         Amount::from_msats(funds as u64)
+    }
+
+    async fn update_scids(&self, _scids: Vec<u64>) -> Result<EmptyResponse, LightningRpcError> {
+        Ok(EmptyResponse {})
     }
 }
