@@ -233,7 +233,7 @@ impl ClnLightningTest {
     }
 
     async fn update_scids(&self, scids: Vec<u64>) -> Result<EmptyResponse, LightningRpcError> {
-        Ok(EmptyResponse {})
+        self.lnrpc.update_scids(scids).await
     }
 }
 
