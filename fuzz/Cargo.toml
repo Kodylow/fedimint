@@ -12,7 +12,7 @@ repository = "https://github.com/fedimint/fedimint"
 cargo-fuzz = true
 
 [dependencies]
-honggfuzz = { version = "0.5.55", default-features = false }
+honggfuzz = { version = "0.5.56", default-features = false }
 fedimint-core = { version = "=0.4.0-alpha", path = "../fedimint-core" }
 
 # cargo-deny just needs at least one `bin` defined

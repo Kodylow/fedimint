@@ -37,7 +37,7 @@ bitcoin = { workspace = true }
 bitcoin_hashes = { workspace = true }
 clap = { workspace = true }
 # cln-plugin made semver incompatible change
-cln-plugin = "=0.1.7"
+cln-plugin = "=0.1.8"
 cln-rpc = { workspace = true }
 fedimint-client = { version = "=0.4.0-alpha", path = "../../fedimint-client" }
 fedimint-core = { workspace = true }
@@ -55,7 +55,7 @@ futures = { workspace = true }
 hex = { workspace = true }
 erased-serde = { workspace = true }
 lightning-invoice = "0.30.0"
-prost = "0.12.4"
+prost = "0.12.6"
 rand = { workspace = true }
 reqwest = { version = "0.11.26", features = [ "json", "rustls-tls" ], default-features = false }
 secp256k1-zkp = { version = "0.9.2", features = [ "serde" ] }
