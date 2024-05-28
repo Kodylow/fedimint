@@ -1,0 +1,80 @@
+# Best used if called by 'tls-download-mutinynet.sh' script
+# fedimint.example.comshould be replaced by a domain controlled by you and all DNS below should redirect to the IP of your server.
+# Domains:
+# - guardian-ui.fedimint.example.com
+# - gatewayd.fedimint.example.com
+# - gateway-ui.fedimint.example.com
+
+version: "3.3"
+
+services:
+  traefik:
+    image: "traefik:v2.10"
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "443:443"
+    volumes:
+      - "letsencrypt_data:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  ### START_OF_GATEWAY ###
+  gatewayd:
+    image: fedimint/gatewayd:v0.3.1
+    command: gatewayd lnd
+    environment:
+      # Path to folder containing gateway config and data files
+      - FM_GATEWAY_DATA_DIR=/gateway_data
+      # Gateway webserver listen address
+      - FM_GATEWAY_LISTEN_ADDR=0.0.0.0:80
+      # Public URL from which the webserver API is reachable
+      - FM_GATEWAY_API_ADDR=https://gatewayd.fedimint.example.com
+      # Gateway webserver authentication password
+      - FM_GATEWAY_PASSWORD=<password>
+      # Configured gateway routing fees Format: <base_msat>,<proportional_millionths>
+      - FM_GATEWAY_FEES=1,1000
+      # LND RPC address
+      - FM_LND_RPC_ADDR=<https://ip-address>
+      # LND TLS cert file path
+      - FM_LND_TLS_CERT=/lnd_data/tls.cert
+      # LND macaroon file path
+      - FM_LND_MACAROON=/lnd_data/admin.macaroon
+    volumes:
+      - gateway_datadir:/gateway_data
+      - ~/.lnd:/lnd_data:ro
+    restart: always
+    platform: linux/amd64
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.gatewayd.loadbalancer.server.port=80"
+      - "traefik.http.routers.gatewayd.rule=Host(`gatewayd.fedimint.example.com`)"
+      - "traefik.http.routers.gatewayd.entrypoints=websecure"
+      - "traefik.http.routers.gatewayd.tls.certresolver=myresolver"
+
+  gateway-ui:
+    image: fedimintui/gateway-ui:0.3.1
+    environment:
+      - PORT=80
+      - REACT_APP_FM_GATEWAY_API=https://gatewayd.fedimint.example.com
+    depends_on:
+      - gatewayd
+    restart: always
+    platform: linux/amd64
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.gateway-ui.loadbalancer.server.port=80"
+      - "traefik.http.routers.gateway-ui.rule=Host(`gateway-ui.fedimint.example.com`)"
+      - "traefik.http.routers.gateway-ui.entrypoints=websecure"
+      - "traefik.http.routers.gateway-ui.tls.certresolver=myresolver"
+  ### END_OF_GATEWAY ###
+
+volumes:
+  letsencrypt_data:
+  gateway_datadir:
