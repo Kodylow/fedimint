@@ -35,7 +35,7 @@ bitcoin = { workspace = true }
 bitcoin_hashes = { workspace = true }
 clap = { workspace = true }
 # cln-plugin made semver incompatible change
-cln-plugin = "=0.1.7"
+cln-plugin = "=0.1.9"
 cln-rpc = { workspace = true }
 erased-serde = { workspace = true }
 esplora-client = { version = "0.6.0", default-features = false, features = ["async", "async-https-rustls"] }
