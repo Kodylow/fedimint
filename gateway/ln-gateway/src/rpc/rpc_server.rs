@@ -14,8 +14,8 @@ use fedimint_ln_client::pay::PayInvoicePayload;
 use fedimint_ln_common::gateway_endpoint_constants::{
     ADDRESS_ENDPOINT, BACKUP_ENDPOINT, BALANCE_ENDPOINT, CLOSE_CHANNELS_WITH_PEER_ENDPOINT,
     CONFIGURATION_ENDPOINT, CONNECT_FED_ENDPOINT, GATEWAY_INFO_ENDPOINT,
-    GATEWAY_INFO_POST_ENDPOINT, GET_BALANCES_ENDPOINT, GET_GATEWAY_ID_ENDPOINT,
-    GET_LN_ONCHAIN_ADDRESS_ENDPOINT, LEAVE_FED_ENDPOINT, LIST_ACTIVE_CHANNELS_ENDPOINT,
+    GATEWAY_INFO_POST_ENDPOINT, GET_BALANCES_ENDPOINT, GET_FUNDING_ADDRESS_ENDPOINT,
+    GET_GATEWAY_ID_ENDPOINT, LEAVE_FED_ENDPOINT, LIST_ACTIVE_CHANNELS_ENDPOINT,
     OPEN_CHANNEL_ENDPOINT, PAY_INVOICE_ENDPOINT, RECEIVE_ECASH_ENDPOINT, RESTORE_ENDPOINT,
     SET_CONFIGURATION_ENDPOINT, SPEND_ECASH_ENDPOINT, WITHDRAW_ENDPOINT,
 };
@@ -25,6 +25,7 @@ use fedimint_lnv2_common::endpoint_constants::{
     SEND_PAYMENT_ENDPOINT,
 };
 use hex::ToHex;
+use secp256k1_zkp::SECP256K1;
 use serde_json::{json, Value};
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
@@ -36,6 +37,7 @@ use super::{
     LeaveFedPayload, OpenChannelPayload, ReceiveEcashPayload, RestorePayload,
     SetConfigurationPayload, SpendEcashPayload, WithdrawPayload, V1_API_ENDPOINT,
 };
+use crate::auth_manager::AuthChallengeResponse;
 use crate::rpc::ConfigPayload;
 use crate::{Gateway, GatewayError};
 
@@ -151,10 +153,6 @@ async fn authenticate(
 fn v1_routes(gateway: Arc<Gateway>) -> Router {
     // Public routes on gateway webserver
     let public_routes = Router::new()
-        .route(
-            CREATE_BOLT11_INVOICE_FOR_SELF_ENDPOINT,
-            post(create_invoice_for_self),
-        )
         .route(PAY_INVOICE_ENDPOINT, post(pay_invoice))
         .route(GET_GATEWAY_ID_ENDPOINT, get(get_gateway_id))
         // These routes are for next generation lightning
@@ -205,6 +203,27 @@ fn v1_routes(gateway: Arc<Gateway>) -> Router {
         .merge(authenticated_after_config_routes)
         .layer(Extension(gateway))
         .layer(CorsLayer::permissive())
+}
+
+/// Auth Challenge Endpoint
+async fn auth_challenge(
+    Extension(gateway): Extension<Arc<Gateway>>,
+) -> Result<impl IntoResponse, GatewayError> {
+    let mut auth_manager = gateway.auth_manager.lock().await;
+    let challenge = auth_manager.create_challenge();
+    Ok(Json(json!(challenge)))
+}
+
+/// Auth Session Endpoint
+async fn auth_session(
+    Extension(gateway): Extension<Arc<Gateway>>,
+    Json(payload): Json<AuthChallengeResponse>,
+) -> Result<impl IntoResponse, GatewayError> {
+    let mut auth_manager = gateway.auth_manager.lock().await;
+    let token = auth_manager
+        .verify_challenge_response(SECP256K1, &payload)
+        .map_err(|_| GatewayError::Unauthorized)?;
+    Ok(Json(json!(token)))
 }
 
 /// Creates a password hash by appending a 4 byte salt to the plaintext

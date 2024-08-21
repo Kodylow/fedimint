@@ -13,6 +13,7 @@
 #![allow(clippy::too_many_lines)]
 #![allow(clippy::wildcard_imports)]
 
+mod auth_manager;
 pub mod client;
 mod config;
 mod db;
@@ -39,6 +40,7 @@ use std::time::Duration;
 
 use ::lightning::ln::PaymentHash;
 use anyhow::{anyhow, bail};
+use auth_manager::AuthManager;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use bitcoin::{Address, Network, Txid};
@@ -101,7 +103,7 @@ use rpc::{
 use state_machine::pay::OutgoingPaymentError;
 use state_machine::GatewayClientModule;
 use thiserror::Error;
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 use tracing::{debug, error, info, info_span, warn, Instrument};
 
 use crate::db::{get_gatewayd_database_migrations, FederationConfig};
@@ -201,6 +203,9 @@ enum ReceivePaymentStreamAction {
 pub struct Gateway {
     /// The gateway's federation manager.
     federation_manager: Arc<RwLock<FederationManager>>,
+
+    /// The gateway's authentication manager.
+    auth_manager: Arc<Mutex<AuthManager>>,
 
     /// Builder struct that allows the gateway to build a `ILnRpcClient`, which
     /// represents a connection to a lightning node.
@@ -350,13 +355,19 @@ impl Gateway {
         let gateway_config =
             Self::get_gateway_configuration(gateway_db.clone(), &gateway_parameters).await;
 
+        let gateway_id = Self::load_or_create_gateway_id(&gateway_db).await;
+
         Ok(Self {
             federation_manager: Arc::new(RwLock::new(FederationManager::new())),
+            auth_manager: Arc::new(Mutex::new(AuthManager::new(
+                gateway_id.clone(),
+                gateway_parameters.versioned_api.to_string(),
+            ))),
             lightning_builder,
             gateway_config: Arc::new(RwLock::new(gateway_config)),
             state: Arc::new(RwLock::new(gateway_state)),
             client_builder,
-            gateway_id: Self::load_or_create_gateway_id(&gateway_db).await,
+            gateway_id,
             gateway_db,
             versioned_api: gateway_parameters.versioned_api,
             listen: gateway_parameters.listen,
@@ -1876,6 +1887,8 @@ pub enum GatewayError {
     IncomingLNv1PaymentError(anyhow::Error),
     #[error("Incoming payment is not registered as an LNv2 payment")]
     PaymentNotRegisteredWithLNv2Error,
+    #[error("Unauthorized")]
+    Unauthorized,
 }
 
 impl IntoResponse for GatewayError {
