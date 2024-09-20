@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-use crate::rpc::rpc_server::hash_password;
+use crate::auth_manager::hash_password;
 
 pub const GATEWAYD_DATABASE_VERSION: DatabaseVersion = DatabaseVersion(2);
 

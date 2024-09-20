@@ -1,5 +1,4 @@
 use std::sync::Arc;
-use std::time::UNIX_EPOCH;
 
 use axum::extract::Request;
 use axum::http::{header, StatusCode};
@@ -7,19 +6,16 @@ use axum::middleware::{self, Next};
 use axum::response::IntoResponse;
 use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
-use bitcoin_hashes::{sha256, Hash};
-use fedimint_client::secret;
 use fedimint_core::config::FederationId;
-use fedimint_core::encoding::Encodable;
 use fedimint_core::task::TaskGroup;
 use fedimint_ln_common::gateway_endpoint_constants::{
-    ADDRESS_ENDPOINT, AUTH_CHALLENGE_ENDPOINT, AUTH_LOGIN_ENDPOINT, AUTH_SESSION_ENDPOINT,
-    BACKUP_ENDPOINT, BALANCE_ENDPOINT, CLOSE_CHANNELS_WITH_PEER_ENDPOINT, CONFIGURATION_ENDPOINT,
+    ADDRESS_ENDPOINT, AUTH_CHALLENGE_ENDPOINT, AUTH_SESSION_ENDPOINT, BACKUP_ENDPOINT,
+    BALANCE_ENDPOINT, CLOSE_CHANNELS_WITH_PEER_ENDPOINT, CONFIGURATION_ENDPOINT,
     CONNECT_FED_ENDPOINT, GATEWAY_INFO_ENDPOINT, GATEWAY_INFO_POST_ENDPOINT, GET_BALANCES_ENDPOINT,
-    GET_FUNDING_ADDRESS_ENDPOINT, GET_GATEWAY_ID_ENDPOINT, LEAVE_FED_ENDPOINT,
-    LIST_ACTIVE_CHANNELS_ENDPOINT, OPEN_CHANNEL_ENDPOINT, PAY_INVOICE_ENDPOINT,
-    RECEIVE_ECASH_ENDPOINT, RESTORE_ENDPOINT, SET_CONFIGURATION_ENDPOINT, SPEND_ECASH_ENDPOINT,
-    WITHDRAW_ENDPOINT,
+    GET_GATEWAY_ID_ENDPOINT, GET_LN_ONCHAIN_ADDRESS_ENDPOINT, LEAVE_FED_ENDPOINT,
+    LIST_ACTIVE_CHANNELS_ENDPOINT, MNEMONIC_ENDPOINT, OPEN_CHANNEL_ENDPOINT, PAY_INVOICE_ENDPOINT,
+    RECEIVE_ECASH_ENDPOINT, SET_CONFIGURATION_ENDPOINT, SPEND_ECASH_ENDPOINT, STOP_ENDPOINT,
+    SYNC_TO_CHAIN_ENDPOINT, WITHDRAW_ENDPOINT,
 };
 use fedimint_lnv2_client::{CreateBolt11InvoicePayload, SendPaymentPayload};
 use fedimint_lnv2_common::endpoint_constants::{
@@ -27,10 +23,8 @@ use fedimint_lnv2_common::endpoint_constants::{
     PAY_INVOICE_SELF_ENDPOINT, ROUTING_INFO_ENDPOINT, SEND_PAYMENT_ENDPOINT,
 };
 use hex::ToHex;
-use jsonwebtoken::{decode, DecodingKey, Validation};
 use secp256k1_zkp::SECP256K1;
-use serde::Deserialize;
-use serde_json::{json, Value};
+use serde_json::json;
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
 use tracing::{error, info, instrument};
@@ -42,7 +36,7 @@ use super::{
     SetConfigurationPayload, SpendEcashPayload, SyncToChainPayload, WithdrawPayload,
     V1_API_ENDPOINT,
 };
-use crate::auth_manager::{AuthChallengeResponse, Session};
+use crate::auth_manager::{AuthChallengeResponse, AuthToken};
 use crate::rpc::ConfigPayload;
 use crate::{Gateway, GatewayError};
 
@@ -97,14 +91,29 @@ async fn auth_middleware(
     request: Request,
     next: Next,
 ) -> Result<impl IntoResponse, StatusCode> {
-    // These routes are not available unless the gateway's configuration is set.
-    let gateway_config = gateway
-        .clone_gateway_config()
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    let gateway_hashed_password = gateway_config.hashed_password;
-    let password_salt = gateway_config.password_salt;
-    authenticate(gateway_hashed_password, password_salt, request, next).await
+    let bearer_token = extract_bearer_token(&request)?;
+    let auth_manager = gateway.auth_manager.lock().await;
+
+    let auth_token = auth_manager.get_auth_token(&bearer_token)?;
+    match auth_token {
+        AuthToken::TokenData(token_data) => {
+            let auth_manager = gateway.auth_manager.lock().await;
+            auth_manager.authenticate_jwt_expiry(&token_data)?;
+            Ok(next.run(request).await)
+        }
+        AuthToken::HashedPassword(token) => {
+            let gateway_config = gateway
+                .clone_gateway_config()
+                .await
+                .expect("Gateway config is not set");
+            let gateway_hashed_password = gateway_config.hashed_password;
+            let password_salt = gateway_config.password_salt;
+            gateway
+                .auth_manager
+                .authenticate_password(gateway_hashed_password, password_salt, token, request, next)
+                .await
+        }
+    }
 }
 
 /// Middleware to authenticate an incoming request. Routes that are
@@ -123,101 +132,10 @@ async fn auth_after_config_middleware(
         return Ok(next.run(request).await);
     }
 
-    // Otherwise, validate that the Bearer token matches the gateway's hashed
-    // password
-    let gateway_config = gateway_config.expect("Already validated the gateway config is not none");
-    let gateway_hashed_password = gateway_config.hashed_password;
-    let password_salt = gateway_config.password_salt;
-    authenticate(gateway_hashed_password, password_salt, request, next).await
-}
-
-#[derive(Deserialize)]
-pub struct SignInData {
-    pub password: String,
-}
-
-async fn authenticate_endpoint(
-    Extension(gateway): Extension<Arc<Gateway>>,
-    Json(user_data): Json<SignInData>,
-) -> Result<impl IntoResponse, StatusCode> {
-    // If the gateway's config has not been set, allow the request to continue, so
-    // that the gateway can be configured
-    let gateway_config = gateway.clone_gateway_config().await;
-    if gateway_config.is_none() {
-        return Err(StatusCode::UNAUTHORIZED);
-    }
-    //
-    // // Otherwise, validate that the Bearer token matches the gateway's hashed
-    // // password
-    let gateway_config = gateway_config.expect("Already validated the gateway config is not none");
-    let gateway_hashed_password = gateway_config.hashed_password;
-    let password_salt = gateway_config.password_salt;
-    let hashed_password = hash_password(&user_data.password, password_salt);
-    if gateway_hashed_password == hashed_password {
-        //TODO generate JWT token
-        Ok(Json(json!(())))
-    } else {
-        return Err(StatusCode::UNAUTHORIZED);
-    }
-}
-
-/// Validate that the Bearer token matches the gateway's hashed password
-async fn authenticate(
-    gateway_hashed_password: sha256::Hash,
-    password_salt: [u8; 16],
-    request: Request,
-    next: Next,
-) -> Result<axum::response::Response, StatusCode> {
-    let token = extract_bearer_token(&request)?;
-    let hashed_password = hash_password(&token, password_salt);
-    if gateway_hashed_password == hashed_password {
-        return Ok(next.run(request).await);
-    }
-
-    Err(StatusCode::UNAUTHORIZED)
-}
-
-async fn auth_jwt_middleware(
-    Extension(gateway): Extension<Arc<Gateway>>,
-    request: Request,
-    next: Next,
-) -> Result<impl IntoResponse, StatusCode> {
-    // If the gateway's config has not been set, allow the request to continue, so
-    // that the gateway can be configured
-    let gateway_config = gateway.clone_gateway_config().await;
-    if gateway_config.is_none() {
-        return Ok(next.run(request).await);
-    }
-
-    //TODO where the secret should be placed
-    authenticate_jwt("secret".to_string(), request, next).await
-}
-
-async fn authenticate_jwt(
-    secret: String,
-    request: Request,
-    next: Next,
-) -> Result<axum::response::Response, StatusCode> {
-    let token = extract_bearer_token(&request)?;
-    match decode::<Session>(
-        &token,
-        &DecodingKey::from_secret(secret.as_ref()),
-        &Validation::default(),
-    ) {
-        Ok(token_data) => {
-            //TODO how to check that the session id is valid
-            let now = fedimint_core::time::now()
-                .duration_since(UNIX_EPOCH)
-                .expect("Time went backwards")
-                .as_secs();
-            if token_data.claims.expiry > now {
-                Err(StatusCode::UNAUTHORIZED)
-            } else {
-                Ok(next.run(request).await)
-            }
-        }
-        Err(_) => Err(StatusCode::UNAUTHORIZED),
-    }
+    // Otherwise, validate the Bearer token
+    auth_middleware(Extension(gateway), request, next)
+        .await
+        .map(|response| response.into_response())
 }
 
 /// Gateway Webserver Routes. The gateway supports three types of routes
@@ -266,17 +184,11 @@ fn v1_routes(gateway: Arc<Gateway>, task_group: TaskGroup) -> Router {
         )
         .route(LIST_ACTIVE_CHANNELS_ENDPOINT, get(list_active_channels))
         .route(GET_BALANCES_ENDPOINT, get(get_balances))
-<<<<<<< HEAD
         .route(SPEND_ECASH_ENDPOINT, post(spend_ecash))
         .route(MNEMONIC_ENDPOINT, get(mnemonic))
         .route(STOP_ENDPOINT, get(stop))
         .route(SYNC_TO_CHAIN_ENDPOINT, post(sync_to_chain))
         .layer(middleware::from_fn(auth_middleware));
-||||||| parent of 2e3fc7e1b5 (feat: start gateway auth)
-        .layer(middleware::from_fn(auth_middleware));
-=======
-        .layer(middleware::from_fn(auth_jwt_middleware));
->>>>>>> 2e3fc7e1b5 (feat: start gateway auth)
 
     // Routes that are un-authenticated before gateway configuration, then become
     // authenticated after a password has been set.
@@ -286,19 +198,14 @@ fn v1_routes(gateway: Arc<Gateway>, task_group: TaskGroup) -> Router {
         // FIXME: deprecated >= 0.3.0
         .route(GATEWAY_INFO_POST_ENDPOINT, post(handle_post_info))
         .route(GATEWAY_INFO_ENDPOINT, get(info))
-        .layer(middleware::from_fn(auth_jwt_middleware));
-
-    let login_route = Router::new()
         .route(AUTH_CHALLENGE_ENDPOINT, post(auth_challenge))
         .route(AUTH_SESSION_ENDPOINT, post(auth_session))
-        .layer(middleware::from_fn(auth_jwt_middleware));
-    // .route(AUTH_LOGIN_ENDPOINT, post(authenticate_endpoint))
+        .layer(middleware::from_fn(auth_after_config_middleware));
 
     Router::new()
         .merge(public_routes)
         .merge(always_authenticated_routes)
         .merge(authenticated_after_config_routes)
-        .merge(login_route)
         .layer(Extension(gateway))
         .layer(Extension(task_group))
         .layer(CorsLayer::permissive())
@@ -319,23 +226,10 @@ async fn auth_session(
     Json(payload): Json<AuthChallengeResponse>,
 ) -> Result<impl IntoResponse, GatewayError> {
     let mut auth_manager = gateway.auth_manager.lock().await;
-    let session = auth_manager
+    let token = auth_manager
         .verify_challenge_response(SECP256K1, &payload)
         .map_err(|_| GatewayError::Unauthorized)?;
-    let token = session.encode_jwt()?;
     Ok(Json(json!(token)))
-}
-
-/// Creates a password hash by appending a 4 byte salt to the plaintext
-/// password.
-pub fn hash_password(plaintext_password: &str, salt: [u8; 16]) -> sha256::Hash {
-    let mut bytes = Vec::<u8>::new();
-    plaintext_password
-        .consensus_encode(&mut bytes)
-        .expect("Password is encodable");
-    salt.consensus_encode(&mut bytes)
-        .expect("Salt is encodable");
-    sha256::Hash::hash(&bytes)
 }
 
 /// Display high-level information about the Gateway

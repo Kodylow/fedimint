@@ -2,12 +2,20 @@ use std::collections::BTreeSet;
 use std::str::FromStr;
 use std::time::UNIX_EPOCH;
 
-use jsonwebtoken::{encode, EncodingKey, Header};
+use bitcoin_hashes::{sha256, Hash};
+use fedimint_core::encoding::Encodable;
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, TokenData, Validation};
+use reqwest::StatusCode;
 use secp256k1_zkp::schnorr::Signature;
 use secp256k1_zkp::PublicKey;
 use serde::{Deserialize, Serialize};
 
 const CHALLENGE_EXPIRY_SECONDS: u64 = 60; // 1 minute
+
+pub enum AuthToken {
+    TokenData(TokenData<Session>),
+    HashedPassword(String),
+}
 
 pub struct AuthManager {
     /// The public key of the gateway
@@ -16,15 +24,18 @@ pub struct AuthManager {
     gateway_api: String,
     /// Challenges with their expiry times
     challenges: BTreeSet<AuthChallenge>,
+    /// The JWT secret
+    jwt_secret: String,
 }
 
 impl AuthManager {
     /// Create a new auth manager
-    pub fn new(gateway_id: PublicKey, gateway_api: String) -> Self {
+    pub fn new(gateway_id: PublicKey, gateway_api: String, jwt_secret: String) -> Self {
         Self {
             gateway_id,
             gateway_api,
             challenges: BTreeSet::new(),
+            jwt_secret,
         }
     }
 
@@ -35,12 +46,12 @@ impl AuthManager {
         challenge
     }
 
-    /// Verify the challenge
+    /// Verify the challenge response and return a JWT session if valid
     pub fn verify_challenge_response(
         &mut self,
         ctx: &secp256k1_zkp::Secp256k1<secp256k1_zkp::All>,
         challenge_response: &AuthChallengeResponse,
-    ) -> anyhow::Result<Session> {
+    ) -> anyhow::Result<String> {
         let challenge = AuthChallenge::from_str(&challenge_response.challenge)?;
         //TODO check password and if correct generate Session
         if !self.challenges.contains(&challenge)
@@ -66,9 +77,57 @@ impl AuthManager {
 
         // If valid, remove the challenge from the set
         self.challenges.remove(&challenge);
-        //TODO how the ID of the session should be build?
-        let session = Session::new("id".to_string(), challenge.expiry);
-        Ok(session)
+        let jwt = self.encode_jwt()?;
+        Ok(jwt)
+    }
+
+    pub fn get_auth_token(&self, token: &str) -> Result<AuthToken, StatusCode> {
+        if let Ok(token_data) = decode::<Session>(
+            token,
+            &DecodingKey::from_secret(self.jwt_secret.as_ref()),
+            &Validation::default(),
+        ) {
+            return Ok(AuthToken::TokenData(token_data));
+        }
+        Ok(AuthToken::HashedPassword(token.to_string()))
+    }
+
+    pub fn encode_jwt(&self) -> anyhow::Result<String> {
+        let session = Session::new();
+        encode(
+            &Header::default(),
+            &session,
+            &EncodingKey::from_secret(self.jwt_secret.as_ref()),
+        )
+        .map_err(|_| anyhow::anyhow!("Unable to generate jwt token session"))
+    }
+
+    /// Validate that the Bearer token matches the gateway's hashed password
+    async fn authenticate_password(
+        gateway_hashed_password: sha256::Hash,
+        password_salt: [u8; 16],
+        token: String,
+    ) -> Result<(), StatusCode> {
+        let hashed_password = hash_password(&token, password_salt);
+        if gateway_hashed_password == hashed_password {
+            return Ok(());
+        }
+        Err(StatusCode::UNAUTHORIZED)
+    }
+
+    pub fn authenticate_jwt_expiry(
+        &self,
+        token_data: &TokenData<Session>,
+    ) -> Result<(), StatusCode> {
+        if token_data.claims.expiry
+            < fedimint_core::time::now()
+                .duration_since(UNIX_EPOCH)
+                .expect("Time went backwards")
+                .as_secs()
+        {
+            return Err(StatusCode::UNAUTHORIZED);
+        }
+        Ok(())
     }
 }
 
@@ -139,19 +198,25 @@ pub struct Session {
 }
 
 impl Session {
-    pub fn new(id: String, expiry: u64) -> Self {
+    pub fn new() -> Self {
+        let id = rand::random::<u64>().to_string();
+        let expiry = fedimint_core::time::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("Time went backwards")
+            .as_secs()
+            + CHALLENGE_EXPIRY_SECONDS;
         Self { id, expiry }
     }
+}
 
-    pub fn encode_jwt(self) -> anyhow::Result<String> {
-        let claim = self;
-        //TODO should be used the PublicKey instead?
-        let secret: String = "secret".to_string();
-        encode(
-            &Header::default(),
-            &claim,
-            &EncodingKey::from_secret(secret.as_ref()),
-        )
-        .map_err(|_| anyhow::anyhow!("Unable to generate jwt token session"))
-    }
+/// Creates a password hash by appending a 4 byte salt to the plaintext
+/// password.
+pub fn hash_password(plaintext_password: &str, salt: [u8; 16]) -> sha256::Hash {
+    let mut bytes = Vec::<u8>::new();
+    plaintext_password
+        .consensus_encode(&mut bytes)
+        .expect("Password is encodable");
+    salt.consensus_encode(&mut bytes)
+        .expect("Salt is encodable");
+    sha256::Hash::hash(&bytes)
 }

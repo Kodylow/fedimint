@@ -116,7 +116,7 @@ use crate::gateway_lnrpc::intercept_htlc_response::Forward;
 use crate::gateway_lnrpc::CreateInvoiceRequest;
 use crate::gateway_module_v2::GatewayClientModuleV2;
 use crate::lightning::{GatewayLightningBuilder, LightningContext, RouteHtlcStream};
-use crate::rpc::rpc_server::{hash_password, run_webserver};
+use crate::rpc::rpc_server::run_webserver;
 use crate::rpc::{
     BackupPayload, BalancePayload, ConnectFedPayload, DepositAddressPayload, FederationBalanceInfo,
     GatewayBalances, WithdrawPayload,
@@ -369,6 +369,7 @@ impl Gateway {
             auth_manager: Arc::new(Mutex::new(AuthManager::new(
                 gateway_id,
                 gateway_parameters.versioned_api.to_string(),
+                gateway_parameters.jwt_secret,
             ))),
             lightning_builder,
             gateway_config: Arc::new(RwLock::new(gateway_config)),
