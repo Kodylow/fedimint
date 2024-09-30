@@ -20,6 +20,7 @@ members = [
     "fedimint-load-test-tool",
     "fedimint-logging",
     "fedimint-metrics",
+    "fedimint-postgres",
     "fedimint-recoverytool",
     "fedimint-rocksdb",
     "fedimint-server",
