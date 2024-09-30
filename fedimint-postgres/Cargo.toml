@@ -1,0 +1,36 @@
+[package]
+name = "fedimint-postgres"
+version = { workspace = true }
+authors = ["The Fedimint Developers"]
+edition = "2021"
+description = "fedimint-postgres provides a postgres-backed database implementation for Fedimint."
+license = "MIT"
+readme = "../README.md"
+repository = "https://github.com/fedimint/fedimint"
+
+[package.metadata.docs.rs]
+rustc-args = ["--cfg", "tokio_unstable"]
+
+[lib]
+name = "fedimint_postgres"
+path = "src/lib.rs"
+
+[dependencies]
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+deadpool-postgres = { version = "0.14.0", features = ["serde"] }
+fedimint-core = { workspace = true }
+futures = { workspace = true }
+tokio-postgres = "0.7.12"
+tracing = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3.12.0"
+
+[target.'cfg(not(target_family="wasm"))'.dependencies]
+tokio = { workspace = true, features = [
+  "rt",
+  "rt-multi-thread",
+  "sync",
+  "time",
+] }
